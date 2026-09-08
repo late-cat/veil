@@ -67,30 +67,18 @@ export default function Home() {
         )}
 
         <div className="soft-panel">
-          {stage === 'IDLE' && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', gap: '1.5rem' }}>
+          {!walletConnected && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', gap: '1.5rem', padding: '2rem 0' }}>
               <div className="icon-circle pulse-animation">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
                   <path d="M3 5v14a2 2 0 0 0 2 2h16v-5H5a2 2 0 0 1 0-4h16v-5" />
                 </svg>
               </div>
-              <h2 className="serif-text" style={{ fontSize: '1.8rem', textAlign: 'center' }}>Connect your wallet</h2>
+              <h2 className="serif-text" style={{ fontSize: '1.8rem', textAlign: 'center' }}>Ready to submit?</h2>
               <p style={{ color: 'var(--text-secondary)', textAlign: 'center', fontSize: '1rem', maxWidth: '300px' }}>
-                VEIL uses your Lace wallet to prove your eligibility without exposing your identity.
+                Please connect your Lace wallet using the button in the top right corner to verify your eligibility securely.
               </p>
-              <button onClick={handleConnect} className="primary-button" style={{ marginTop: '1rem' }}>
-                Connect Lace Wallet
-              </button>
-            </div>
-          )}
-
-          {stage === 'CONNECTING' && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', gap: '1.5rem', padding: '2rem 0' }}>
-              <div className="icon-circle pulse-animation">
-                <div style={{ width: '20px', height: '20px', border: '2px solid var(--text-accent)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-              </div>
-              <p className="serif-text" style={{ fontSize: '1.2rem' }}>Awaiting connection...</p>
             </div>
           )}
 

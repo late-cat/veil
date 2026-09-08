@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { MidnightProvider } from '@/providers/MidnightProvider';
+import { Navbar } from '@/components/Navbar';
 
 export const metadata: Metadata = {
   title: 'VEIL — Private Feedback Protocol',
@@ -19,22 +20,8 @@ export default function RootLayout({
           <div className="ambient-blob blob-1" />
           <div className="ambient-blob blob-2" />
           
-          <nav className="navbar">
-            <div className="nav-brand">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
-                <path d="M3 5v14a2 2 0 0 0 2 2h16v-5H5a2 2 0 0 1 0-4h16v-5" />
-              </svg>
-              VEIL
-            </div>
-            <div className="nav-links">
-              <a href="#" className="nav-link active">Surveys</a>
-              <a href="#" className="nav-link">Verify Proof</a>
-              <a href="#" className="nav-link">For Organizations</a>
-            </div>
-          </nav>
-
           <MidnightProvider>
+            <Navbar />
             {children}
           </MidnightProvider>
 

@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VEIL Frontend 🌑
 
-## Getting Started
+The frontend application for VEIL, built with **Next.js 16.3** (App Router) and **React 19**.
 
-First, run the development server:
+This application provides the sleek, "Million Dollar" SaaS aesthetic interface where participants can securely connect their Lace Wallet and submit Zero-Knowledge feedback to the Midnight network.
+
+## 🚀 Getting Started
+
+First, ensure the Midnight local devnet is running in the `../mn-demo` directory. 
+Then, install the dependencies and start the development server:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📁 Architecture
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `src/app/page.tsx`: The main user interface and state machine (Idle -> Connecting -> Form -> Proving -> Success).
+- `src/app/layout.tsx`: Root layout, injecting global typography and background effects.
+- `src/components/Navbar.tsx`: Global navigation and wallet state UI.
+- `src/providers/MidnightProvider.tsx`: The DApp connector bridge between Next.js and the Lace Chrome extension.
+- `src/app/globals.css`: The "Million Dollar" Vanilla CSS design system (Neumorphism, Glassmorphism, animations).
 
-## Learn More
+## 🔒 Wallet Integration
+VEIL utilizes `@midnight-ntwrk/wallet-sdk` and standard DApp connector hooks to communicate securely with the Lace Extension via `window.midnight.mnLace` (or `window.midnight.lace`). 
 
-To learn more about Next.js, take a look at the following resources:
+*Note: For the best experience, ensure you have the Midnight Testnet version of the Lace Wallet installed.*
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 💎 Design System
+We enforce a strict professional aesthetic:
+- **No Tailwind CSS**: Full custom Vanilla CSS for granular layout control.
+- **Color Palette**: Sober light theme (Oyster White `#F6F4F0`, Forest Green `#558763`, Charcoal `#4A4A4A`).
+- **Typography**: Playfair Display (Serifs) and Inter (Sans-serif) for high contrast readability.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+See the [Root README](../README.md) for full project details and Midnight integration.
