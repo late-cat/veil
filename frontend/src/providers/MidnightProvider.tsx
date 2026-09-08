@@ -85,7 +85,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
               if (obj && typeof obj.connect === 'function') {
                 connector = {
                   ...obj,
-                  enable: () => obj.connect() // Create a wrapper to avoid mutating frozen object
+                  enable: () => obj.connect('devnet') // Pass the required networkId parameter
                 };
                 break;
               }
