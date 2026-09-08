@@ -74,11 +74,19 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
           } else if (window.midnight.lace && typeof window.midnight.lace.enable === 'function') {
             connector = window.midnight.lace;
           } else {
-            // Find any object with an enable method
+            // Find any object with an enable or connect method
             for (const key of Object.keys(window.midnight)) {
               const obj = window.midnight[key];
               if (obj && typeof obj.enable === 'function') {
                 connector = obj;
+                break;
+              }
+              // NEW MIPD Standard uses .connect()
+              if (obj && typeof obj.connect === 'function') {
+                connector = {
+                  ...obj,
+                  enable: () => obj.connect() // Create a wrapper to avoid mutating frozen object
+                };
                 break;
               }
               if (obj && obj.api && typeof obj.api.enable === 'function') {
