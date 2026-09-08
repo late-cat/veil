@@ -2,17 +2,30 @@ pragma language_version >= 0.23;
 
 import CompactStandardLibrary;
 
-export ledger surveyCount: Counter;
-export ledger lastSubmission: Opaque<"string">;
+// The public ledger state for VEIL
+export ledger participationCount: Counter;
+export ledger nullifiers: Set<Bytes<32>>;
 
-// Privacy Model:
-// PUBLIC: The total count of surveys and a generic "last submission" timestamp/hash.
-// PRIVATE: The actual feedback text and user identity.
-// PROVED: A valid submission occurred without exposing the feedback.
+// The private witness represents the user's secret eligibility and feedback.
+// The actual feedback text is completely hidden from the blockchain ledger,
+// and instead will be uploaded to Vercel Postgres once this transaction is proven.
+witness secretEligibilityHash(): Bytes<32>;
 
-export circuit submitFeedback(privateFeedback: Opaque<"string">, publicHash: Opaque<"string">): [] {
-    // We must use disclose() deliberately.
-    // Disclosing the hash/timestamp, but keeping privateFeedback mathematically sealed.
-    lastSubmission = disclose(publicHash);
-    surveyCount.increment(1);
+export circuit submitFeedback(publicNullifier: Bytes<32>): [] {
+    // 1. Verify eligibility (In a real product, we would check a Merkle tree here.
+    // For this MVP, we use the user's generated nullifier to prevent double submission)
+    const secretHash = secretEligibilityHash();
+    
+    // We explicitly disclose the nullifier to the public ledger so that all nodes can verify it
+    const revealedNullifier = disclose(publicNullifier);
+    
+    // 2. Prevent duplicate submissions using the public nullifier
+    // The nullifier must not already exist in the map
+    assert(!nullifiers.member(revealedNullifier), "You have already submitted feedback or this nullifier is invalid.");
+        
+    // 3. Update public state
+    // We strictly ONLY update the participation count and the nullifier map.
+    // The private feedback text is never passed to the ledger state.
+    nullifiers.insert(revealedNullifier);
+    participationCount.increment(1);
 }
