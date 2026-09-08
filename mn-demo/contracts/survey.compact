@@ -2,30 +2,40 @@ pragma language_version >= 0.23;
 
 import CompactStandardLibrary;
 
-// The public ledger state for VEIL
-export ledger participationCount: Counter;
+// The public ledger state for VEIL Platform
+// Maps a Campaign ID (Bytes<32>) to its participation count.
+export ledger campaigns: Map<Bytes<32>, Uint<32>>;
+
+// A set of used nullifiers across the entire platform to prevent double-submission.
+// The nullifier will be derived off-chain as hash(campaignId, secret).
 export ledger nullifiers: Set<Bytes<32>>;
 
-// The private witness represents the user's secret eligibility and feedback.
-// The actual feedback text is completely hidden from the blockchain ledger,
-// and instead will be uploaded to Vercel Postgres once this transaction is proven.
+// The private witness represents the user's secret eligibility string/seed.
 witness secretEligibilityHash(): Bytes<32>;
 
-export circuit submitFeedback(publicNullifier: Bytes<32>): [] {
-    // 1. Verify eligibility (In a real product, we would check a Merkle tree here.
-    // For this MVP, we use the user's generated nullifier to prevent double submission)
+// The circuit now accepts the Campaign ID and the scoped Nullifier
+export circuit submitFeedback(campaignId: Bytes<32>, publicNullifier: Bytes<32>): [] {
+    // 1. Verify eligibility
+    // In a real product, we would verify a Merkle inclusion proof here.
     const secretHash = secretEligibilityHash();
     
-    // We explicitly disclose the nullifier to the public ledger so that all nodes can verify it
+    // We explicitly disclose the campaignId and nullifier to the public ledger
+    const revealedCampaignId = disclose(campaignId);
     const revealedNullifier = disclose(publicNullifier);
     
-    // 2. Prevent duplicate submissions using the public nullifier
-    // The nullifier must not already exist in the map
-    assert(!nullifiers.member(revealedNullifier), "You have already submitted feedback or this nullifier is invalid.");
+    // 2. Prevent duplicate submissions for this specific campaign
+    // The nullifier is scoped to the campaign off-chain, but we verify uniqueness globally.
+    assert(!nullifiers.member(revealedNullifier), "You have already submitted feedback to this campaign or the nullifier is invalid.");
         
     // 3. Update public state
-    // We strictly ONLY update the participation count and the nullifier map.
-    // The private feedback text is never passed to the ledger state.
+    // We update the specific campaign's counter.
     nullifiers.insert(revealedNullifier);
-    participationCount.increment(1);
+    
+    if (campaigns.member(revealedCampaignId)) {
+        const currentCount = campaigns.lookup(revealedCampaignId);
+        campaigns.insert(revealedCampaignId, (currentCount + 1) as Uint<32>);
+    } else {
+        // If it's the first vote, initialize the counter
+        campaigns.insert(revealedCampaignId, 1 as Uint<32>);
+    }
 }
