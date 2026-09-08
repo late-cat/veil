@@ -85,7 +85,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
               if (obj && typeof obj.connect === 'function') {
                 connector = {
                   ...obj,
-                  enable: () => obj.connect('devnet') // Pass the required networkId parameter
+                  enable: () => obj.connect('undeployed') // 'undeployed' is the correct network for local dev
                 };
                 break;
               }
