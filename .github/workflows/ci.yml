@@ -1,0 +1,45 @@
+name: VEIL CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js 22.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: '22.x'
+        
+    - name: Install Midnight Compact Compiler
+      run: |
+        curl -sL https://github.com/midnight-ntwrk/compact/releases/latest/download/compact-linux-amd64 -o compact
+        chmod +x compact
+        sudo mv compact /usr/local/bin/
+
+    - name: Install Midnight Dependencies
+      working-directory: ./mn-demo
+      run: npm ci
+
+    - name: Compile ZK Circuits (Compact)
+      working-directory: ./mn-demo
+      run: npm run compile
+
+    - name: Run Circuit Tests
+      working-directory: ./mn-demo
+      run: npx tsx tests/survey.test.ts
+
+    - name: Install Frontend Dependencies
+      working-directory: ./frontend
+      run: npm ci
+
+    - name: Build Next.js Frontend
+      working-directory: ./frontend
+      run: npm run build
