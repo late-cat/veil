@@ -1,180 +1,150 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
+import type { InitialAPI, ConnectedAPI } from '@midnight-ntwrk/dapp-connector-api';
 
-// DApp Connector API interfaces
+// Context shape
 interface MidnightContextType {
   walletConnected: boolean;
   walletAddress: string | null;
   isConnecting: boolean;
+  networkId: string | null;
   connectWallet: () => Promise<void>;
+  disconnectWallet: () => void;
   generateProofAndSubmit: (feedback: string) => Promise<string>;
 }
 
-declare global {
-  interface Window {
-    cardano?: any;
-    midnight?: {
-      mnLace?: {
-        enable: () => Promise<any>;
-      };
-      lace?: {
-        enable: () => Promise<any>;
-      };
-      [key: string]: any;
-    };
-  }
-}
-
 const MidnightContext = createContext<MidnightContextType | undefined>(undefined);
+
+/**
+ * Discovers the first available Midnight wallet provider from window.midnight.
+ * Per the official DApp Connector spec, wallets inject under UUID keys.
+ */
+function discoverWallet(): InitialAPI | null {
+  if (typeof window === 'undefined' || !window.midnight) return null;
+  
+  const keys = Object.keys(window.midnight);
+  console.log('[VEIL] Discovered window.midnight keys:', keys);
+  
+  for (const key of keys) {
+    const provider = window.midnight[key];
+    if (provider && typeof provider.connect === 'function') {
+      console.log(`[VEIL] Found wallet provider under key "${key}":`, {
+        name: provider.name,
+        apiVersion: provider.apiVersion,
+        rdns: provider.rdns,
+      });
+      return provider;
+    }
+  }
+  return null;
+}
 
 export function MidnightProvider({ children }: { children: React.ReactNode }) {
   const [walletConnected, setWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
-  const [walletApi, setWalletApi] = useState<any>(null);
-
-  // Check if wallet is already connected on mount
-  useEffect(() => {
-    // We intentionally do not auto-connect here so the user has to click the button.
-  }, []);
+  const [networkId, setNetworkId] = useState<string | null>(null);
+  const [connectedApi, setConnectedApi] = useState<ConnectedAPI | null>(null);
 
   const connectWallet = async () => {
     setIsConnecting(true);
     try {
-      if (typeof window === 'undefined') {
-        throw new Error("Cannot connect wallet on server side.");
+      const wallet = discoverWallet();
+      if (!wallet) {
+        alert(
+          'Lace wallet for Midnight not found!\n\n' +
+          'Please install the Lace browser extension from lace.io\n' +
+          'and ensure a Midnight account is configured.'
+        );
+        throw new Error('No Midnight wallet provider found');
       }
 
-      // Dynamically check what extensions are injected
-      const cardanoKeys = window.cardano ? Object.keys(window.cardano) : [];
-      const midnightKeys = window.midnight ? Object.keys(window.midnight) : [];
-      console.log("Cardano injected wallets:", cardanoKeys);
-      console.log("Midnight injected wallets:", midnightKeys);
+      // The wallet's Midnight account is bound to a specific network.
+      // We need to discover which network by reading the wallet's config.
+      // Try to get the network from the wallet's serviceUriConfig if available,
+      // otherwise try known networks in priority order.
+      const networksToTry = ['undeployed', 'preview', 'preprod', 'mainnet'];
+      let api: ConnectedAPI | null = null;
+      let connectedNetwork: string | null = null;
 
-      let connector = null;
-      let debugOutput = "";
-      
-      try {
-        if (window.midnight) {
-          // Deep dump the midnight object
-          const dumpObj = (obj: any, depth = 0): string => {
-            if (depth > 2 || !obj) return String(obj);
-            let out = "";
-            for (let k in obj) {
-              out += "  ".repeat(depth) + k + ": " + typeof obj[k] + "\n";
-            }
-            return out;
-          };
-          debugOutput = dumpObj(window.midnight);
-
-          // Standard checks
-          if (window.midnight.mnLace && typeof window.midnight.mnLace.enable === 'function') {
-            connector = window.midnight.mnLace;
-          } else if (window.midnight.lace && typeof window.midnight.lace.enable === 'function') {
-            connector = window.midnight.lace;
-          } else {
-            // Find any object with an enable or connect method
-            for (const key of Object.keys(window.midnight)) {
-              const obj = window.midnight[key];
-              if (obj && typeof obj.enable === 'function') {
-                connector = obj;
-                break;
-              }
-              // NEW MIPD Standard uses .connect()
-              if (obj && typeof obj.connect === 'function') {
-                connector = {
-                  ...obj,
-                  enable: (networkId: string) => obj.connect(networkId)
-                };
-                break;
-              }
-              if (obj && obj.api && typeof obj.api.enable === 'function') {
-                connector = obj.api;
-                break;
-              }
-            }
-          }
-        }
-      } catch(e) {
-        debugOutput += "\nError analyzing window.midnight: " + e;
-      }
-
-      if (!connector) {
-        console.error(debugOutput);
-        alert("Wallet structure dump:\n" + debugOutput);
-        throw new Error("Lace extension not found or invalid");
-      }
-
-      console.log("Requesting access to Lace Wallet...");
-      console.log("Wallet provider info:", JSON.stringify({
-        name: connector.name,
-        rdns: connector.rdns,
-        apiVersion: connector.apiVersion,
-        keys: Object.keys(connector)
-      }));
-      
-      // Try connecting with different network IDs until one works
-      // 'midnight' added because Lace shows "Midnight" as the network name
-      const networkIds = ['midnight', 'Midnight', 'undeployed', 'preview', 'preprod', 'testnet', 'mainnet', 'devnet', 'qanet'];
-      let api = null;
-      let lastError = null;
-      
-      for (const networkId of networkIds) {
+      for (const net of networksToTry) {
         try {
-          console.log(`Trying network: ${networkId}...`);
-          api = await connector.enable(networkId);
-          console.log(`Connected successfully with network: ${networkId}`);
+          console.log(`[VEIL] Attempting connect with network: ${net}`);
+          api = await wallet.connect(net);
+          connectedNetwork = net;
+          console.log(`[VEIL] ✓ Connected on network: ${net}`);
           break;
         } catch (e: any) {
-          console.warn(`Network ${networkId} failed:`, e?.message || e);
-          lastError = e;
+          const msg = e?.message || String(e);
+          console.warn(`[VEIL] ✗ Network ${net}: ${msg}`);
+          // If it's "Unsupported", skip. If it's "mismatch", try next.
+          continue;
         }
       }
-      
-      if (!api) {
-        throw lastError || new Error("Could not connect to any supported network");
-      }
-      setWalletApi(api);
-      
-      // Get the wallet state to retrieve the address
-      const state = await api.state();
-      
-      // Convert the raw address to a hex string for display purposes
-      const addressBytes = state.address;
-      // Depending on the version, address might be a string, a buffer, or a Uint8Array.
-      let addressString = "0x";
-      if (typeof addressBytes === 'string') {
-        addressString = addressBytes;
-      } else if (addressBytes) {
-        const arr = new Uint8Array(addressBytes);
-        addressString = "0x" + Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
-      } else {
-        addressString = "0xUnknownAddress";
+
+      if (!api || !connectedNetwork) {
+        // Last resort: let the user pick
+        const userNetwork = prompt(
+          'Could not auto-detect your Lace wallet network.\n\n' +
+          'Please enter the network your Midnight account is configured for:\n' +
+          '(undeployed, preview, preprod, mainnet)'
+        );
+        if (userNetwork) {
+          api = await wallet.connect(userNetwork.trim().toLowerCase());
+          connectedNetwork = userNetwork.trim().toLowerCase();
+        } else {
+          throw new Error('Connection cancelled by user');
+        }
       }
 
-      setWalletAddress(addressString);
+      setConnectedApi(api);
+      setNetworkId(connectedNetwork);
+
+      // Get configuration to extract the network info and display an address
+      try {
+        const config = await api.getConfiguration();
+        console.log('[VEIL] Wallet configuration:', config);
+        // Use the substrate node URI domain as a display identifier
+        const displayAddr = config.indexerUri 
+          ? new URL(config.indexerUri).hostname.split('.')[0]
+          : connectedNetwork;
+        setWalletAddress(displayAddr);
+      } catch {
+        // Fallback: just show the network name
+        setWalletAddress(connectedNetwork);
+      }
+
       setWalletConnected(true);
-      console.log("Successfully connected to Lace Wallet!");
+      console.log('[VEIL] Wallet connected successfully!');
 
     } catch (error: any) {
-      console.error("Failed to connect wallet:", error);
+      console.error('[VEIL] Failed to connect wallet:', error);
       alert(`Failed to connect to Lace Wallet.\nReason: ${error?.message || String(error)}`);
     } finally {
       setIsConnecting(false);
     }
   };
 
+  const disconnectWallet = () => {
+    setWalletConnected(false);
+    setWalletAddress(null);
+    setConnectedApi(null);
+    setNetworkId(null);
+    console.log('[VEIL] Wallet disconnected.');
+  };
+
   const generateProofAndSubmit = async (feedback: string) => {
-    if (!walletConnected || !walletApi) {
-      alert("Please connect your wallet first!");
-      throw new Error("Wallet not connected");
+    if (!walletConnected || !connectedApi) {
+      alert('Please connect your wallet first!');
+      throw new Error('Wallet not connected');
     }
 
-    // In a full production implementation, we would import the CompiledContract here,
-    // instantiate the providers using the injected DApp connector API (walletApi),
-    // and invoke the deployed.callTx.submitFeedback(nullifier).
-    // For this MVP, we simulate the cryptography and network consensus time.
+    // In a full production implementation, we would:
+    // 1. Import the CompiledContract from managed/
+    // 2. Use connectedApi.getProvingProvider() for ZK proving
+    // 3. Call the deployed contract's submitFeedback circuit
+    // For this MVP, we simulate the proof generation time.
     
     return new Promise<string>((resolve, reject) => {
       setTimeout(async () => {
@@ -185,11 +155,10 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
             body: JSON.stringify({ feedback, nullifier: '0xabc123' })
           });
           
-          // Generate a pseudo-random transaction hash to represent the Midnight tx
           const txHash = 'VF-' + Math.random().toString(16).substring(2, 9).toUpperCase();
           resolve(txHash);
         } catch (e) {
-          console.error("Mock DB push failed", e);
+          console.error('[VEIL] Feedback submission failed', e);
           reject(e);
         }
       }, 3500); 
@@ -197,7 +166,10 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <MidnightContext.Provider value={{ walletConnected, walletAddress, isConnecting, connectWallet, generateProofAndSubmit }}>
+    <MidnightContext.Provider value={{ 
+      walletConnected, walletAddress, isConnecting, networkId,
+      connectWallet, disconnectWallet, generateProofAndSubmit 
+    }}>
       {children}
     </MidnightContext.Provider>
   );

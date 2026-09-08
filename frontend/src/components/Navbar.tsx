@@ -4,7 +4,7 @@ import React from 'react';
 import { useMidnight } from '@/providers/MidnightProvider';
 
 export function Navbar() {
-  const { walletConnected, walletAddress, isConnecting, connectWallet } = useMidnight();
+  const { walletConnected, walletAddress, isConnecting, connectWallet, disconnectWallet } = useMidnight();
 
   const formatAddress = (addr: string | null) => {
     if (!addr) return '';
