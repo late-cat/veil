@@ -101,18 +101,20 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
       setConnectedApi(api);
       setNetworkId(connectedNetwork);
 
-      // Get configuration to extract the network info and display an address
+      // Get actual wallet address using the official API
       try {
-        const config = await api.getConfiguration();
-        console.log('[VEIL] Wallet configuration:', config);
-        // Use the substrate node URI domain as a display identifier
-        const displayAddr = config.indexerUri 
-          ? new URL(config.indexerUri).hostname.split('.')[0]
-          : connectedNetwork;
-        setWalletAddress(displayAddr);
-      } catch {
-        // Fallback: just show the network name
-        setWalletAddress(connectedNetwork);
+        const addrInfo = await api.getUnshieldedAddress();
+        console.log('[VEIL] Wallet address info:', addrInfo);
+        setWalletAddress(addrInfo.unshieldedAddress);
+      } catch (addrErr) {
+        console.warn('[VEIL] Could not get unshielded address, trying shielded:', addrErr);
+        try {
+          const shielded = await api.getShieldedAddresses();
+          console.log('[VEIL] Shielded addresses:', shielded);
+          setWalletAddress(shielded.shieldedAddress || connectedNetwork);
+        } catch {
+          setWalletAddress(`${connectedNetwork}-connected`);
+        }
       }
 
       setWalletConnected(true);
