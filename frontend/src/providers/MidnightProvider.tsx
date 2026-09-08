@@ -11,7 +11,7 @@ interface MidnightContextType {
   networkId: string | null;
   connectWallet: () => Promise<void>;
   disconnectWallet: () => void;
-  generateProofAndSubmit: (feedback: string) => Promise<string>;
+  generateProofAndSubmit: (feedback: string, campaignId: string) => Promise<string>;
 }
 
 const MidnightContext = createContext<MidnightContextType | undefined>(undefined);
@@ -136,29 +136,32 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
     console.log('[VEIL] Wallet disconnected.');
   };
 
-  const generateProofAndSubmit = async (feedback: string) => {
+  const generateProofAndSubmit = async (feedback: string, campaignId: string) => {
     if (!walletConnected || !connectedApi) {
       alert('Please connect your wallet first!');
       throw new Error('Wallet not connected');
     }
 
-    // In a full production implementation, we would:
+    // In a full production implementation (Level 4+), we would:
     // 1. Import the CompiledContract from managed/
     // 2. Use connectedApi.getProvingProvider() for ZK proving
-    // 3. Call the deployed contract's submitFeedback circuit
-    // For this MVP, we simulate the proof generation time.
+    // 3. Call the deployed contract's submitFeedback circuit with the campaignId
+    // 4. Submit the transaction to the network
     
     return new Promise<string>((resolve, reject) => {
       setTimeout(async () => {
         try {
-          await fetch('/api/feedback', {
+          // Off-chain API call to store the encrypted feedback mapped to the campaign
+          const res = await fetch('/api/feedback', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ feedback, nullifier: '0xabc123' })
+            body: JSON.stringify({ feedback, nullifier: '0xabc123', campaignId })
           });
+          const data = await res.json();
           
-          const txHash = 'VF-' + Math.random().toString(16).substring(2, 9).toUpperCase();
-          resolve(txHash);
+          if (!data.success) throw new Error(data.error);
+          
+          resolve(data.proofId);
         } catch (e) {
           console.error('[VEIL] Feedback submission failed', e);
           reject(e);
