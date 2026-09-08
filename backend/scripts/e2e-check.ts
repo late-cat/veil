@@ -61,7 +61,9 @@ async function main() {
   if (!fs.existsSync(contractPath)) fail('Compiled contract missing — run `npm run compile`.');
   const Survey = await import(pathToFileURL(contractPath).href);
   const compiledContract = CompiledContract.make('survey', Survey.Contract).pipe(
-    CompiledContract.withVacantWitnesses,
+    CompiledContract.withWitnesses({
+      secretEligibilityHash: () => new Uint8Array(32),
+    }),
     CompiledContract.withCompiledFileAssets(zkConfigPath),
   );
 

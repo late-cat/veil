@@ -47,6 +47,11 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
   const [networkId, setNetworkId] = useState<string | null>(null);
   const [connectedApi, setConnectedApi] = useState<ConnectedAPI | null>(null);
 
+  // Contract specific state
+  const [midnightProviders, setMidnightProviders] = useState<any>(null);
+  const [compiledContract, setCompiledContract] = useState<any>(null);
+  const [contractAddress, setContractAddress] = useState<string>('');
+
   const [showModal, setShowModal] = useState(false);
 
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'connecting' | 'success'>('idle');
@@ -108,6 +113,65 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
       setConnectedApi(api);
       setNetworkId(connectedNetwork);
 
+      // Initialize Midnight JS Providers
+      let contractAddress = '';
+      try {
+        const stateFile = await fetch('/survey-contract/.midnight-state.json').then(r => r.json());
+        contractAddress = stateFile.address;
+      } catch {
+        console.warn('Could not fetch local deployment address, falling back to dummy');
+      }
+
+      if (contractAddress) {
+        try {
+          const { findDeployedContract } = await import('@midnight-ntwrk/midnight-js-contracts');
+          const { levelPrivateStateProvider } = await import('@midnight-ntwrk/midnight-js-level-private-state-provider');
+          const { indexerPublicDataProvider } = await import('@midnight-ntwrk/midnight-js-indexer-public-data-provider');
+          const { fetchZkConfigProvider } = await import('@midnight-ntwrk/midnight-js-fetch-zk-config-provider');
+          const { httpClientProofProvider } = await import('@midnight-ntwrk/midnight-js-http-client-proof-provider');
+          const { Contract } = await import('@/contracts/survey/index.js');
+          const { CompiledContract } = await import('@midnight-ntwrk/midnight-js-protocol/compact-js');
+          
+          const config = await api.getConfiguration();
+          const zkConfig = new fetchZkConfigProvider(window.location.origin, '/survey-contract/');
+          
+          const walletProvider = {
+            getCoinPublicKey: async () => (await api!.getShieldedAddresses()).shieldedCoinPublicKey,
+            getEncryptionPublicKey: async () => (await api!.getShieldedAddresses()).shieldedEncryptionPublicKey,
+            balanceTx: async (tx: any, ttl?: Date) => (await api!.balanceUnsealedTransaction(tx, { payFees: true })).tx,
+            submitTx: async (tx: any) => await api!.submitTransaction(tx)
+          } as any;
+
+          const providers = {
+            privateStateProvider: levelPrivateStateProvider({
+              privateStateStoreName: 'survey-state',
+              accountId: (await api.getUnshieldedAddress()).unshieldedAddress,
+              privateStoragePasswordProvider: () => 'Local-Devnet-Development-Placeholder-1'
+            }),
+            publicDataProvider: indexerPublicDataProvider(config.indexerUri, config.indexerWsUri),
+            zkConfigProvider: zkConfig,
+            proofProvider: httpClientProofProvider('http://127.0.0.1:6300', zkConfig),
+            walletProvider,
+            midnightProvider: walletProvider
+          };
+
+          const compiled = CompiledContract.make('survey', Contract).pipe(
+            CompiledContract.withWitnesses({ secretEligibilityHash: () => new Uint8Array(32) }),
+            CompiledContract.withCompiledFileAssets('/survey-contract/')
+          );
+          
+          setMidnightProviders(providers);
+          setCompiledContract(compiled);
+          setContractAddress(contractAddress);
+
+          // We don't save the contract to context immediately because it's stateless, 
+          // but we can initialize the logic here to ensure it works
+          console.log('[VEIL] Contract Providers configured successfully!');
+        } catch (initErr) {
+          console.error('[VEIL] Provider initialization failed:', initErr);
+        }
+      }
+
       // Get actual wallet address using the official API
       try {
         const addrInfo = await api.getUnshieldedAddress();
@@ -159,31 +223,56 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
       throw new Error('Wallet not connected');
     }
     
-    return new Promise<string>((resolve, reject) => {
-      setTimeout(async () => {
-        try {
-          // Generate a pseudo-nullifier based on wallet + campaign for ZK double-vote prevention
-          const nullifierRaw = `${walletAddress}-${campaignId}`;
-          const encoder = new TextEncoder();
-          const data = encoder.encode(nullifierRaw);
-          const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-          const hashArray = Array.from(new Uint8Array(hashBuffer));
-          const nullifier = '0x' + hashArray.map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 16);
+    if (!midnightProviders || !compiledContract || !contractAddress) {
+      alert('Midnight Smart Contract providers are not initialized!');
+      throw new Error('Providers not initialized');
+    }
+    
+    return new Promise<string>(async (resolve, reject) => {
+      try {
+        // Generate a pseudo-nullifier based on wallet + campaign for ZK double-vote prevention
+        const nullifierRaw = `${walletAddress}-${campaignId}`;
+        const encoder = new TextEncoder();
+        const data = encoder.encode(nullifierRaw);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const nullifier = '0x' + hashArray.map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 16);
 
-          const res = await fetch('/api/feedback', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ answers, nullifier, campaignId })
-          });
-          const resData = await res.json();
-          
-          if (!resData.success) throw new Error(resData.error);
-          resolve(resData.proofId);
-        } catch (e) {
-          console.error('[VEIL] Feedback submission failed', e);
-          reject(e);
+        // 1. Submit ZK Proof to Midnight Network Smart Contract
+        console.log('[VEIL] Constructing Smart Contract Transaction...');
+        const { findDeployedContract } = await import('@midnight-ntwrk/midnight-js-contracts');
+        
+        const contract = await findDeployedContract(midnightProviders, {
+          contractAddress,
+          compiledContract,
+          privateStateId: 'survey-state',
+          initialPrivateState: {},
+        });
+
+        console.log('[VEIL] Prompting wallet to sign and submit Zero-Knowledge Proof...');
+        const tx = await contract.callTx.submitFeedback(BigInt(campaignId), new Uint8Array(hashBuffer));
+        console.log('[VEIL] Transaction Successful! TxHash:', tx.txHash);
+
+        // 2. Save the answers and transaction hash to our traditional backend database
+        const res = await fetch('/api/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ answers, nullifier, campaignId, txHash: tx.txHash })
+        });
+        const resData = await res.json();
+        
+        if (!resData.success) throw new Error(resData.error);
+        resolve(resData.proofId);
+      } catch (e: any) {
+        console.error('[VEIL] Feedback submission failed', e);
+        // Alert the user if the contract rejects the transaction (e.g. double voting)
+        if (e.message && e.message.includes('Custom error')) {
+           alert('Midnight Network: You have already submitted feedback for this campaign (or contract error).');
+        } else {
+           alert('Failed to submit ZK proof: ' + e.message);
         }
-      }, 3500); 
+        reject(e);
+      }
     });
   };
 

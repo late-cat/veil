@@ -82,7 +82,9 @@ if (!fs.existsSync(contractPath)) {
 const Survey = await import(pathToFileURL(contractPath).href);
 
 const compiledContract = CompiledContract.make('survey', Survey.Contract).pipe(
-  CompiledContract.withVacantWitnesses,
+  CompiledContract.withWitnesses({
+    secretEligibilityHash: () => new Uint8Array(32),
+  }),
   CompiledContract.withCompiledFileAssets(zkConfigPath),
 );
 
