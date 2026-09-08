@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { MidnightProvider } from '@/providers/MidnightProvider';
-import { Navbar } from '@/components/Navbar';
+import { Outfit } from 'next/font/google';
+
+const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' });
 
 export const metadata: Metadata = {
   title: 'VEIL — Private Feedback Protocol',
@@ -14,32 +16,32 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
-        <div className="app-container">
-          <div className="ambient-blob blob-1" />
-          <div className="ambient-blob blob-2" />
-          
-          <MidnightProvider>
-            <Navbar />
+    <html lang="en" className={`${outfit.variable}`}>
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+      </head>
+      <body className="antialiased overflow-x-hidden grain-texture min-h-screen flex flex-col">
+        <MidnightProvider>
+          <div className="flex-1 flex flex-col relative z-10">
             {children}
-          </MidnightProvider>
-
-          <footer className="footer">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-              </svg>
-              <span>Built on Midnight Network</span>
-            </div>
-            <div className="footer-links">
-              <a href="#">Privacy Protocol</a>
-              <a href="#">Documentation</a>
-              <a href="#">Terms</a>
+          </div>
+          
+          <footer className="shrink-0 z-50 bg-[var(--color-cotton-bg)]/80 backdrop-blur-md border-t border-slate-300 shadow-inner felt-texture mt-auto">
+            <div className="w-full px-[var(--spacing-container-padding)] py-8 max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-slate-800 text-2xl drop-shadow-sm">lock</span>
+                <span className="font-headline-md font-bold text-slate-900 drop-shadow-sm">VEIL Protocol</span>
+              </div>
+              <div className="font-body-md text-slate-700 flex items-center gap-4">
+                <span className="flex items-center gap-1.5 bg-white/50 px-3 py-1 rounded-full inset-puffy">
+                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                  Midnight Testnet Active
+                </span>
+                <span>© 2026 VEIL</span>
+              </div>
             </div>
           </footer>
-        </div>
+        </MidnightProvider>
       </body>
     </html>
   );

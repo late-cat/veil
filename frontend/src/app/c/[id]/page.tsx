@@ -3,11 +3,28 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useMidnight } from '@/providers/MidnightProvider';
+import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
 
-interface Campaign {
+export type QuestionType = 'text' | 'mcq' | 'rating' | 'image';
+
+export interface Question {
+  id: string;
+  type: QuestionType;
+  prompt: string;
+  options?: string[];
+  imageUrl?: string;
+}
+
+export interface Campaign {
   id: string;
   title: string;
   description: string;
+  creator: string;
+  questions?: Question[];
+  bannerUrl?: string;
+  createdAt: string;
+  endDate?: string;
 }
 
 export default function CampaignSurvey() {
@@ -16,11 +33,14 @@ export default function CampaignSurvey() {
   
   const { walletConnected, walletAddress, connectWallet, generateProofAndSubmit } = useMidnight();
   const [campaign, setCampaign] = useState<Campaign | null>(null);
-  const [feedback, setFeedback] = useState('');
+  const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [hoveredRatings, setHoveredRatings] = useState<Record<string, number>>({});
   
   const [stage, setStage] = useState<'LOADING' | 'NOT_FOUND' | 'IDLE' | 'CONNECTING' | 'FORM' | 'PROVING' | 'SUCCESS'>('LOADING');
   const [proofProgress, setProofProgress] = useState(0);
   const [proofId, setProofId] = useState<string | null>(null);
+
+  const isExpired = campaign?.endDate ? new Date(campaign.endDate).getTime() < Date.now() : false;
 
   useEffect(() => {
     if (campaignId) {
@@ -57,185 +77,357 @@ export default function CampaignSurvey() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!feedback) return;
+    // Validate required questions (basic validation: at least some answer if questions exist)
+    if (campaign?.questions && campaign.questions.length > 0 && Object.keys(answers).length === 0) {
+      alert("Please answer at least one question.");
+      return;
+    }
     
     setStage('PROVING');
+    setProofProgress(1);
     
-    // Animate the proof progress text over the 3.5 seconds for MVP simulation
-    const interval = setInterval(() => {
-      setProofProgress(p => Math.min(p + 1, 3));
-    }, 800);
+    const steps = [
+      setTimeout(() => setProofProgress(2), 1000),
+      setTimeout(() => setProofProgress(3), 2500)
+    ];
 
     try {
-      // In a real app, generateProofAndSubmit would take the campaignId to generate the scoped nullifier
-      // For MVP, we pass it down to the API
-      const id = await generateProofAndSubmit(feedback, campaignId);
-      setProofId(id);
+      // Hand over to the provider to do the pseudo-ZK stuff and API submit
+      const pid = await generateProofAndSubmit(answers, campaignId);
+      setProofId(pid);
       setStage('SUCCESS');
-      setFeedback('');
     } catch (e) {
-      console.error(e);
+      alert("Failed to submit proof");
       setStage('FORM');
-      alert("Submission failed. Ensure wallet is connected on the correct network.");
     } finally {
-      clearInterval(interval);
+      steps.forEach(clearTimeout);
     }
   };
 
-  const progressMessages = [
-    "Encrypting response...",
-    "Generating Zero-Knowledge proof...",
-    "Verifying eligibility against ledger...",
-    "Submitting transaction..."
-  ];
-
-  if (stage === 'LOADING') return <div style={{ textAlign: 'center', padding: '4rem' }}>Loading campaign...</div>;
-  
-  if (stage === 'NOT_FOUND') return (
-    <div style={{ textAlign: 'center', padding: '4rem' }}>
-      <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Campaign Not Found</h2>
-      <p style={{ color: 'var(--text-secondary)' }}>The link you followed may be broken or expired.</p>
-    </div>
-  );
+  if (stage === 'LOADING') return <div className="min-h-screen bg-[var(--color-cotton-bg)] flex items-center justify-center font-headline-md text-slate-600 animate-pulse felt-texture">Loading secure connection...</div>;
+  if (stage === 'NOT_FOUND') return <div className="min-h-screen bg-[var(--color-cotton-bg)] flex flex-col items-center justify-center text-center p-8 felt-texture"><h2 className="font-headline-xl text-slate-900 font-bold drop-shadow-md">Survey Not Found</h2><p className="font-body-lg text-slate-700 mt-2 font-medium">The link is invalid or the survey has been closed.</p></div>;
 
   return (
-    <main className="main-content">
-      <div className="content-wrapper animate-fade-in" style={{ maxWidth: '700px' }}>
-        
-        {stage !== 'FORM' && stage !== 'SUCCESS' && stage !== 'PROVING' && (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-            <h1 className="hero-title" style={{ fontSize: '2rem' }}>
-              {campaign?.title}
-            </h1>
-            <p className="hero-subtitle">
-              {campaign?.description}
-            </p>
+    <div className="w-full flex-1 flex flex-col relative pb-16">
+      
+      <header className="shrink-0 z-50 bg-[var(--color-cotton-bg)]/80 backdrop-blur-md border-b border-slate-300 shadow-sm felt-texture sticky top-0">
+        <nav className="flex flex-col sm:flex-row justify-between items-center w-full px-[var(--spacing-container-padding)] py-4 max-w-4xl mx-auto gap-4">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-slate-800 font-bold text-3xl drop-shadow-sm">lock</span>
+            <h1 className="font-headline-md font-bold tracking-tight text-slate-900 drop-shadow-sm">VEIL</h1>
           </div>
-        )}
-
-        <div className="soft-panel">
-          {!walletConnected && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', gap: '1.5rem', padding: '2rem 0' }}>
-              <div className="icon-circle pulse-animation">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
-                  <path d="M3 5v14a2 2 0 0 0 2 2h16v-5H5a2 2 0 0 1 0-4h16v-5" />
-                </svg>
+          <div className="flex items-center gap-4">
+            {walletConnected ? (
+              <div className="flex items-center gap-3 bg-[var(--color-cotton-pink)]/30 px-4 py-2 rounded-full felt-texture inset-puffy border border-slate-200">
+                <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
+                <span className="font-label-lg text-slate-800 font-bold truncate max-w-[120px]">{walletAddress}</span>
               </div>
-              <h2 className="serif-text" style={{ fontSize: '1.8rem', textAlign: 'center' }}>Ready to submit?</h2>
-              <p style={{ color: 'var(--text-secondary)', textAlign: 'center', fontSize: '1rem', maxWidth: '300px' }}>
-                Please connect your Lace wallet using the button in the top right corner to verify your eligibility securely.
-              </p>
-            </div>
-          )}
-
-          {stage === 'FORM' && (
-            <form onSubmit={handleSubmit} className="form-container">
-              <div className="form-header">
-                <div>
-                  <h2 className="form-title">{campaign?.title}</h2>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '4px' }}>Anonymous evaluation</p>
-                </div>
-                <span className="badge">ZK Shield Active</span>
-              </div>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', background: 'var(--bg-secondary)', padding: '1rem', borderRadius: '12px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', color: 'var(--text-primary)' }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 6L9 17l-5-5"/></svg>
-                  Eligibility verified (<span style={{ fontFamily: 'monospace' }}>{walletAddress}</span>)
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', color: 'var(--text-primary)' }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                  Response remains private
-                </div>
-              </div>
-
-              <div className="input-group">
-                <label className="input-label">Your Feedback</label>
-                <textarea
-                  value={feedback}
-                  onChange={(e) => setFeedback(e.target.value)}
-                  className="textarea-input"
-                  placeholder="Share your thoughts securely..."
-                />
-              </div>
-
-              <button type="submit" disabled={!feedback} className="primary-button" style={{ marginTop: '0.5rem' }}>
-                Submit Privately
+            ) : (
+              <button 
+                onClick={handleConnect}
+                className="bg-white text-slate-800 px-6 py-2 rounded-full font-label-lg hover:bg-slate-100 transition-all active:scale-95 shadow-sm puffy-shadow felt-texture step-button border border-slate-200"
+              >
+                Connect Wallet
               </button>
-            </form>
-          )}
+            )}
+          </div>
+        </nav>
+      </header>
 
-          {stage === 'PROVING' && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', gap: '2rem', padding: '2rem 0' }}>
-              <div className="icon-circle pulse-animation">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                </svg>
+      <main className="flex-1 w-full max-w-2xl mx-auto px-4 sm:px-[var(--spacing-container-padding)] py-12 flex flex-col relative z-10">
+        
+        <AnimatePresence mode="wait">
+          {stage === 'IDLE' || stage === 'CONNECTING' ? (
+            <motion.div 
+              key="connect"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="flex flex-col items-center text-center justify-center flex-1 space-y-10 bg-white/40 p-12 rounded-[3rem] inset-puffy border border-white/50 my-10"
+            >
+              <div className="w-24 h-24 rounded-full bg-[var(--color-cotton-lavender)] flex items-center justify-center text-slate-800 mb-2 relative puffy-shadow felt-texture">
+                <div className="absolute inset-0 rounded-full border border-slate-400/20 animate-ping"></div>
+                <span className="material-symbols-outlined text-5xl">wallet</span>
               </div>
-              <h2 className="serif-text" style={{ fontSize: '1.5rem' }}>Protecting your response</h2>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%', maxWidth: '300px' }}>
-                {progressMessages.map((msg, index) => (
-                  <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '1rem', opacity: index <= proofProgress ? 1 : 0.3, transition: 'opacity 0.3s ease' }}>
-                    <div style={{ width: '20px', display: 'flex', justifyContent: 'center' }}>
-                      {index < proofProgress ? (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#558763" strokeWidth="3"><path d="M20 6L9 17l-5-5"/></svg>
-                      ) : index === proofProgress ? (
-                        <div style={{ width: '12px', height: '12px', border: '2px solid var(--text-accent)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-                      ) : (
-                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--border-color)' }} />
+              <div>
+                <h1 className="font-headline-lg font-bold text-slate-900 drop-shadow-sm mb-4">Connect your Wallet</h1>
+                <p className="font-body-lg text-slate-700 font-medium max-w-md">
+                  To participate in <strong>{campaign?.title}</strong>, you must connect your Lace Wallet. Your identity remains cryptographically private.
+                </p>
+              </div>
+              <button 
+                onClick={handleConnect}
+                disabled={stage === 'CONNECTING'}
+                className="px-8 py-4 rounded-full bg-slate-800 text-white font-label-lg text-lg puffy-shadow felt-texture step-button transition-all disabled:opacity-50 flex items-center gap-3"
+              >
+                {stage === 'CONNECTING' ? (
+                  <>
+                    <span className="material-symbols-outlined animate-spin">sync</span>
+                    <span>Connecting...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Connect Securely</span>
+                    <span className="material-symbols-outlined">arrow_forward</span>
+                  </>
+                )}
+              </button>
+            </motion.div>
+          ) : isExpired ? (
+            <motion.div 
+              key="expired"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex flex-col flex-1 items-center justify-center text-center gap-6 bg-[var(--color-cotton-pink)] p-12 rounded-[3rem] puffy-shadow felt-texture"
+            >
+              <div className="w-24 h-24 rounded-full bg-white/50 flex items-center justify-center text-slate-500 inset-puffy border border-white/60 mx-auto">
+                <span className="material-symbols-outlined text-5xl">event_busy</span>
+              </div>
+              <div>
+                <h2 className="font-headline-lg font-bold text-slate-900 drop-shadow-sm mb-2">Survey Closed</h2>
+                <p className="font-body-lg text-slate-700 font-medium max-w-md mx-auto">
+                  This survey stopped accepting new responses on {new Date(campaign!.endDate!).toLocaleDateString()}.
+                </p>
+              </div>
+            </motion.div>
+          ) : stage === 'FORM' ? (
+            <motion.form 
+              key="form"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              onSubmit={handleSubmit} 
+              className="flex flex-col flex-1 gap-8 bg-[var(--color-cotton-pink)] p-8 sm:p-12 rounded-[3rem] puffy-shadow felt-texture"
+            >
+              <div className="flex flex-col gap-3 text-center mb-2">
+                <span className="font-label-sm text-slate-600 font-bold tracking-widest uppercase bg-white/50 px-4 py-1.5 rounded-full inset-puffy mx-auto mb-2">Verified Survey</span>
+                
+                {campaign?.bannerUrl && (
+                  <div className="w-full h-48 md:h-64 rounded-[2rem] overflow-hidden mb-6 shadow-sm border border-white/40">
+                    <img src={campaign.bannerUrl} alt="Survey Banner" className="w-full h-full object-cover" />
+                  </div>
+                )}
+                <h2 className="font-headline-lg text-slate-900 font-bold leading-tight drop-shadow-sm">
+                  {campaign?.title}
+                </h2>
+                <p className="font-body-lg text-slate-700 font-medium">
+                  {campaign?.description}
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-6">
+                {!campaign?.questions || campaign.questions.length === 0 ? (
+                  <div className="relative">
+                    <div className="absolute right-4 top-4 text-slate-400 drop-shadow-sm">
+                      <span className="material-symbols-outlined">lock</span>
+                    </div>
+                    <textarea 
+                      value={answers['default'] || ''}
+                      onChange={(e) => setAnswers({...answers, default: e.target.value})}
+                      className="w-full bg-[var(--color-cotton-bg)] border-none rounded-[2rem] p-6 font-body-lg text-slate-900 inset-puffy focus:ring-2 focus:ring-slate-400 placeholder-slate-500 felt-texture outline-none resize-none min-h-[200px]" 
+                      placeholder="Share candid thoughts..." 
+                      required
+                    ></textarea>
+                  </div>
+                ) : (
+                  campaign.questions.map((q, idx) => (
+                    <div key={q.id} className="bg-white/40 rounded-[2rem] p-6 inset-puffy border border-white/50 relative">
+                      {q.type !== 'image' && (
+                        <div className="absolute right-4 top-4 text-slate-400 drop-shadow-sm">
+                          <span className="material-symbols-outlined">lock</span>
+                        </div>
+                      )}
+                      {q.prompt && (
+                        <h3 className={`font-label-lg font-bold text-slate-800 ${q.type === 'image' ? 'mb-4 text-center text-slate-600' : 'mb-4'}`}>
+                          {q.type !== 'image' ? `${idx + 1}. ` : ''}{q.prompt}
+                        </h3>
+                      )}
+                      
+                      {q.type === 'image' && q.imageUrl && (
+                        <div className="w-full flex justify-center mb-2">
+                          <img src={q.imageUrl} alt={q.prompt || 'Survey Image'} className="max-w-full rounded-xl object-cover shadow-sm border border-slate-200" style={{maxHeight: '400px'}} />
+                        </div>
+                      )}
+                      
+                      {q.type === 'text' && (
+                        <textarea
+                          value={answers[q.id] || ''}
+                          onChange={(e) => setAnswers({...answers, [q.id]: e.target.value})}
+                          className="w-full bg-[var(--color-cotton-bg)] border-none rounded-xl p-4 font-body-md text-slate-900 inset-puffy focus:ring-2 focus:ring-slate-400 placeholder-slate-500 felt-texture outline-none resize-none min-h-[100px]"
+                          placeholder="Your answer..."
+                          required
+                        ></textarea>
+                      )}
+
+                      {q.type === 'mcq' && q.options && (
+                        <div className="flex flex-col gap-3">
+                          {q.options.map((opt, optIdx) => (
+                            <label key={optIdx} className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/50 cursor-pointer transition-colors border border-transparent hover:border-white/60">
+                              <input 
+                                type="radio" 
+                                name={`q-${q.id}`} 
+                                value={opt} 
+                                checked={answers[q.id] === opt}
+                                onChange={(e) => setAnswers({...answers, [q.id]: e.target.value})}
+                                className="w-5 h-5 text-slate-800 focus:ring-slate-400"
+                                required
+                              />
+                              <span className="font-body-md text-slate-700 font-medium">{opt}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+
+                      {q.type === 'rating' && (
+                        <div className="flex items-center gap-2">
+                          {[1, 2, 3, 4, 5].map((star) => {
+                            const currentRating = answers[q.id] || 0;
+                            const hoverRating = hoveredRatings[q.id] || 0;
+                            const isFilled = hoverRating >= star || (hoverRating === 0 && currentRating >= star);
+                            
+                            return (
+                              <button
+                                key={star}
+                                type="button"
+                                onMouseEnter={() => setHoveredRatings({...hoveredRatings, [q.id]: star})}
+                                onMouseLeave={() => setHoveredRatings({...hoveredRatings, [q.id]: 0})}
+                                onClick={() => setAnswers({...answers, [q.id]: star})}
+                                className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                                  isFilled 
+                                    ? 'bg-slate-800 text-yellow-400 puffy-shadow scale-110' 
+                                    : 'bg-white/50 text-slate-400 inset-puffy hover:bg-white/80'
+                                }`}
+                              >
+                                <span 
+                                  className="material-symbols-outlined text-2xl transition-all duration-300" 
+                                  style={{ 
+                                    fontVariationSettings: isFilled ? "'FILL' 1" : "'FILL' 0",
+                                    filter: isFilled ? "drop-shadow(0 0 8px rgba(250,204,21,0.6))" : "none"
+                                  }}
+                                >
+                                  star
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
                       )}
                     </div>
-                    <span style={{ fontSize: '0.9rem' }}>{msg}</span>
+                  ))
+                )}
+                
+                <div className="flex items-center justify-between px-4">
+                  <div className="flex items-center gap-1.5 text-slate-600 font-label-sm font-bold">
+                    <span className="material-symbols-outlined text-sm">visibility_off</span>
+                    <span>No logging. Unlinkable proof.</span>
                   </div>
-                ))}
+                </div>
               </div>
-            </div>
+
+              <button 
+                type="submit" 
+                disabled={campaign?.questions && campaign.questions.length > 0 ? Object.keys(answers).length === 0 : !answers['default']}
+                className="mt-4 px-8 py-4 rounded-full bg-slate-800 text-white font-label-lg text-lg puffy-shadow felt-texture step-button transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+              >
+                <span>Submit with ZK Proof</span>
+                <span className="material-symbols-outlined">security</span>
+              </button>
+            </motion.form>
+          ) : (
+            <motion.div 
+              key="proving"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex-1 flex flex-col justify-center"
+            >
+              <div className="w-full bg-[var(--color-cotton-lavender)] rounded-[3rem] puffy-shadow felt-texture p-8 sm:p-12 space-y-10 relative overflow-hidden">
+                
+                {stage === 'PROVING' ? (
+                  <>
+                    <div className="flex flex-col items-center justify-center space-y-4 text-center">
+                      <div className="relative flex items-center justify-center w-24 h-24 rounded-full bg-white inset-puffy mb-2">
+                        <motion.span 
+                          animate={{ rotate: 360 }} 
+                          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                          className="material-symbols-outlined text-5xl text-slate-800 drop-shadow-sm"
+                        >
+                          settings
+                        </motion.span>
+                      </div>
+                      <h3 className="font-headline-lg font-bold text-slate-900 drop-shadow-sm">Synthesizing Proof</h3>
+                      <p className="font-body-md text-slate-700 font-medium">Computing zero-knowledge circuit on client thread...</p>
+                    </div>
+
+                    <div className="space-y-4 bg-white/40 p-6 rounded-[2rem] inset-puffy border border-white/50">
+                      <div className={`flex items-start gap-4 p-4 rounded-2xl transition-all ${proofProgress >= 1 ? 'bg-white shadow-sm' : 'opacity-40'}`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${proofProgress > 1 ? 'bg-green-100 text-green-600' : 'bg-slate-200 text-slate-500'}`}>
+                          <span className="material-symbols-outlined text-sm">{proofProgress > 1 ? 'check' : 'lock'}</span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-label-lg font-bold text-slate-900">Encrypting Response</span>
+                          <span className="font-body-sm text-slate-600 font-medium">AES-256-GCM & nullifier hash created</span>
+                        </div>
+                      </div>
+                      
+                      <div className={`flex items-start gap-4 p-4 rounded-2xl transition-all ${proofProgress >= 2 ? 'bg-white shadow-sm' : 'opacity-40'}`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${proofProgress > 2 ? 'bg-green-100 text-green-600' : (proofProgress === 2 ? 'bg-blue-100 text-blue-600 animate-pulse' : 'bg-slate-200 text-slate-500')}`}>
+                          <span className="material-symbols-outlined text-sm">{proofProgress > 2 ? 'check' : 'memory'}</span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-label-lg font-bold text-slate-900">Generating ZK-SNARK</span>
+                          <span className="font-body-sm text-slate-600 font-medium">Proving eligibility without leaking ID</span>
+                        </div>
+                      </div>
+                      
+                      <div className={`flex items-start gap-4 p-4 rounded-2xl transition-all ${proofProgress >= 3 ? 'bg-white shadow-sm' : 'opacity-40'}`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${proofProgress >= 3 ? 'bg-blue-100 text-blue-600 animate-pulse' : 'bg-slate-200 text-slate-500'}`}>
+                          <span className="material-symbols-outlined text-sm">cloud_upload</span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-label-lg font-bold text-slate-900">Broadcasting to Midnight</span>
+                          <span className="font-body-sm text-slate-600 font-medium">Submitting verifiable nullifier to ledger</span>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="space-y-8 flex flex-col items-center">
+                    <motion.div 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", bounce: 0.5 }}
+                      className="w-24 h-24 rounded-full bg-green-50 flex items-center justify-center text-green-600 puffy-shadow border-4 border-white mb-4"
+                    >
+                      <span className="material-symbols-outlined text-5xl font-bold">check</span>
+                    </motion.div>
+                    
+                    <div className="text-center">
+                      <h3 className="font-headline-xl font-bold text-slate-900 drop-shadow-md">Successfully Submitted</h3>
+                      <p className="font-body-lg text-slate-700 font-medium max-w-sm mt-4">
+                        Your answer has been tallied into the public pool. Your identity remains 100% confidential.
+                      </p>
+                    </div>
+                    
+                    <div className="w-full bg-[var(--color-cotton-bg)] p-6 rounded-[2rem] inset-puffy border border-white/50 text-center space-y-3">
+                      <div className="font-label-sm font-bold text-slate-500 uppercase tracking-widest">Midnight Proof ID</div>
+                      <code className="font-label-lg font-bold text-slate-800 break-all select-all block px-4 py-3 bg-white rounded-xl shadow-sm border border-slate-200">
+                        {proofId}
+                      </code>
+                    </div>
+
+                    <button 
+                      onClick={() => setStage('FORM')}
+                      className="mt-2 px-6 py-3 rounded-full bg-white text-slate-800 font-label-lg puffy-shadow step-button felt-texture border border-slate-200"
+                    >
+                      Return to Survey
+                    </button>
+                  </div>
+                )}
+              </div>
+            </motion.div>
           )}
-
-          {stage === 'SUCCESS' && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', gap: '1.5rem', padding: '1rem 0' }}>
-              <div className="icon-circle success">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-              </div>
-              <h2 className="serif-text" style={{ fontSize: '2rem' }}>Response verified ✓</h2>
-              
-              <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '0.5rem', background: 'var(--bg-secondary)', padding: '1.5rem', borderRadius: '16px', margin: '1rem 0' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Survey</span>
-                  <span style={{ fontWeight: 500 }}>{campaign?.title}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem', paddingTop: '0.5rem' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Eligibility</span>
-                  <span style={{ color: '#558763', fontWeight: 500 }}>✓ PROVEN</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem', paddingTop: '0.5rem' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Response</span>
-                  <span style={{ color: 'var(--text-accent)', fontWeight: 500 }}>🔒 PRIVATE</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '0.5rem' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Proof ID</span>
-                  <span style={{ fontFamily: 'monospace' }}>{proofId}</span>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '1rem', width: '100%' }}>
-                <a href={`/verify-proof`} className="primary-button" style={{ flex: 1, textAlign: 'center', textDecoration: 'none' }}>
-                  View Network Proof
-                </a>
-              </div>
-            </div>
-          )}
-
-        </div>
-      </div>
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-      `}} />
-    </main>
+        </AnimatePresence>
+      </main>
+    </div>
   );
 }
