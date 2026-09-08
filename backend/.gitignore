@@ -15,8 +15,8 @@ build/
 .env.test.local
 .env.production.local
 
-# Contract artifacts
-contracts/managed/
+# Contract artifacts (compiled contracts are committed for CI/CD)
+# contracts/managed/
 
 # Deployment info
 deployment.json
