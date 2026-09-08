@@ -150,7 +150,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
             }),
             publicDataProvider: indexerPublicDataProvider(config.indexerUri, config.indexerWsUri),
             zkConfigProvider: zkConfig,
-            proofProvider: httpClientProofProvider('http://127.0.0.1:6300', zkConfig),
+            proofProvider: httpClientProofProvider(process.env.NEXT_PUBLIC_PROOF_SERVER_URL || 'http://127.0.0.1:6300', zkConfig),
             walletProvider,
             midnightProvider: walletProvider
           };

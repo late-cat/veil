@@ -1,30 +1,12 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-
-const DB_PATH = path.join(process.cwd(), 'data', 'campaigns.json');
-
-function readDB() {
-  if (!fs.existsSync(DB_PATH)) return [];
-  return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
-}
-
-function writeDB(data: any[]) {
-  const dir = path.dirname(DB_PATH);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
-}
+import { readDB, writeDB } from '../db';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const campaignId = searchParams.get('id');
   
-  const campaigns = readDB();
-  const feedbackPath = path.join(process.cwd(), 'data', 'feedback.json');
-  let feedback = [];
-  if (fs.existsSync(feedbackPath)) {
-    feedback = JSON.parse(fs.readFileSync(feedbackPath, 'utf8'));
-  }
+  const campaigns = await readDB('campaigns.json');
+  const feedback = await readDB('feedback.json');
 
   if (!campaignId) {
     // Attach response count to all campaigns
@@ -47,7 +29,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const data = await request.json();
-    const campaigns = readDB();
+    const campaigns = await readDB('campaigns.json');
     
     // Generate a unique Campaign ID
     const campaignId = Math.random().toString(36).substring(2, 10).toUpperCase();
@@ -59,7 +41,7 @@ export async function POST(request: Request) {
     };
     
     campaigns.push(newCampaign);
-    writeDB(campaigns);
+    await writeDB('campaigns.json', campaigns);
     
     return NextResponse.json({ success: true, campaign: newCampaign });
   } catch (error) {
@@ -76,14 +58,14 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ success: false, error: 'Campaign ID required' }, { status: 400 });
     }
 
-    const campaigns = readDB();
+    const campaigns = await readDB('campaigns.json');
     const updatedCampaigns = campaigns.filter((c: any) => c.id !== campaignId);
     
     if (campaigns.length === updatedCampaigns.length) {
       return NextResponse.json({ success: false, error: 'Campaign not found' }, { status: 404 });
     }
 
-    writeDB(updatedCampaigns);
+    await writeDB('campaigns.json', updatedCampaigns);
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ success: false, error: 'Failed to delete campaign' }, { status: 500 });

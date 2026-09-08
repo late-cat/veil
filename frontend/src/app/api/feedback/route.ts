@@ -1,19 +1,5 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-
-const DB_PATH = path.join(process.cwd(), 'data', 'feedback.json');
-
-function readDB() {
-  if (!fs.existsSync(DB_PATH)) return [];
-  return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
-}
-
-function writeDB(data: any[]) {
-  const dir = path.dirname(DB_PATH);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
-}
+import { readDB, writeDB } from '../db';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -21,16 +7,17 @@ export async function GET(request: Request) {
   const campaignId = searchParams.get('campaignId');
   
   if (campaignId) {
-    const records = readDB().filter((r: any) => r.campaignId === campaignId);
-    return NextResponse.json({ count: records.length, records });
+    const records = await readDB('feedback.json');
+    const filtered = records.filter((r: any) => r.campaignId === campaignId);
+    return NextResponse.json({ count: filtered.length, records: filtered });
   }
 
   if (!proofId) {
-    const records = readDB();
+    const records = await readDB('feedback.json');
     return NextResponse.json({ count: records.length, records });
   }
 
-  const records = readDB();
+  const records = await readDB('feedback.json');
   const record = records.find((r: any) => r.proofId === proofId);
   
   if (record) {
@@ -42,7 +29,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const data = await request.json();
-    const records = readDB();
+    const records = await readDB('feedback.json');
     
     const proofId = 'VF-' + Math.random().toString(16).substring(2, 9).toUpperCase();
     
@@ -53,7 +40,7 @@ export async function POST(request: Request) {
       status: 'VERIFIED'
     });
     
-    writeDB(records);
+    await writeDB('feedback.json', records);
     
     return NextResponse.json({ success: true, proofId });
   } catch (error) {

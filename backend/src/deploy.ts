@@ -81,7 +81,7 @@ if (!fs.existsSync(contractPath)) {
 
 const Survey = await import(pathToFileURL(contractPath).href);
 
-const compiledContract = CompiledContract.make('survey', Survey.Contract).pipe(
+const compiledContract = CompiledContract.make('survey', Survey.Contract as any).pipe(
   CompiledContract.withWitnesses({
     secretEligibilityHash: () => new Uint8Array(32),
   }),
