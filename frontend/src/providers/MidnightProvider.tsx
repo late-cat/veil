@@ -107,9 +107,16 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
       }
 
       console.log("Requesting access to Lace Wallet...");
+      console.log("Wallet provider info:", JSON.stringify({
+        name: connector.name,
+        rdns: connector.rdns,
+        apiVersion: connector.apiVersion,
+        keys: Object.keys(connector)
+      }));
       
       // Try connecting with different network IDs until one works
-      const networkIds = ['undeployed', 'preview', 'preprod', 'testnet', 'mainnet'];
+      // 'midnight' added because Lace shows "Midnight" as the network name
+      const networkIds = ['midnight', 'Midnight', 'undeployed', 'preview', 'preprod', 'testnet', 'mainnet', 'devnet', 'qanet'];
       let api = null;
       let lastError = null;
       
