@@ -7,7 +7,7 @@
   [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
   [![Midnight Blockchain](https://img.shields.io/badge/Midnight-Testnet-558763.svg)](https://midnight.network/)
   [![Next.js](https://img.shields.io/badge/Next.js-16.3-black)](https://nextjs.org/)
-  [![CI Pipeline](https://github.com/bapi/new-moon-stellar/actions/workflows/ci.yml/badge.svg)](https://github.com/bapi/new-moon-stellar/actions/workflows/ci.yml)
+  [![CI Pipeline](https://github.com/bapi/new-moon-stellar/actions/workflows/contracts.yml/badge.svg)](https://github.com/bapi/new-moon-stellar/actions/workflows/contracts.yml)
 </div>
 
 <br />
@@ -52,7 +52,7 @@ To run VEIL locally, you will need **Node.js (v22)**, **Docker Desktop**, and th
 ### 1. Compile the Smart Contract
 The multi-tenant Compact circuit must be compiled to generate the managed assets.
 ```bash
-cd mn-demo
+cd backend
 npm install
 npm run compile
 ```
@@ -73,9 +73,9 @@ Open [http://localhost:3000](http://localhost:3000) in your browser. **Ensure yo
 VEIL ships with a comprehensive testing suite and CI/CD pipeline, meeting the Level 3 requirements.
 
 ### Smart Contract Tests
-The multi-tenant Compact circuit is rigorously tested (`mn-demo/tests/survey.test.ts`).
+The multi-tenant Compact circuit is rigorously tested (`backend/tests/survey.test.ts`).
 ```bash
-cd mn-demo
+cd backend
 npm test
 ```
 

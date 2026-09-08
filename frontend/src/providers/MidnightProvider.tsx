@@ -114,12 +114,14 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
       setNetworkId(connectedNetwork);
 
       // Initialize Midnight JS Providers
-      let contractAddress = '';
-      try {
-        const stateFile = await fetch('/survey-contract/.midnight-state.json').then(r => r.json());
-        contractAddress = stateFile.address;
-      } catch {
-        console.warn('Could not fetch local deployment address, falling back to dummy');
+      let contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || '';
+      if (!contractAddress) {
+        try {
+          const stateFile = await fetch('/survey-contract/.midnight-state.json').then(r => r.json());
+          contractAddress = stateFile.deployments?.preprod?.address || stateFile.address || '';
+        } catch {
+          console.warn('Could not fetch local deployment address');
+        }
       }
 
       if (contractAddress) {
