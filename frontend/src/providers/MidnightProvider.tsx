@@ -85,7 +85,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
               if (obj && typeof obj.connect === 'function') {
                 connector = {
                   ...obj,
-                  enable: () => obj.connect('undeployed') // 'undeployed' is the correct network for local dev
+                  enable: (networkId: string) => obj.connect(networkId)
                 };
                 break;
               }
@@ -108,8 +108,26 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
 
       console.log("Requesting access to Lace Wallet...");
       
-      // Request access to the wallet. This triggers the popup in the user's browser.
-      const api = await connector.enable();
+      // Try connecting with different network IDs until one works
+      const networkIds = ['undeployed', 'preview', 'preprod', 'testnet', 'mainnet'];
+      let api = null;
+      let lastError = null;
+      
+      for (const networkId of networkIds) {
+        try {
+          console.log(`Trying network: ${networkId}...`);
+          api = await connector.enable(networkId);
+          console.log(`Connected successfully with network: ${networkId}`);
+          break;
+        } catch (e: any) {
+          console.warn(`Network ${networkId} failed:`, e?.message || e);
+          lastError = e;
+        }
+      }
+      
+      if (!api) {
+        throw lastError || new Error("Could not connect to any supported network");
+      }
       setWalletApi(api);
       
       // Get the wallet state to retrieve the address
