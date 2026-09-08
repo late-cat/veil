@@ -8,6 +8,7 @@ import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { WebSocket } from 'ws';
 import { Buffer } from 'buffer';
+import * as crypto from 'node:crypto';
 
 // Midnight SDK imports
 import { findDeployedContract } from '@midnight-ntwrk/midnight-js-contracts';
@@ -179,11 +180,14 @@ async function main() {
 
       switch (choice.trim()) {
         case '1': {
-          const message = await rl.question('  Enter your message: ');
           console.log('\n  Submitting transaction (this may take 30-60 seconds)...');
           try {
-            const tx = await deployed.callTx.submitFeedback('My secure feedback here', 'hash');
-            console.log(`\n  ✅ Message stored: "${message}"`);
+            // Provide a random 32-byte nullifier for the CLI simulation
+            const randomNullifier = new Uint8Array(32);
+            crypto.webcrypto.getRandomValues(randomNullifier);
+            
+            const tx = await deployed.callTx.submitFeedback(randomNullifier);
+            console.log(`\n  ✅ Feedback stored securely using nullifier: ${Buffer.from(randomNullifier).toString('hex').substring(0,8)}...`);
             console.log(`  Transaction ID: ${tx.public.txId}`);
             console.log(`  Block height: ${tx.public.blockHeight}\n`);
           } catch (error) {
@@ -193,14 +197,14 @@ async function main() {
         }
 
         case '2': {
-          console.log('\n  Reading message from blockchain...');
+          console.log('\n  Reading state from blockchain...');
           try {
             const contractState = await providers.publicDataProvider.queryContractState(deployment.address);
             if (contractState) {
               const ledgerState = Survey.ledger(contractState.data);
-              console.log(`\n  📋 Current feedback count: "${ledgerState.surveyCount.toString()}"\n`);
+              console.log(`\n  📋 Current participation count: "${ledgerState.participationCount.toString()}"\n`);
             } else {
-              console.log('\n  📋 No message found (contract state empty)\n');
+              console.log('\n  📋 No state found (contract state empty)\n');
             }
           } catch (error) {
             console.error('\n  ❌ Failed:', error instanceof Error ? error.message : error);
