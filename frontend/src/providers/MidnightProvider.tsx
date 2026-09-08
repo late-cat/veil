@@ -53,19 +53,27 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
       console.log("Midnight injected wallets:", midnightKeys);
 
       let connector = null;
-      if (window.midnight && window.midnight.mnLace) {
-        connector = window.midnight.mnLace;
-      } else if (window.midnight && window.midnight.lace) {
-        connector = window.midnight.lace;
-      } else if (midnightKeys.length > 0 && window.midnight) {
-        // Some versions of Lace inject under a dynamic UUID or other key
-        connector = window.midnight[midnightKeys[0]];
+      let foundKeys = [];
+      
+      if (window.midnight) {
+        for (const key of Object.keys(window.midnight)) {
+          const obj = window.midnight[key];
+          if (obj) {
+            foundKeys.push(`${key}: [${Object.keys(obj).join(', ')}]`);
+            if (typeof obj.enable === 'function') {
+              connector = obj;
+              break;
+            } else if (obj.provider && typeof obj.provider.enable === 'function') {
+              connector = obj.provider;
+              break;
+            }
+          }
+        }
       }
 
-      if (!connector || typeof connector.enable !== 'function') {
-        const keys = connector ? Object.keys(connector).join(', ') : 'null';
-        alert(`Found Lace provider, but 'enable' is missing! Properties: [${keys}]`);
-        throw new Error("Lace extension not found");
+      if (!connector) {
+        alert(`Could not find a valid Midnight provider with an 'enable' function! Found: \n${foundKeys.join('\n')}`);
+        throw new Error("Lace extension not found or invalid");
       }
 
       console.log("Requesting access to Lace Wallet...");
