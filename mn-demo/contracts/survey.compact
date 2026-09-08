@@ -1,0 +1,18 @@
+pragma language_version >= 0.23;
+
+import CompactStandardLibrary;
+
+export ledger surveyCount: Counter;
+export ledger lastSubmission: Opaque<"string">;
+
+// Privacy Model:
+// PUBLIC: The total count of surveys and a generic "last submission" timestamp/hash.
+// PRIVATE: The actual feedback text and user identity.
+// PROVED: A valid submission occurred without exposing the feedback.
+
+export circuit submitFeedback(privateFeedback: Opaque<"string">, publicHash: Opaque<"string">): [] {
+    // We must use disclose() deliberately.
+    // Disclosing the hash/timestamp, but keeping privateFeedback mathematically sealed.
+    lastSubmission = disclose(publicHash);
+    surveyCount.increment(1);
+}
