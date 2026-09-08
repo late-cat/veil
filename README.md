@@ -1,27 +1,51 @@
-# VEIL — Private Feedback Protocol
+# 🌑 VEIL — Private Feedback Protocol
+[![VEIL CI Pipeline](https://github.com/bapi/new-moon-stellar/actions/workflows/ci.yml/badge.svg)](https://github.com/bapi/new-moon-stellar/actions/workflows/ci.yml)
 
 **Your opinion. Your privacy.**
 
-VEIL is a privacy-preserving feedback protocol built on the Midnight blockchain. It enables organizations to collect trustworthy feedback while participants prove their eligibility and one-time participation without exposing their individual responses.
+VEIL is a privacy-preserving feedback protocol built on the **Midnight blockchain**. It enables organizations to collect trustworthy feedback while participants mathematically prove their eligibility and one-time participation *without* exposing their individual responses publicly. 
 
-## Initial Product Idea (Level 1)
-VEIL solves the problem of anonymous but verifiable feedback. By utilizing Midnight's zero-knowledge proofs, participants can cryptographically prove they are eligible to submit a review (and that they haven't submitted one previously) while keeping their exact feedback completely private. The organization only sees aggregate metadata and verifiable proofs of participation, solving the classic tradeoff between Sybil resistance and absolute privacy.
+## Live Demo & Contract
+- **Live Demo**: [localhost:3000 (Local Devnet / Next.js)](http://localhost:3000)
+- **Contract Address (Midnight Preprod)**: `TBD_ON_PREPROD_DEPLOY`
+- **Product Proposal**: Read our official [Level 3 Proposal here](./PROPOSAL.md).
 
-## Privacy Model: Public State vs Private Witness
-- **Public State:** The Midnight ledger publicly stores the `participationCount` (aggregate number of responses) and a map of `nullifiers` (to prevent duplicate submissions). Observers can see *that* a valid submission occurred, but not *what* it contained.
-- **Private Witness:** The actual feedback text and the user's specific eligibility secret are stored securely as a private witness. These are used locally by the client to generate the ZK proof but are **never** exposed to the blockchain ledger.
+## Why Midnight?
+Traditional surveys force users to trust the organization not to look at backend logs. VEIL changes the paradigm by separating the **Proof** from the **Data**. Midnight provides the Zero-Knowledge infrastructure to prove that a submission is legitimate and unique, while allowing us to store the sensitive long-form data entirely off-chain.
+
+## Privacy Model
+VEIL utilizes a "Selective Disclosure" architecture:
+- **What is Public?** The total `participationCount` and a `Set` of anonymous cryptographic `nullifiers` used to prevent double-voting.
+- **What is Private?** The participant's identity (wallet address) and the raw feedback text.
+- **What is Proven?** That the participant was eligible, they hadn't submitted yet, and their feedback is securely linked to the nullifier.
+
+## Technical Architecture
+1. **Frontend**: Next.js App Router featuring a "Million Dollar" elegant light aesthetic (Neumorphism / Glassmorphism) with custom Vanilla CSS.
+2. **Blockchain Layer**: Midnight `Compact` smart contract (`contracts/survey.compact`).
+3. **Database Layer**: Vercel Postgres Mock (`api/feedback`) storing encrypted off-chain data.
+4. **Wallet**: Integration with Lace via the Midnight SDK (`providers/MidnightProvider.tsx`).
 
 ## Setup Instructions
-1. Ensure you have Node v22, Docker, and the Midnight Compact compiler installed.
-2. Clone this repository.
-3. To start the Midnight local devnet and deploy the smart contract, navigate to `mn-demo/` and run:
+1. **Requirements**: Node.js v22.x, Docker, Midnight Compact compiler.
+2. **Start the Blockchain Network**:
    ```bash
+   cd mn-demo
    npm install
    npm run setup
    ```
-4. To start the Next.js frontend, navigate to `frontend/` and run:
+3. **Start the Application**:
    ```bash
+   cd ../frontend
    npm install
    npm run dev
    ```
-5. Open `http://localhost:3000` to interact with the VEIL protocol.
+4. Open `http://localhost:3000` to interact with VEIL.
+
+## Testing & CI/CD
+This project features a complete GitHub Actions CI/CD pipeline (`.github/workflows/ci.yml`) that automatically compiles the Compact circuit, runs the 10-test suite verifying the Nullifier Map logic, and builds the Next.js frontend on every push.
+
+Run tests locally:
+```bash
+cd mn-demo
+npm run test:e2e
+```
