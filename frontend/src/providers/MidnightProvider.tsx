@@ -132,9 +132,9 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
       setWalletConnected(true);
       console.log("Successfully connected to Lace Wallet!");
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to connect wallet:", error);
-      alert("Failed to connect to Lace Wallet. Did you reject the connection?");
+      alert(`Failed to connect to Lace Wallet.\nReason: ${error?.message || String(error)}`);
     } finally {
       setIsConnecting(false);
     }
