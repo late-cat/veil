@@ -63,7 +63,8 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (!connector || typeof connector.enable !== 'function') {
-        alert(`Lace wallet for Midnight not found! Detected window.midnight: [${midnightKeys.join(', ')}]`);
+        const keys = connector ? Object.keys(connector).join(', ') : 'null';
+        alert(`Found Lace provider, but 'enable' is missing! Properties: [${keys}]`);
         throw new Error("Lace extension not found");
       }
 
