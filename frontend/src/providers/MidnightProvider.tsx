@@ -53,26 +53,48 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
       console.log("Midnight injected wallets:", midnightKeys);
 
       let connector = null;
-      let foundKeys = [];
+      let debugOutput = "";
       
-      if (window.midnight) {
-        for (const key of Object.keys(window.midnight)) {
-          const obj = window.midnight[key];
-          if (obj) {
-            foundKeys.push(`${key}: [${Object.keys(obj).join(', ')}]`);
-            if (typeof obj.enable === 'function') {
-              connector = obj;
-              break;
-            } else if (obj.provider && typeof obj.provider.enable === 'function') {
-              connector = obj.provider;
-              break;
+      try {
+        if (window.midnight) {
+          // Deep dump the midnight object
+          const dumpObj = (obj: any, depth = 0): string => {
+            if (depth > 2 || !obj) return String(obj);
+            let out = "";
+            for (let k in obj) {
+              out += "  ".repeat(depth) + k + ": " + typeof obj[k] + "\n";
+            }
+            return out;
+          };
+          debugOutput = dumpObj(window.midnight);
+
+          // Standard checks
+          if (window.midnight.mnLace && typeof window.midnight.mnLace.enable === 'function') {
+            connector = window.midnight.mnLace;
+          } else if (window.midnight.lace && typeof window.midnight.lace.enable === 'function') {
+            connector = window.midnight.lace;
+          } else {
+            // Find any object with an enable method
+            for (const key of Object.keys(window.midnight)) {
+              const obj = window.midnight[key];
+              if (obj && typeof obj.enable === 'function') {
+                connector = obj;
+                break;
+              }
+              if (obj && obj.api && typeof obj.api.enable === 'function') {
+                connector = obj.api;
+                break;
+              }
             }
           }
         }
+      } catch(e) {
+        debugOutput += "\nError analyzing window.midnight: " + e;
       }
 
       if (!connector) {
-        alert(`Could not find a valid Midnight provider with an 'enable' function! Found: \n${foundKeys.join('\n')}`);
+        console.error(debugOutput);
+        alert("Wallet structure dump:\n" + debugOutput);
         throw new Error("Lace extension not found or invalid");
       }
 
