@@ -1,45 +1,50 @@
-name: VEIL CI Pipeline
+name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
-
-    - name: Use Node.js 22.x
-      uses: actions/setup-node@v3
-      with:
-        node-version: '22.x'
+      - name: Checkout repository
+        uses: actions/checkout@v4
         
-    - name: Install Midnight Compact Compiler
-      run: |
-        curl -sL https://github.com/midnight-ntwrk/compact/releases/latest/download/compact-linux-amd64 -o compact
-        chmod +x compact
-        sudo mv compact /usr/local/bin/
-
-    - name: Install Midnight Dependencies
-      working-directory: ./mn-demo
-      run: npm ci
-
-    - name: Compile ZK Circuits (Compact)
-      working-directory: ./mn-demo
-      run: npm run compile
-
-    - name: Run Circuit Tests
-      working-directory: ./mn-demo
-      run: npx tsx tests/survey.test.ts
-
-    - name: Install Frontend Dependencies
-      working-directory: ./frontend
-      run: npm ci
-
-    - name: Build Next.js Frontend
-      working-directory: ./frontend
-      run: npm run build
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          
+      - name: Install Compact Compiler
+        run: npm install -g @midnight-ntwrk/compact-compiler
+        
+      - name: Install dependencies (Contracts)
+        run: |
+          cd mn-demo
+          npm install
+          
+      - name: Compile Compact Contract
+        run: |
+          cd mn-demo
+          npm run compile
+          
+      - name: Run Contract Tests
+        run: |
+          cd mn-demo
+          npm test
+          
+      - name: Install dependencies (Frontend)
+        run: |
+          cd frontend
+          npm install
+          
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm run build
