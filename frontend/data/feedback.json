@@ -10,5 +10,19 @@
     "nullifier": "0xabc123",
     "timestamp": "2026-09-08T10:36:03.000Z",
     "status": "VERIFIED"
+  },
+  {
+    "feedback": "Test feedback from terminal",
+    "nullifier": "0xtest123",
+    "timestamp": "2026-09-08T10:41:42.972Z",
+    "status": "VERIFIED"
+  },
+  {
+    "feedback": "This is a test feedback for NU0HCDXV",
+    "nullifier": "0xTEST",
+    "campaignId": "NU0HCDXV",
+    "proofId": "VF-902DF1A",
+    "timestamp": "2026-09-08T11:15:43.788Z",
+    "status": "VERIFIED"
   }
 ]
