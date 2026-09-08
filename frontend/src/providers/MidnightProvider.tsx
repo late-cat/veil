@@ -127,13 +127,13 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
           const { findDeployedContract } = await import('@midnight-ntwrk/midnight-js-contracts');
           const { levelPrivateStateProvider } = await import('@midnight-ntwrk/midnight-js-level-private-state-provider');
           const { indexerPublicDataProvider } = await import('@midnight-ntwrk/midnight-js-indexer-public-data-provider');
-          const { fetchZkConfigProvider } = await import('@midnight-ntwrk/midnight-js-fetch-zk-config-provider');
+          const { FetchZkConfigProvider: fetchZkConfigProvider } = await import('@midnight-ntwrk/midnight-js-fetch-zk-config-provider');
           const { httpClientProofProvider } = await import('@midnight-ntwrk/midnight-js-http-client-proof-provider');
           const { Contract } = await import('@/contracts/survey/index.js');
           const { CompiledContract } = await import('@midnight-ntwrk/midnight-js-protocol/compact-js');
           
           const config = await api.getConfiguration();
-          const zkConfig = new fetchZkConfigProvider(window.location.origin, '/survey-contract/');
+          const zkConfig = new fetchZkConfigProvider(window.location.origin + '/survey-contract/');
           
           const walletProvider = {
             getCoinPublicKey: async () => (await api!.getShieldedAddresses()).shieldedCoinPublicKey,
@@ -251,13 +251,13 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
 
         console.log('[VEIL] Prompting wallet to sign and submit Zero-Knowledge Proof...');
         const tx = await contract.callTx.submitFeedback(BigInt(campaignId), new Uint8Array(hashBuffer));
-        console.log('[VEIL] Transaction Successful! TxHash:', tx.txHash);
+        console.log('[VEIL] Transaction Successful! TxHash:', tx.public.txHash);
 
         // 2. Save the answers and transaction hash to our traditional backend database
         const res = await fetch('/api/feedback', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ answers, nullifier, campaignId, txHash: tx.txHash })
+          body: JSON.stringify({ answers, nullifier, campaignId, txHash: tx.public.txHash })
         });
         const resData = await res.json();
         
