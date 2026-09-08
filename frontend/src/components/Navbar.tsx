@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { useMidnight } from '@/providers/MidnightProvider';
 
 export function Navbar() {
@@ -8,41 +9,49 @@ export function Navbar() {
 
   const formatAddress = (addr: string | null) => {
     if (!addr) return '';
-    return `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`;
+    if (addr.length > 16) return `${addr.substring(0, 8)}...${addr.substring(addr.length - 6)}`;
+    return addr;
   };
 
   return (
     <nav className="navbar">
-      <div className="nav-brand">
+      <Link href="/" className="nav-brand" style={{ textDecoration: 'none', color: 'inherit' }}>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
           <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
           <path d="M3 5v14a2 2 0 0 0 2 2h16v-5H5a2 2 0 0 1 0-4h16v-5" />
         </svg>
         VEIL
-      </div>
+      </Link>
       <div className="nav-links">
-        <a href="#" className="nav-link">How it Works</a>
-        <a href="#" className="nav-link">Privacy Model</a>
-        <a href="#" className="nav-link">Verify Proof</a>
-        <a href="#" className="nav-link">For Organizations</a>
+        <Link href="/how-it-works" className="nav-link">How it Works</Link>
+        <Link href="/privacy-model" className="nav-link">Privacy Model</Link>
+        <Link href="/verify-proof" className="nav-link">Verify Proof</Link>
+        <Link href="/organizations" className="nav-link">For Organizations</Link>
         
         <div style={{ marginLeft: '1rem', paddingLeft: '1.5rem', borderLeft: '1px solid var(--border-color)' }}>
           {walletConnected ? (
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '0.5rem', 
-              background: 'var(--bg-secondary)', 
-              padding: '8px 16px', 
-              borderRadius: '999px',
-              border: '1px solid var(--border-highlight)',
-              boxShadow: 'var(--shadow-inner)'
-            }}>
+            <button
+              onClick={disconnectWallet}
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.5rem', 
+                background: 'var(--bg-secondary)', 
+                padding: '8px 16px', 
+                borderRadius: '999px',
+                border: '1px solid var(--border-highlight)',
+                boxShadow: 'var(--shadow-inner)',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                fontSize: '0.85rem',
+              }}
+              title="Click to disconnect"
+            >
               <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#558763' }} />
-              <span style={{ fontSize: '0.85rem', fontWeight: 500, fontFamily: 'monospace' }}>
+              <span style={{ fontWeight: 500, fontFamily: 'monospace' }}>
                 {formatAddress(walletAddress)}
               </span>
-            </div>
+            </button>
           ) : (
             <button 
               onClick={connectWallet} 
