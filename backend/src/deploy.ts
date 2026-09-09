@@ -135,7 +135,7 @@ async function createProviders(walletCtx: WalletContext) {
 
 async function main() {
   console.log('\n╔══════════════════════════════════════════════════════════════╗');
-  console.log(`║  Deploy mn-demo to ${network}`);
+  console.log(`║  Deploy veil-backend to ${network}`);
   console.log('╚══════════════════════════════════════════════════════════════╝\n');
 
   const seed = SEED;
@@ -147,6 +147,10 @@ async function main() {
   if (restoredCount > 0) {
     console.log(`  Restored ${restoredCount}/3 child wallets from .midnight-wallet-state — sync will resume from saved point.`);
   }
+
+  const address = walletCtx.unshieldedKeystore.getBech32Address();
+  console.log(`\n  Wallet Address: ${address}`);
+  console.log(`  💡 Tip: You can fund this address at the faucet while it syncs to break idle-chain deadlocks!\n`);
 
   console.log('  Syncing with network...');
   console.log('  ℹ  This may take several minutes depending on network size.');
@@ -163,9 +167,7 @@ async function main() {
   // Persist sync state now so a later deploy failure doesn't waste the sync work.
   await persistWalletState(network, walletCtx);
 
-  const address = walletCtx.unshieldedKeystore.getBech32Address();
   let balance = state.unshielded.balances[unshieldedToken().raw] ?? 0n;
-  console.log(`\n  Wallet Address: ${address}`);
   console.log(`  Balance: ${balance.toLocaleString()} tNight\n`);
 
   if (network === 'undeployed' && balance === 0n) {
