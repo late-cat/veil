@@ -82,8 +82,9 @@ if (!fs.existsSync(contractPath)) {
 const Survey = await import(pathToFileURL(contractPath).href);
 
 const compiledContract = CompiledContract.make('survey', Survey.Contract as any).pipe(
+  // @ts-expect-error - dynamic import loses exact witness types
   CompiledContract.withWitnesses({
-    secretEligibilityHash: () => new Uint8Array(32),
+    secretEligibilityHash: (context: any) => [context.privateState, new Uint8Array(32)],
   }),
   CompiledContract.withCompiledFileAssets(zkConfigPath),
 );
