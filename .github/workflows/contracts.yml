@@ -1,4 +1,4 @@
-name: VEIL CI/CD
+name: VEIL Backend CI
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-and-test:
+  test:
     runs-on: ubuntu-latest
     
     defaults:
@@ -24,14 +24,12 @@ jobs:
         cache: 'npm'
         cache-dependency-path: './backend/package-lock.json'
         
-    - name: Install Compact Compiler
-      run: npm install -g @midnight-ntwrk/compact-compiler
-        
     - name: Install Dependencies
       run: npm ci
       
-    - name: Compile ZK Circuits
-      run: npm run compile
-      
+    # Note: We do not need to compile the Compact circuits here because
+    # the compiled `managed/` assets are already committed to the repository.
+    # The tests will run against the pre-compiled circuits.
+    
     - name: Run Midnight Test Suite
       run: npm test
