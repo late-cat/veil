@@ -247,7 +247,7 @@ export default function Dashboard() {
               <div className="flex flex-col gap-2">
                 <label className="font-label-lg text-slate-800 uppercase tracking-widest px-2 drop-shadow-sm">End Date (Optional)</label>
                 <input
-                  type="datetime-local"
+                  type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                   className="w-full bg-[var(--color-cotton-bg)] border-none rounded-2xl p-4 font-body-lg inset-puffy focus:ring-2 focus:ring-slate-400 text-slate-900 felt-texture outline-none"

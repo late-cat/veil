@@ -44,7 +44,8 @@ export async function writeDB(filename: string, data: any[]): Promise<void> {
     if (process.env.BLOB_READ_WRITE_TOKEN) {
       await put(filename, jsonString, {
         access: 'public',
-        addRandomSuffix: false // overwrite the same file
+        addRandomSuffix: false, // overwrite the same file
+        allowOverwrite: true
       });
       return;
     }
