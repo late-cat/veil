@@ -57,14 +57,6 @@ export function createPatchedPublicDataProvider(base: any, queryUrl: string) {
         contractAddress,
       );
       return action ? ContractState.deserialize(fromHex(action.state)) : null;
-    },
-    async watchForTxData(txId: string) {
-      console.log('[VEIL] Bypassing Indexer WebSocket hang for tx:', txId);
-      return { public: { txHash: txId, blockHeight: 1 }, private: {} } as any;
-    },
-    async watchForDeployTxData(contractAddress: string) {
-      console.log('[VEIL] Bypassing Indexer WebSocket hang for deploy:', contractAddress);
-      return { public: { contractAddress, blockHeight: 1 }, private: {} } as any;
     }
   };
 }
@@ -371,52 +363,20 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
         const encodedCampaign = new TextEncoder().encode(campaignId);
         campaignBytes.set(encodedCampaign.subarray(0, 32));
         
-        let txHash = '';
-        try {
-          const tx = await contract.callTx.submitFeedback(campaignBytes, new Uint8Array(hashBuffer));
-          txHash = tx.public.txHash;
-        } catch (callError: any) {
-          // 1. Handle Testnet Congestion (Transaction already pending)
-          // If the network is lagging, the wallet will reject new submissions because one is already in the mempool.
-          // We treat this as a success so the user isn't permanently blocked by the blockchain's slow block times!
-          if (callError.message && callError.message.toLowerCase().includes('pending')) {
-            console.log('[VEIL] Transaction already pending in mempool. Bypassing UI wait!');
-            txHash = 'pending_' + Date.now();
-          } 
-          // 2. Handle SDK Validation Bug
-          // The Midnight SDK throws our mocked FinalizedTxData object because it fails some internal validation.
-          // We can rescue the txHash directly from the stringified JSON error message!
-          else if (callError.message && callError.message.includes('"txHash"')) {
-            try {
-              const jsonStart = callError.message.indexOf('{');
-              if (jsonStart !== -1) {
-                const parsed = JSON.parse(callError.message.substring(jsonStart));
-                if (parsed?.public?.txHash) {
-                  txHash = parsed.public.txHash;
-                }
-              }
-            } catch (parseError) {
-              console.error('Failed to parse thrown tx object:', parseError);
-            }
-          }
-          
-          if (!txHash) {
-             throw callError; // Re-throw if it wasn't our mocked object or a pending error
-          }
-        }
-        
-        console.log('[VEIL] Transaction Successful! TxHash:', txHash);
+        const tx = await contract.callTx.submitFeedback(campaignBytes, new Uint8Array(hashBuffer));
+        console.log('[VEIL] Transaction Successful! TxHash:', tx.public.txHash);
 
         // 2. Save the answers and transaction hash to our traditional backend database
         const res = await fetch('/api/feedback', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ answers, nullifier, campaignId, txHash })
+          body: JSON.stringify({ answers, nullifier, campaignId, txHash: tx.public.txHash })
         });
         const resData = await res.json();
         
         if (!resData.success) throw new Error(resData.error);
-        resolve(resData.proofId);
+        // We resolve with the REAL on-chain Midnight transaction hash so the UI and Explorer can display the authentic proof
+        resolve(tx.public.txHash);
       } catch (e: any) {
         console.error('[VEIL] Feedback submission failed', e);
         // Alert the user if the contract rejects the transaction (e.g. double voting)

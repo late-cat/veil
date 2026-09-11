@@ -31,7 +31,8 @@ export async function POST(request: Request) {
     const data = await request.json();
     const records = await readDB('feedback.json');
     
-    const proofId = 'VF-' + Math.random().toString(16).substring(2, 9).toUpperCase();
+    // Professionally sync with the authentic Midnight Blockchain hash sent from the wallet extension
+    const proofId = data.txHash || ('VF-' + Math.random().toString(16).substring(2, 9).toUpperCase());
     
     records.push({
       ...data,
