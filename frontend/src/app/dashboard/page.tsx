@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useMidnight } from '@/providers/MidnightProvider';
+import { WalletBadge } from '@/components/WalletBadge';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 export type QuestionType = 'text' | 'mcq' | 'rating' | 'image';
@@ -170,10 +171,7 @@ export default function Dashboard() {
           </Link>
           <div className="flex gap-4 items-center flex-wrap justify-center">
             {walletConnected ? (
-              <div className="flex items-center gap-3 bg-[var(--color-cotton-pink)]/30 px-4 py-2 rounded-full felt-texture inset-puffy border border-slate-200">
-                <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
-                <span className="font-label-sm text-slate-800 font-bold truncate max-w-[100px]">{walletAddress}</span>
-              </div>
+              <WalletBadge />
             ) : (
               <button 
                 onClick={() => connectWallet()}

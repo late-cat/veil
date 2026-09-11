@@ -7,6 +7,7 @@ import type { InitialAPI, ConnectedAPI } from '@midnight-ntwrk/dapp-connector-ap
 interface MidnightContextType {
   walletConnected: boolean;
   walletAddress: string | null;
+  walletBalance: string | null;
   isConnecting: boolean;
   networkId: string | null;
   connectWallet: () => Promise<void>;
@@ -21,8 +22,15 @@ const MidnightContext = createContext<MidnightContextType | undefined>(undefined
  * Discovers the first available Midnight wallet provider from window.midnight.
  * Per the official DApp Connector spec, wallets inject under UUID keys.
  */
-function discoverWallet(): InitialAPI | null {
+function discoverWallet(walletId?: string): InitialAPI | null {
   if (typeof window === 'undefined' || !window.midnight) return null;
+  
+  if (walletId === '1am' && window.midnight['1am']) {
+    return window.midnight['1am'] as InitialAPI;
+  }
+  if (walletId === 'lace' && (window.midnight.mnLace || window.midnight.lace)) {
+    return (window.midnight.mnLace || window.midnight.lace) as InitialAPI;
+  }
   
   const keys = Object.keys(window.midnight);
   console.log('[VEIL] Discovered window.midnight keys:', keys);
@@ -35,7 +43,7 @@ function discoverWallet(): InitialAPI | null {
         apiVersion: provider.apiVersion,
         rdns: provider.rdns,
       });
-      return provider;
+      return provider as InitialAPI;
     }
   }
   return null;
@@ -44,6 +52,7 @@ function discoverWallet(): InitialAPI | null {
 export function MidnightProvider({ children }: { children: React.ReactNode }) {
   const [walletConnected, setWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [walletBalance, setWalletBalance] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [networkId, setNetworkId] = useState<string | null>(null);
   const [connectedApi, setConnectedApi] = useState<ConnectedAPI | null>(null);
@@ -69,12 +78,11 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
       // Simulate connection delay for visual feedback
       await new Promise(r => setTimeout(r, 1000));
       
-      const wallet = discoverWallet();
+      const wallet = discoverWallet(walletId);
       if (!wallet) {
         alert(
-          '1A.M. or Lace wallet for Midnight not found!\n\n' +
-          'Please install the 1A.M. or Lace browser extension\n' +
-          'and ensure a Midnight account is configured.'
+          `${walletId === '1am' ? '1A.M.' : 'Lace'} wallet for Midnight not found!\n\n` +
+          'Please install the extension and try again.'
         );
         throw new Error('No Midnight wallet provider found');
       }
@@ -194,6 +202,15 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
+      // Fetch Balance
+      try {
+        const dust = await api.getDustBalance();
+        const formattedBalance = (Number(dust.balance) / 1000000).toFixed(2);
+        setWalletBalance(formattedBalance);
+      } catch (balanceErr) {
+        console.warn('[VEIL] Could not fetch dust balance:', balanceErr);
+      }
+
       setWalletConnected(true);
       console.log('[VEIL] Wallet connected successfully!');
       
@@ -215,6 +232,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
   const disconnectWallet = () => {
     setWalletConnected(false);
     setWalletAddress(null);
+    setWalletBalance(null);
     setConnectedApi(null);
     setNetworkId(null);
     console.log('[VEIL] Wallet disconnected.');
@@ -320,7 +338,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <MidnightContext.Provider value={{ 
-      walletConnected, walletAddress, isConnecting, networkId,
+      walletConnected, walletAddress, walletBalance, isConnecting, networkId,
       connectWallet, disconnectWallet, generateProofAndSubmit, deploySmartContract 
     }}>
       {children}
@@ -358,6 +376,19 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
               ) : (
                 <>
                   <button 
+                    onClick={() => executeConnection('1am')}
+                    className="w-full flex items-center justify-between p-4 rounded-2xl border border-slate-200 hover:border-slate-400 hover:bg-slate-50 transition-colors mb-4"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-800 font-bold text-lg">
+                        1
+                      </div>
+                      <span className="font-bold text-slate-800">1A.M. Wallet</span>
+                    </div>
+                    <span className="material-symbols-outlined text-slate-400">chevron_right</span>
+                  </button>
+
+                  <button 
                     onClick={() => executeConnection('lace')}
                     className="w-full flex items-center justify-between p-4 rounded-2xl border border-slate-200 hover:border-slate-400 hover:bg-slate-50 transition-colors"
                   >
@@ -365,24 +396,9 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
                       <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-800">
                         <span className="material-symbols-outlined">account_balance_wallet</span>
                       </div>
-                      <span className="font-bold text-slate-800">1A.M. / Lace Wallet</span>
+                      <span className="font-bold text-slate-800">Lace Wallet</span>
                     </div>
                     <span className="material-symbols-outlined text-slate-400">chevron_right</span>
-                  </button>
-
-                  <button 
-                    disabled
-                    className="w-full flex items-center justify-between p-4 rounded-2xl border border-slate-100 bg-slate-50 opacity-60 cursor-not-allowed"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-500">
-                        <span className="material-symbols-outlined">extension</span>
-                      </div>
-                      <div className="flex flex-col items-start">
-                        <span className="font-bold text-slate-600">Nightly</span>
-                        <span className="text-xs text-slate-500">Coming soon</span>
-                      </div>
-                    </div>
                   </button>
                 </>
               )}
