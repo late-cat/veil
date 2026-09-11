@@ -72,7 +72,7 @@ Traditional surveys force users to trust the organization not to look at backend
 | **Minimum 3 Tests Passing** | ✅ **Done.** We have 9/9 tests actively passing in our CI/CD pipeline, validating all smart contract edge cases. |
 | **CI/CD Pipeline Running** | ✅ **Done.** Configured `.github/workflows/contracts.yml` to automatically install the Compact compiler, generate the circuits, and run the test suite on every push. |
 | **Approved Idea Submitted** | ✅ **Done.** The project strictly aligns with the "Anonymous Feedback/Surveys" category from the official idea list. Proposal attached in `docs/PROPOSAL.md`. |
-| **Test Output Screenshot** | ⚠️ **Action Required:** Run `npm test` in the terminal and replace the placeholder in the Deliverables section below with your screenshot. |
+| **Test Output Screenshot** | ✅ **Done.** The passing test suite output is now embedded directly in the Deliverables section below. |
 | **CI/CD Badge** | ✅ **Done.** Active GitHub Actions badge integrated at the very top of this README. |
 | **Privacy Model "Observer"** | ✅ **Done.** Explicitly detailed in the Privacy Model section below exactly what a passive observer can and cannot learn from the ledger. |
 
@@ -104,7 +104,25 @@ Traditional surveys force users to trust the organization not to look at backend
 <summary><b>View Test Output</b></summary>
 <br>
 
-`[Insert your Test Screenshot here before submitting]`
+```text
+> veil-backend@1.0.0 test
+> node --import tsx --test tests/survey.test.ts
+
+✔ Survey Contract - Multi-tenant circuit logic is defined (0.720ms)
+✔ Survey Contract - State transitions are properly typed for ledger state (0.068ms)
+✔ Survey Contract - Private inputs are never exposed to ledger state (0.042ms)
+✔ Survey Contract - Contains Campaigns Map Ledger (0.037ms)
+✔ Survey Contract - Contains Nullifier Map Ledger (0.046ms)
+✔ Survey Contract - Multi-tenant double submission is prevented (0.035ms)
+✔ Survey Contract - Campaign ID and Nullifier are explicitly disclosed (0.032ms)
+✔ Survey Contract - Private feedback is securely withheld (0.030ms)
+✔ Survey Contract - Valid proofs increment the specific campaign count (0.043ms)
+
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+```
 </details>
 
 ---
