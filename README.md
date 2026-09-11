@@ -104,25 +104,7 @@ Traditional surveys force users to trust the organization not to look at backend
 <summary><b>View Test Output</b></summary>
 <br>
 
-```text
-> veil-backend@1.0.0 test
-> node --import tsx --test tests/survey.test.ts
-
-✔ Survey Contract - Multi-tenant circuit logic is defined (0.720ms)
-✔ Survey Contract - State transitions are properly typed for ledger state (0.068ms)
-✔ Survey Contract - Private inputs are never exposed to ledger state (0.042ms)
-✔ Survey Contract - Contains Campaigns Map Ledger (0.037ms)
-✔ Survey Contract - Contains Nullifier Map Ledger (0.046ms)
-✔ Survey Contract - Multi-tenant double submission is prevented (0.035ms)
-✔ Survey Contract - Campaign ID and Nullifier are explicitly disclosed (0.032ms)
-✔ Survey Contract - Private feedback is securely withheld (0.030ms)
-✔ Survey Contract - Valid proofs increment the specific campaign count (0.043ms)
-
-ℹ tests 9
-ℹ suites 0
-ℹ pass 9
-ℹ fail 0
-```
+![Test Output](./frontend/src/img/test-output.png)
 </details>
 
 ---
