@@ -41,6 +41,10 @@ export default function CampaignDetails() {
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
+  
+  // State for dynamic verification inputs
+  const [verifyStates, setVerifyStates] = useState<Record<string, boolean>>({});
+  const [verifyHashes, setVerifyHashes] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (campaignId) {
@@ -232,15 +236,53 @@ export default function CampaignDetails() {
                   <div className="flex flex-col gap-6">
                     <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
                       <div className="flex flex-wrap items-center gap-3">
-                        <button 
-                          onClick={() => {
-                            alert('Due to Midnight Testnet Wallet limitations, the transaction hash is withheld from the Web UI.\n\nTo verify this response on the blockchain, please ask the reviewer to provide their authentic Transaction Hash directly from their 1A.M. wallet "Transactions" tab.');
-                            window.open('https://preprod.midnightexplorer.com/', '_blank');
-                          }}
-                          className="font-label-sm font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-md inset-puffy border border-blue-100 uppercase transition-colors flex items-center gap-1"
-                        >
-                          Verify on Explorer <span className="material-symbols-outlined text-[12px]">open_in_new</span>
-                        </button>
+                        {verifyStates[fb.proofId] ? (
+                          <div className="flex items-center gap-2 bg-white rounded-md border border-blue-200 p-1 shadow-sm">
+                            <input 
+                              type="text" 
+                              placeholder="Paste Hash (e.g. 0xde94...)" 
+                              className="font-mono text-xs px-2 py-1 outline-none text-slate-700 w-48 bg-transparent"
+                              value={verifyHashes[fb.proofId] || ''}
+                              onChange={(e) => setVerifyHashes({...verifyHashes, [fb.proofId]: e.target.value})}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  const val = verifyHashes[fb.proofId]?.trim();
+                                  if (val) {
+                                    const formatted = val.startsWith('0x') ? val : '0x' + val;
+                                    window.open(`https://preprod.midnightexplorer.com/transactions/${formatted}`, '_blank');
+                                    setVerifyStates({...verifyStates, [fb.proofId]: false});
+                                  }
+                                }
+                              }}
+                            />
+                            <button 
+                              onClick={() => {
+                                const val = verifyHashes[fb.proofId]?.trim();
+                                if (val) {
+                                  const formatted = val.startsWith('0x') ? val : '0x' + val;
+                                  window.open(`https://preprod.midnightexplorer.com/transactions/${formatted}`, '_blank');
+                                  setVerifyStates({...verifyStates, [fb.proofId]: false});
+                                }
+                              }}
+                              className="bg-blue-600 hover:bg-blue-700 text-white rounded px-2 py-1 flex items-center justify-center transition-colors"
+                            >
+                              <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                            </button>
+                            <button 
+                              onClick={() => setVerifyStates({...verifyStates, [fb.proofId]: false})}
+                              className="text-slate-400 hover:text-slate-600 rounded px-1 py-1 flex items-center justify-center transition-colors"
+                            >
+                              <span className="material-symbols-outlined text-[14px]">close</span>
+                            </button>
+                          </div>
+                        ) : (
+                          <button 
+                            onClick={() => setVerifyStates({...verifyStates, [fb.proofId]: true})}
+                            className="font-label-sm font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-md inset-puffy border border-blue-100 uppercase transition-colors flex items-center gap-1"
+                          >
+                            Verify <span className="material-symbols-outlined text-[12px]">search</span>
+                          </button>
+                        )}
                       </div>
                       <div className="flex flex-col items-end gap-1">
                         <span className="font-label-sm text-slate-500 font-bold tracking-widest uppercase">Response #{feedbacks.length - idx}</span>
