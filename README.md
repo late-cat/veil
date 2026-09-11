@@ -107,6 +107,15 @@ Traditional surveys force users to trust the organization not to look at backend
 ![Test Output](./frontend/src/img/test-output.png)
 </details>
 
+### 4. Unified CI/CD Pipeline (Level 3)
+*GitHub Actions dashboard verifying the automated testing and build processes.*
+<details open>
+<summary><b>View CI/CD Pipeline</b></summary>
+<br>
+
+![CI/CD Pipeline](./frontend/src/img/CI_cd-pipeline.png)
+</details>
+
 ---
 
 ## 🔒 Privacy Model: What an Observer Can and Cannot Learn
