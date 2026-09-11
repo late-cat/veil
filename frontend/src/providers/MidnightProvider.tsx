@@ -29,10 +29,21 @@ function discoverWallet(walletId?: string): InitialAPI | null {
   if (walletId === '1am' && window.midnight['1am']) {
     return window.midnight['1am'] as InitialAPI;
   }
-  if (walletId === 'lace' && (window.midnight.mnLace || window.midnight.lace)) {
-    return (window.midnight.mnLace || window.midnight.lace) as InitialAPI;
+  
+  if (walletId === 'lace') {
+    // 1A.M. often injects itself into mnLace to hijack connections. We must strictly check the name/rdns.
+    const potentialLace = (window.midnight.mnLace || window.midnight.lace) as InitialAPI;
+    if (potentialLace && !potentialLace.name.toLowerCase().includes('1am')) {
+      return potentialLace;
+    }
   }
   
+  // If they specifically requested a wallet and we didn't find it, return null immediately
+  if (walletId) {
+    return null;
+  }
+  
+  // If no specific wallet requested, auto-discover the first available one
   const keys = Object.keys(window.midnight);
   console.log('[VEIL] Discovered window.midnight keys:', keys);
   
