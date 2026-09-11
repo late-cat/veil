@@ -53,13 +53,18 @@ export default function Dashboard() {
       }
     }
 
-    fetch('/api/campaigns')
-      .then(r => r.json())
-      .then(data => {
-        if(data.success) setCampaigns(data.campaigns);
-        setLoading(false);
-      });
-  }, []);
+    if (walletAddress) {
+      fetch(`/api/campaigns?wallet=${encodeURIComponent(walletAddress)}`)
+        .then(r => r.json())
+        .then(data => {
+          if(data.success) setCampaigns(data.campaigns);
+          setLoading(false);
+        });
+    } else {
+      setCampaigns([]);
+      setLoading(false);
+    }
+  }, [walletAddress]);
 
   const addQuestion = (type: QuestionType) => {
     setQuestions([...questions, {

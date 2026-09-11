@@ -407,10 +407,13 @@ export default function CampaignSurvey() {
                     </div>
                     
                     <div className="w-full bg-[var(--color-cotton-bg)] p-6 rounded-[2rem] inset-puffy border border-white/50 text-center space-y-3">
-                      <div className="font-label-sm font-bold text-slate-500 uppercase tracking-widest">Midnight Proof ID</div>
-                      <code className="font-label-lg font-bold text-slate-800 break-all select-all block px-4 py-3 bg-white rounded-xl shadow-sm border border-slate-200">
-                        {proofId}
-                      </code>
+                      <div className="font-label-sm font-bold text-slate-500 uppercase tracking-widest flex items-center justify-center gap-2">
+                        <span className="material-symbols-outlined text-sm">info</span>
+                        Testnet Wallet Limitation
+                      </div>
+                      <p className="font-body-md text-slate-700 text-sm">
+                        Transaction successfully broadcasted! To verify this proof on the Midnight Explorer, please copy the authentic <strong>Transaction Hash</strong> directly from your 1A.M. wallet's "Transactions" tab.
+                      </p>
                     </div>
 
                     <button 
