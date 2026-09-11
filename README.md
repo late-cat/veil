@@ -140,12 +140,12 @@ sequenceDiagram
     participant Network as Midnight Preprod
     participant Participant
     
-    Issuer->>Network: Deploy survey.compact
-    Issuer->>Participant: Share Campaign Link
-    Participant->>Participant: Compute ZK Proof Locally (1AM Wallet)
-    Participant->>Network: Submit Proof & Nullifier
-    Network->>Network: Verify Proof & Update Ledger
-    Network-->>Issuer: Verifiable Anonymous Tally
+    Issuer->>Network: "Deploy survey.compact"
+    Issuer->>Participant: "Share Campaign Link"
+    Participant->>Participant: "Compute ZK Proof Locally (1AM Wallet)"
+    Participant->>Network: "Submit Proof & Nullifier"
+    Network->>Network: "Verify Proof & Update Ledger"
+    Network-->>Issuer: "Verifiable Anonymous Tally"
 ```
 
 ---
