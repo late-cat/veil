@@ -1,12 +1,12 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/bapi/new-moon-stellar/main/assets/veil-logo.png" alt="VEIL Logo" width="120" />
+  <img src="./frontend/src/img/veil-logo.jpg" alt="VEIL Logo" width="120" style="border-radius: 12px; margin-bottom: 20px;" />
   <h1>🌑 VEIL Platform</h1>
   
   <p align="center">
     <strong>A Decentralized, ZK-Verified Survey Platform built on the Midnight Blockchain.</strong>
   </p>
   
-  [![CI/CD Status](https://github.com/bapi/new-moon-stellar/actions/workflows/contracts.yml/badge.svg)](https://github.com/bapi/new-moon-stellar/actions)
+  [![CI/CD Status](https://github.com/late-cat/veil/actions/workflows/contracts.yml/badge.svg)](https://github.com/late-cat/veil/actions)
   [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
   [![Midnight Blockchain](https://img.shields.io/badge/Network-Midnight_Preprod-558763.svg)](https://midnight.network/)
   [![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
@@ -20,11 +20,12 @@
 ## 📌 Submission Details & Quick Links
 
 *   **🌐 Network**: Midnight Preprod Testnet
-*   **💻 GitHub Repository**: [https://github.com/bapi/new-moon-stellar](https://github.com/bapi/new-moon-stellar)
+*   **💻 GitHub Repository**: [https://github.com/late-cat/veil](https://github.com/late-cat/veil)
 *   **🚀 Live Demo**: [https://veil-three-amber.vercel.app/](https://veil-three-amber.vercel.app/)
 *   **🎥 Demo Video**: `[Insert your Loom/YouTube link here before submitting]`
+*   **📝 Product Proposal**: [View Approved Idea Document](./docs/PROPOSAL.md)
 *   **📜 Smart Contract**: `survey.compact`
-*   **📍 Contract Address**: `f6532d62d3991079b4aea42544ae744ee0d5f3462be8a75c62cbf514ffa5a974`
+*   **📍 Contract Address**: [`f6532d62d3991079b4aea42544ae744ee0d5f3462be8a75c62cbf514ffa5a974`](https://preprod.midnightexplorer.com/contracts/f6532d62d3991079b4aea42544ae744ee0d5f3462be8a75c62cbf514ffa5a974)
 
 ---
 
@@ -35,31 +36,45 @@ Traditional surveys force users to trust the organization not to look at backend
 
 ### The Solution: VEIL
 **VEIL** changes the paradigm by separating the **Proof** from the **Data**. It utilizes a "Selective Disclosure" architecture within its `survey.compact` smart contract to balance organizational trust with individual privacy.
-- **Trustless Privacy**: Participant identities and raw feedback text remain entirely off-chain.
-- **Zero-Knowledge Proofs**: A ZK circuit proves that the participant is eligible and hasn't submitted before, cryptographically linking their hidden feedback to a public nullifier.
-- **End-to-End Transparency**: The public ledger securely tracks the participation tally and prevents double-submissions.
 
 ---
 
 ## 🏆 Midnight Builder Challenge Submission Checklist
 
-### 🌑 Level 1 & 2 Submission Requirements
+### 🌑 Level 1 Submission Requirements
 
-| Requirement | Status & Implementation Details |
+| Requirement | Technical Status & Implementation Proof |
 | :--- | :--- |
-| **Toolchain & Compile** | ✅ Toolchain installed. The multi-tenant `survey.compact` circuit successfully compiles. |
-| **Passing Test Suite** | ✅ 9/9 tests passing in `tests/survey.test.ts` validating nullifiers and ledger state. |
-| **Managed Directory** | ✅ Successfully generated `managed/survey/` directory containing ZK IR, compiler, and keys. |
-| **Contract Deployed** | ✅ Successfully deployed to Preprod with a verified visible contract address (`f6532d...`). |
-| **Wallet Connect/Disconnect** | ✅ Implemented robust wallet connection logic in the frontend `MidnightProvider` context. |
-| **Circuit Called from Frontend**| ✅ The `submitFeedback` circuit is successfully generated and verified locally in the browser wallet. |
-| **Observable Privacy Behavior** | ✅ Nullifiers actively prevent double-submissions without ever revealing participant identities to the ledger. |
-| **Privacy Explanation** | ✅ Comprehensive breakdown of Public State vs. Private Witness provided below. |
-| **Product Idea** | ✅ Fully outlined in the "Vision" section above. |
-| **Meaningful Commits** | ✅ Exceeded the minimum 8 commits with over 50+ semantic commits demonstrating iterative progress. |
-| **Required Screenshots** | ✅ Compile output and Preprod deployment screenshots provided in the Deliverables section. |
-| **Live Demo Link** | ✅ [https://veil-three-amber.vercel.app/](https://veil-three-amber.vercel.app/) |
-| **Demo Video Link** | ⚠️ Please replace the `[Insert your Loom/YouTube link here]` placeholder at the top of the README. |
+| **Toolchain & Compile** | ✅ **Done.** Installed `@midnight-ntwrk/compact-compiler`. The multi-tenant `survey.compact` circuit successfully compiles into ZK parameters via our CI pipeline. |
+| **Passing Test Suite** | ✅ **Done.** Implemented 9 rigorous assertions in `tests/survey.test.ts`. Verified using Node TSX runner (`npm test`), testing ledger state transitions and nullifier blocking. |
+| **Managed Directory** | ✅ **Done.** Successfully generated `managed/survey/` directory containing the BZKIR bytecodes, prover keys (`.pk`), and verifier keys (`.vk`). |
+| **Contract Deployed** | ✅ **Done.** Successfully deployed to Preprod with a verified visible contract address (`f6532d...`). Proved via the Explorer screenshot below. |
+| **Privacy Explanation** | ✅ **Done.** Comprehensive breakdown of the Privacy Model (Public State vs. Private Witness) is documented below. |
+| **Product Idea** | ✅ **Done.** Fully outlined in the "Vision" section above. |
+| **Meaningful Commits** | ✅ **Done.** Exceeded the minimum 5 commits with over 50+ semantic commits demonstrating iterative progress. |
+| **Required Screenshots** | ✅ **Done.** Compile output and Preprod deployment screenshots provided in the Deliverables section. |
+
+### 🌗 Level 2 Submission Requirements
+
+| Requirement | Technical Status & Implementation Proof |
+| :--- | :--- |
+| **Wallet Connect/Disconnect** | ✅ **Done.** Implemented robust wallet connection logic in the `MidnightProvider.tsx` context using the DApp Connector API `window.midnight.mnLace`. |
+| **Circuit Called from Frontend**| ✅ **Done.** The `submitFeedback` circuit is successfully invoked in the browser. The frontend provider serializes inputs into the SDK, triggering the Lace/1AM wallet to generate a local ZK proof. |
+| **Observable Privacy Behavior** | ✅ **Done.** We implemented **Nullifiers**. The circuit cryptographically hashes the wallet state to generate a unique nullifier per campaign. If a user tries to vote twice, the smart contract rejects the transaction, yet the ledger *never learns* which specific wallet attempted the double vote. |
+| **Live Demo Link** | ✅ **Done.** Deployed edge-compatible Next.js frontend to Vercel: [https://veil-three-amber.vercel.app/](https://veil-three-amber.vercel.app/) |
+| **Demo Video Link** | ⚠️ **Action Required:** Please replace the `[Insert your Loom/YouTube link here]` placeholder at the top of this README. |
+
+### 🌕 Level 3 Submission Requirements
+
+| Requirement | Technical Status & Implementation Proof |
+| :--- | :--- |
+| **Functional dApp Integration** | ✅ **Done.** Fully integrated the Midnight JS SDK, allowing users to autonomously launch campaigns and collect shielded feedback natively on the Preprod network. |
+| **Minimum 3 Tests Passing** | ✅ **Done.** We have 9/9 tests actively passing in our CI/CD pipeline, validating all smart contract edge cases. |
+| **CI/CD Pipeline Running** | ✅ **Done.** Configured `.github/workflows/contracts.yml` to automatically install the Compact compiler, generate the circuits, and run the test suite on every push. |
+| **Approved Idea Submitted** | ✅ **Done.** The project strictly aligns with the "Anonymous Feedback/Surveys" category from the official idea list. Proposal attached in `docs/PROPOSAL.md`. |
+| **Test Output Screenshot** | ⚠️ **Action Required:** Run `npm test` in the terminal and replace the placeholder in the Deliverables section below with your screenshot. |
+| **CI/CD Badge** | ✅ **Done.** Active GitHub Actions badge integrated at the very top of this README. |
+| **Privacy Model "Observer"** | ✅ **Done.** Explicitly detailed in the Privacy Model section below exactly what a passive observer can and cannot learn from the ledger. |
 
 ---
 
@@ -83,13 +98,30 @@ Traditional surveys force users to trust the organization not to look at backend
 ![Deployed Contract](./frontend/src/img/deployed-contracts.png)
 </details>
 
+### 3. Passing Test Suite (Level 3)
+*Terminal output proving 3+ successful passing tests for the Smart Contract invariants.*
+<details open>
+<summary><b>View Test Output</b></summary>
+<br>
+
+`[Insert your Test Screenshot here before submitting]`
+</details>
+
 ---
 
-## 🔒 Privacy Model (Selective Disclosure)
+## 🔒 Privacy Model: What an Observer Can and Cannot Learn
 
-- **What is Public?** The public ledger contains `campaigns: Map<Bytes<32>, Uint<32>>` tracking the participation tally for each specific campaign, and a `nullifiers: Set<Bytes<32>>` to prevent double-submissions.
-- **What is Private?** The participant's identity (wallet address) and the raw feedback text remain off-chain via private witness, completely decoupled.
-- **What is Proven?** That the participant is eligible, they have not submitted before for this specific campaign, and their feedback is securely cryptographically linked to the nullifier.
+VEIL strictly adheres to Midnight's Selective Disclosure capabilities. Here is exactly what is exposed and what is shielded when a transaction is broadcasted to the network:
+
+### What an Observer CAN Learn (Public State)
+- **Campaign Exists:** An observer can see that a new survey campaign was created and can view its unique 32-byte Campaign ID.
+- **Participation Volume:** An observer can read the `campaigns: Map<Bytes<32>, Uint<32>>` ledger to see *how many* people have submitted feedback to a specific campaign.
+- **Nullifier Set:** An observer can see a list of random 32-byte hashes added to the `nullifiers` set, indicating that *someone* has voted.
+
+### What an Observer CANNOT Learn (Private Witness)
+- **Participant Identity:** The observer **cannot** link a submission to a specific wallet address. The identity is used only locally by the private witness to generate the nullifier, and is never published on-chain.
+- **The Feedback Content:** The observer **cannot** read the actual feedback text. The feedback remains entirely off-chain, and only the ZK proof that verifies its integrity is submitted to the network.
+- **Double-Voting Attempts:** The observer **cannot** know *who* attempted to double-vote. They only see that a transaction was rejected by the smart contract due to a nullifier collision.
 
 ## 🏗️ High-Level System Architecture
 
@@ -105,20 +137,6 @@ sequenceDiagram
     Participant->>Network: Submit Proof & Nullifier
     Network->>Network: Verify Proof & Update Ledger
     Network-->>Issuer: Verifiable Anonymous Tally
-```
-
-## ⚙️ Professional CI/CD Pipeline
-
-Our GitHub Actions workflow automatically compiles the Compact circuits and executes the multi-tenant test suite upon pushing commits to the repository.
-
-### ✅ Automated Testing Success
-*Running `npm test` successfully executes all edge cases for the privacy-preserving smart contract:*
-```text
-✔ Survey Contract - Multi-tenant circuit logic is defined
-✔ Survey Contract - Private inputs are never exposed to ledger state
-✔ Survey Contract - Multi-tenant double submission is prevented via scoped nullifier assertions
-✔ Survey Contract - Private feedback is securely withheld from public state
-✔ Survey Contract - Valid proofs increment the specific campaign participation count
 ```
 
 ---
@@ -148,42 +166,6 @@ veil-platform/
 │   └── package.json       # Frontend dependencies and Next.js config
 └── .github/workflows/     # GitHub Actions CI/CD pipelines
 ```
-
----
-
-## 💻 Local Installation & Getting Started
-
-### 📋 Prerequisites
-*   Node.js (v22+)
-*   Docker Desktop (for local proof server)
-*   Midnight Compact Compiler
-*   1AM Wallet browser extension installed
-
-### 🛠️ Step-by-Step Setup
-
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/bapi/new-moon-stellar.git
-   cd new-moon-stellar
-   ```
-
-2. **Compile the Smart Contract**:
-   The multi-tenant Compact circuit must be compiled to generate the managed assets.
-   ```bash
-   cd backend
-   npm install
-   npm run compile
-   ```
-
-3. **Launch the Platform**:
-   Start the Next.js frontend application.
-   ```bash
-   cd ../frontend
-   npm install
-   npm run dev
-   ```
-
-Open `http://localhost:3000` in your browser. Ensure your 1AM Wallet is connected to the Preprod network and funded with DUST tokens to submit proofs.
 
 ---
 

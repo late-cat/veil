@@ -1,4 +1,4 @@
-name: Contracts CI
+name: VEIL CI/CD
 
 on:
   push:
@@ -17,15 +17,21 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Use Node.js
+    - name: Use Node.js 22
       uses: actions/setup-node@v4
       with:
         node-version: '22.x'
         cache: 'npm'
         cache-dependency-path: './backend/package-lock.json'
         
+    - name: Install Compact Compiler
+      run: npm install -g @midnight-ntwrk/compact-compiler
+        
     - name: Install Dependencies
       run: npm ci
       
-    - name: Typecheck Backend
-      run: npm run build
+    - name: Compile ZK Circuits
+      run: npm run compile
+      
+    - name: Run Midnight Test Suite
+      run: npm test
