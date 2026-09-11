@@ -88,10 +88,9 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
         throw new Error('No Midnight wallet provider found');
       }
 
-      const networksToTry = ['undeployed', 'preview', 'preprod', 'mainnet'];
+      const networksToTry = ['preprod', 'testnet'];
       let api: ConnectedAPI | null = null;
-      let connectedNetwork: string | null = null;
-
+      let connectedNetwork = '';
       for (const net of networksToTry) {
         try {
           console.log(`[VEIL] Attempting connect with network: ${net}`);
@@ -107,17 +106,12 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (!api || !connectedNetwork) {
-        const userNetwork = prompt(
-          'Could not auto-detect your wallet network.\n\n' +
-          'Please enter the network your Midnight account is configured for:\n' +
-          '(undeployed, preview, preprod, mainnet)'
+        alert(
+          'VEIL requires the Midnight Preprod Network.\n\n' +
+          'Your wallet is currently set to a different network (like Local Node or Mainnet).\n' +
+          'Please open your wallet extension, switch the network to Preprod (or Testnet), and try connecting again.'
         );
-        if (userNetwork) {
-          api = await wallet.connect(userNetwork.trim().toLowerCase());
-          connectedNetwork = userNetwork.trim().toLowerCase();
-        } else {
-          throw new Error('Connection cancelled by user');
-        }
+        throw new Error('Wallet not on Preprod network');
       }
 
       if (connectedNetwork === 'testnet') {
