@@ -10,6 +10,7 @@ import { Logo } from '@/components/Logo';
 export default function Home() {
   const { walletConnected, isConnecting, connectWallet } = useMidnight();
   const [mounted, setMounted] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -24,29 +25,42 @@ export default function Home() {
       
       {/* Navigation */}
       <header className="shrink-0 z-50 bg-[var(--color-cotton-bg)]/80 backdrop-blur-md border-b border-slate-300 shadow-sm felt-texture sticky top-0">
-        <nav className="flex flex-col sm:flex-row justify-between items-center w-full px-[var(--spacing-container-padding)] py-4 max-w-7xl mx-auto gap-4">
-          <div className="flex items-center gap-2 text-slate-800">
-            <Logo className="text-slate-800" />
-            <h1 className="font-headline-md font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 drop-shadow-md">VEIL Protocol</h1>
+        <nav className="flex flex-col sm:flex-row justify-between items-center w-full px-4 sm:px-[var(--spacing-container-padding)] py-4 max-w-7xl mx-auto">
+          <div className="w-full sm:w-auto flex justify-between items-center">
+            <div className="flex items-center gap-2 text-slate-800">
+              <Logo className="text-slate-800" />
+              <h1 className="font-headline-md font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 drop-shadow-md">VEIL Protocol</h1>
+            </div>
+            
+            <button 
+              className="sm:hidden text-slate-800 p-2 hover:bg-slate-200/50 rounded-full transition-colors"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              <span className="material-symbols-outlined text-3xl">{isMobileMenuOpen ? 'close' : 'menu'}</span>
+            </button>
           </div>
           
-          <div className="flex gap-3 sm:gap-6 items-center flex-wrap justify-center w-full sm:w-auto">
-            <Link href="/dashboard" className="font-label-lg text-slate-600 hover:text-slate-900 transition-colors drop-shadow-sm">Dashboard</Link>
-            
-            {walletConnected ? (
-              <WalletBadge />
-            ) : (
-              <button 
-                onClick={() => connectWallet()}
-                className="bg-white text-slate-800 px-6 py-2.5 rounded-full font-label-lg hover:bg-slate-100 transition-all active:scale-95 shadow-sm puffy-shadow felt-texture step-button border border-slate-200"
-              >
-                Connect Wallet
-              </button>
-            )}
-
-            <Link href="/dashboard?tab=create" className="px-6 py-2.5 rounded-full bg-slate-800 text-white font-label-md text-sm hover:bg-slate-700 transition-colors shadow-sm puffy-shadow felt-texture step-button">
-              Launch Survey
+          <div className={`${isMobileMenuOpen ? 'flex' : 'hidden'} sm:flex flex-col sm:flex-row gap-4 sm:gap-6 items-center w-full sm:w-auto mt-6 sm:mt-0`}>
+            <Link 
+              href="/dashboard" 
+              className="w-full sm:w-auto flex justify-center items-center gap-2 font-label-lg text-slate-700 hover:text-slate-900 transition-colors drop-shadow-sm bg-white/50 px-5 py-2.5 rounded-full inset-puffy border border-slate-200"
+            >
+              <span className="material-symbols-outlined text-[20px]">dashboard</span>
+              Dashboard
             </Link>
+            
+            <div className="w-full sm:w-auto flex justify-center">
+              {walletConnected ? (
+                <WalletBadge />
+              ) : (
+                <button 
+                  onClick={() => connectWallet()}
+                  className="w-full sm:w-auto bg-white text-slate-800 px-6 py-2.5 rounded-full font-label-lg hover:bg-slate-100 transition-all active:scale-95 shadow-sm puffy-shadow felt-texture step-button border border-slate-200"
+                >
+                  Connect Wallet
+                </button>
+              )}
+            </div>
           </div>
         </nav>
       </header>

@@ -36,6 +36,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [newOption, setNewOption] = useState('');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [bannerUrl, setBannerUrl] = useState('');
   const [isUploading, setIsUploading] = useState(false);
@@ -195,28 +197,43 @@ export default function Dashboard() {
       <main className="px-4 sm:px-8 xl:px-12 pt-28 pb-12 w-full relative z-10 flex flex-col md:flex-row gap-10 min-h-screen">
         
         {/* Sidebar Navigation */}
-        <aside className="w-full md:w-64 shrink-0 flex flex-row overflow-x-auto md:flex-col gap-3 md:gap-4 pb-2 md:pb-0 scrollbar-hide">
+        <aside className="w-full md:w-64 shrink-0 flex flex-col gap-3">
           <button 
-            onClick={() => setActiveTab('create')}
-            className={`flex-1 md:flex-none flex items-center justify-center md:justify-start gap-2 md:gap-3 p-3 md:p-4 rounded-2xl font-label-sm md:font-label-lg transition-all whitespace-nowrap ${activeTab === 'create' ? 'bg-slate-800 text-white shadow-sm puffy-shadow' : 'bg-white/50 text-slate-700 hover:bg-white/80 border border-slate-200 inset-puffy'}`}
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="md:hidden w-full flex items-center justify-between p-4 rounded-[1.5rem] bg-slate-800 text-white shadow-sm puffy-shadow font-label-lg"
           >
-            <span className="material-symbols-outlined text-[18px] md:text-[24px]">add_circle</span>
-            Create Survey
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined">
+                {activeTab === 'create' ? 'add_circle' : activeTab === 'active' ? 'grid_view' : 'bar_chart'}
+              </span>
+              {activeTab === 'create' ? 'Create Survey' : activeTab === 'active' ? 'Active Surveys' : 'Statistics'}
+            </div>
+            <span className="material-symbols-outlined">{isSidebarOpen ? 'expand_less' : 'expand_more'}</span>
           </button>
-          <button 
-            onClick={() => setActiveTab('active')}
-            className={`flex-1 md:flex-none flex items-center justify-center md:justify-start gap-2 md:gap-3 p-3 md:p-4 rounded-2xl font-label-sm md:font-label-lg transition-all whitespace-nowrap ${activeTab === 'active' ? 'bg-slate-800 text-white shadow-sm puffy-shadow' : 'bg-white/50 text-slate-700 hover:bg-white/80 border border-slate-200 inset-puffy'}`}
-          >
-            <span className="material-symbols-outlined text-[18px] md:text-[24px]">grid_view</span>
-            Active Surveys
-          </button>
-          <button 
-            onClick={() => setActiveTab('stats')}
-            className={`flex-1 md:flex-none flex items-center justify-center md:justify-start gap-2 md:gap-3 p-3 md:p-4 rounded-2xl font-label-sm md:font-label-lg transition-all whitespace-nowrap ${activeTab === 'stats' ? 'bg-slate-800 text-white shadow-sm puffy-shadow' : 'bg-white/50 text-slate-700 hover:bg-white/80 border border-slate-200 inset-puffy'}`}
-          >
-            <span className="material-symbols-outlined">bar_chart</span>
-            Statistics
-          </button>
+          
+          <div className={`${isSidebarOpen ? 'flex' : 'hidden'} md:flex flex-col gap-3 md:gap-4`}>
+            <button 
+              onClick={() => { setActiveTab('create'); setIsSidebarOpen(false); }}
+              className={`w-full flex items-center gap-3 p-4 rounded-2xl font-label-lg transition-all ${activeTab === 'create' ? 'bg-slate-800 text-white shadow-sm puffy-shadow' : 'bg-white/50 text-slate-700 hover:bg-white/80 border border-slate-200 inset-puffy'}`}
+            >
+              <span className="material-symbols-outlined">add_circle</span>
+              Create Survey
+            </button>
+            <button 
+              onClick={() => { setActiveTab('active'); setIsSidebarOpen(false); }}
+              className={`w-full flex items-center gap-3 p-4 rounded-2xl font-label-lg transition-all ${activeTab === 'active' ? 'bg-slate-800 text-white shadow-sm puffy-shadow' : 'bg-white/50 text-slate-700 hover:bg-white/80 border border-slate-200 inset-puffy'}`}
+            >
+              <span className="material-symbols-outlined">grid_view</span>
+              Active Surveys
+            </button>
+            <button 
+              onClick={() => { setActiveTab('stats'); setIsSidebarOpen(false); }}
+              className={`w-full flex items-center gap-3 p-4 rounded-2xl font-label-lg transition-all ${activeTab === 'stats' ? 'bg-slate-800 text-white shadow-sm puffy-shadow' : 'bg-white/50 text-slate-700 hover:bg-white/80 border border-slate-200 inset-puffy'}`}
+            >
+              <span className="material-symbols-outlined">bar_chart</span>
+              Statistics
+            </button>
+          </div>
         </aside>
 
         {/* Main Content Area */}
