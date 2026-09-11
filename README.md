@@ -6,7 +6,7 @@
     <strong>A Decentralized, ZK-Verified Survey Platform built on the Midnight Blockchain.</strong>
   </p>
   
-  [![CI/CD Status](https://github.com/late-cat/veil/actions/workflows/contracts.yml/badge.svg)](https://github.com/late-cat/veil/actions)
+  [![CI/CD Status](https://github.com/late-cat/veil/actions/workflows/ci.yml/badge.svg)](https://github.com/late-cat/veil/actions)
   [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
   [![Midnight Blockchain](https://img.shields.io/badge/Network-Midnight_Preprod-558763.svg)](https://midnight.network/)
   [![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
