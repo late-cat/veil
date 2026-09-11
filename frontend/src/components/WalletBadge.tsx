@@ -15,6 +15,16 @@ export function WalletBadge() {
     return addr;
   };
 
+  const formatBalance = (bal: string | null) => {
+    if (!bal) return '';
+    const num = parseFloat(bal);
+    if (isNaN(num)) return '';
+    if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+    if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+    if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+    return num.toFixed(2);
+  };
+
   return (
     <motion.button 
       onClick={disconnectWallet}
@@ -22,18 +32,15 @@ export function WalletBadge() {
       onMouseLeave={() => setIsHovering(false)}
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      className={`relative overflow-hidden flex items-center justify-center w-auto min-w-[200px] h-[44px] px-6 rounded-full transition-all cursor-pointer group shadow-lg backdrop-blur-xl border ${
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      className={`relative overflow-hidden flex items-center justify-center h-[44px] px-6 rounded-full transition-all cursor-pointer group shadow-sm border ${
         isHovering 
-          ? 'bg-red-500/10 border-red-500/30 text-red-600 hover:shadow-red-500/20' 
-          : 'bg-white/40 border-white/60 text-slate-800 hover:bg-white/50'
+          ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100' 
+          : 'bg-slate-800 text-white border-slate-700 felt-texture hover:bg-slate-700'
       }`}
       title="Click to disconnect"
     >
-      {/* Liquid Glass Shine Effect */}
-      <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:animate-[shimmer_1.5s_infinite]" />
-      
       <AnimatePresence mode="wait">
         {isHovering ? (
           <motion.div 
@@ -42,7 +49,7 @@ export function WalletBadge() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.15 }}
-            className="flex items-center justify-center gap-2 z-10 w-full absolute inset-0"
+            className="flex items-center justify-center gap-2"
           >
             <span className="material-symbols-outlined text-[18px]">logout</span>
             <span className="font-label-sm font-bold tracking-wide">Disconnect</span>
@@ -54,12 +61,16 @@ export function WalletBadge() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
             transition={{ duration: 0.15 }}
-            className="flex items-center justify-center gap-3 z-10 w-full absolute inset-0 px-5"
+            className="flex items-center justify-center gap-3"
           >
-            <span className="w-2.5 h-2.5 rounded-full shrink-0 bg-green-500 animate-pulse shadow-[0_0_12px_rgba(34,197,94,0.8)]"></span>
+            <span className="w-2 h-2 rounded-full shrink-0 bg-green-400 animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.8)]"></span>
             <span className="font-label-sm font-bold tracking-wide flex items-center gap-2 whitespace-nowrap">
               {formatAddress(walletAddress)}
-              {walletBalance && <span className="px-2 py-0.5 rounded-md bg-white/50 border border-white/60 text-xs font-mono shadow-inner">{walletBalance} tDUST</span>}
+              {walletBalance && (
+                <span className="px-2 py-0.5 rounded-md border border-white/20 bg-white/10 text-xs font-mono shadow-inner tracking-tight">
+                  {formatBalance(walletBalance)} tDUST
+                </span>
+              )}
             </span>
           </motion.div>
         )}
