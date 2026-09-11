@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { InitialAPI, ConnectedAPI } from '@midnight-ntwrk/dapp-connector-api';
 
 // Context shape
@@ -344,68 +345,98 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
       {children}
 
       {/* Manual Wallet Selection Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-[9999] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl relative animate-in fade-in zoom-in duration-200">
-            <button 
-              onClick={() => setShowModal(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600"
+      <AnimatePresence>
+        {showModal && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4"
+          >
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              className="bg-white/70 backdrop-blur-3xl border border-white/50 rounded-3xl p-8 max-w-sm w-full shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden"
             >
-              <span className="material-symbols-outlined">close</span>
-            </button>
-            <h2 className="text-xl font-bold text-slate-900 mb-2">Connect Wallet</h2>
-            <p className="text-sm text-slate-600 mb-6">Select your Midnight compatible wallet to authenticate securely.</p>
-            
-            <div className="space-y-3">
-              {connectionStatus === 'connecting' || connectionStatus === 'success' ? (
-                <div className="w-full flex flex-col items-center justify-center p-8 gap-4 rounded-2xl border border-slate-200 bg-slate-50">
-                  {connectionStatus === 'connecting' ? (
-                    <>
-                      <div className="w-12 h-12 rounded-full border-4 border-slate-200 border-t-blue-500 animate-spin"></div>
-                      <span className="font-bold text-slate-700 animate-pulse">Connecting...</span>
-                    </>
+              {/* Glass glare effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-white/60 to-transparent opacity-50 pointer-events-none" />
+              
+              <button 
+                onClick={() => setShowModal(false)}
+                className="absolute top-5 right-5 text-slate-400 hover:text-slate-700 bg-white/50 hover:bg-white rounded-full w-8 h-8 flex items-center justify-center transition-all z-10 shadow-sm"
+              >
+                <span className="material-symbols-outlined text-sm font-bold">close</span>
+              </button>
+              
+              <div className="relative z-10">
+                <h2 className="text-2xl font-bold text-slate-900 mb-2 drop-shadow-sm tracking-tight">Connect Wallet</h2>
+                <p className="text-sm text-slate-600 mb-8 font-medium">Select your Midnight compatible wallet to authenticate securely.</p>
+                
+                <div className="space-y-4">
+                  {connectionStatus === 'connecting' || connectionStatus === 'success' ? (
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="w-full flex flex-col items-center justify-center p-8 gap-4 rounded-3xl border border-white/60 bg-white/40 shadow-sm backdrop-blur-md"
+                    >
+                      {connectionStatus === 'connecting' ? (
+                        <>
+                          <div className="w-12 h-12 rounded-full border-[3px] border-slate-200/50 border-t-slate-800 animate-spin shadow-sm"></div>
+                          <span className="font-bold text-slate-800 animate-pulse tracking-wide">Connecting...</span>
+                        </>
+                      ) : (
+                        <motion.div 
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="flex flex-col items-center gap-3"
+                        >
+                          <div className="w-14 h-14 rounded-full bg-green-500 text-white flex items-center justify-center shadow-[0_0_20px_rgba(34,197,94,0.4)]">
+                            <span className="material-symbols-outlined text-3xl">check</span>
+                          </div>
+                          <span className="font-bold text-green-700 text-lg">Connected!</span>
+                        </motion.div>
+                      )}
+                    </motion.div>
                   ) : (
                     <>
-                      <div className="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
-                        <span className="material-symbols-outlined text-3xl">check_circle</span>
-                      </div>
-                      <span className="font-bold text-green-700">Connected!</span>
+                      <motion.button 
+                        whileHover={{ scale: 1.02, y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => executeConnection('1am')}
+                        className="w-full flex items-center justify-between p-4 rounded-3xl border border-white/60 hover:border-white bg-white/40 hover:bg-white/70 transition-all shadow-sm hover:shadow-md group"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center text-white font-bold text-xl shadow-inner shadow-black/20 group-hover:scale-110 transition-transform">
+                            1
+                          </div>
+                          <span className="font-bold text-slate-800 text-lg">1A.M. Wallet</span>
+                        </div>
+                        <span className="material-symbols-outlined text-slate-400 group-hover:text-slate-800 transition-colors">chevron_right</span>
+                      </motion.button>
+
+                      <motion.button 
+                        whileHover={{ scale: 1.02, y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => executeConnection('lace')}
+                        className="w-full flex items-center justify-between p-4 rounded-3xl border border-white/60 hover:border-white bg-white/40 hover:bg-white/70 transition-all shadow-sm hover:shadow-md group"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-inner shadow-black/20 group-hover:scale-110 transition-transform">
+                            <span className="material-symbols-outlined">account_balance_wallet</span>
+                          </div>
+                          <span className="font-bold text-slate-800 text-lg">Lace Wallet</span>
+                        </div>
+                        <span className="material-symbols-outlined text-slate-400 group-hover:text-slate-800 transition-colors">chevron_right</span>
+                      </motion.button>
                     </>
                   )}
                 </div>
-              ) : (
-                <>
-                  <button 
-                    onClick={() => executeConnection('1am')}
-                    className="w-full flex items-center justify-between p-4 rounded-2xl border border-slate-200 hover:border-slate-400 hover:bg-slate-50 transition-colors mb-4"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-800 font-bold text-lg">
-                        1
-                      </div>
-                      <span className="font-bold text-slate-800">1A.M. Wallet</span>
-                    </div>
-                    <span className="material-symbols-outlined text-slate-400">chevron_right</span>
-                  </button>
-
-                  <button 
-                    onClick={() => executeConnection('lace')}
-                    className="w-full flex items-center justify-between p-4 rounded-2xl border border-slate-200 hover:border-slate-400 hover:bg-slate-50 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-800">
-                        <span className="material-symbols-outlined">account_balance_wallet</span>
-                      </div>
-                      <span className="font-bold text-slate-800">Lace Wallet</span>
-                    </div>
-                    <span className="material-symbols-outlined text-slate-400">chevron_right</span>
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </MidnightContext.Provider>
   );
 }
