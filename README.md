@@ -21,7 +21,7 @@
 
 *   **🌐 Network**: Midnight Preprod Testnet
 *   **💻 GitHub Repository**: [https://github.com/bapi/new-moon-stellar](https://github.com/bapi/new-moon-stellar)
-*   **🚀 Live Demo**: `[Insert your Vercel/Netlify link here before submitting]`
+*   **🚀 Live Demo**: [https://veil-three-amber.vercel.app/](https://veil-three-amber.vercel.app/)
 *   **🎥 Demo Video**: `[Insert your Loom/YouTube link here before submitting]`
 *   **📜 Smart Contract**: `survey.compact`
 *   **📍 Contract Address**: `f6532d62d3991079b4aea42544ae744ee0d5f3462be8a75c62cbf514ffa5a974`
@@ -58,7 +58,7 @@ Traditional surveys force users to trust the organization not to look at backend
 | **Product Idea** | ✅ Fully outlined in the "Vision" section above. |
 | **Meaningful Commits** | ✅ Exceeded the minimum 8 commits with over 50+ semantic commits demonstrating iterative progress. |
 | **Required Screenshots** | ✅ Compile output and Preprod deployment screenshots provided in the Deliverables section. |
-| **Live Demo Link** | ⚠️ Please replace the `[Insert your Vercel/Netlify link here]` placeholder at the top of the README. |
+| **Live Demo Link** | ✅ [https://veil-three-amber.vercel.app/](https://veil-three-amber.vercel.app/) |
 | **Demo Video Link** | ⚠️ Please replace the `[Insert your Loom/YouTube link here]` placeholder at the top of the README. |
 
 ---
