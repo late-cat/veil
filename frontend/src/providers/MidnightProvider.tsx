@@ -364,7 +364,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
               
               <button 
                 onClick={() => setShowModal(false)}
-                className="absolute top-5 right-5 text-slate-400 hover:text-slate-700 bg-white/50 hover:bg-white rounded-full w-8 h-8 flex items-center justify-center transition-all z-10 shadow-sm"
+                className="absolute top-5 right-5 text-slate-500 hover:text-slate-800 bg-white/50 hover:bg-white rounded-full w-8 h-8 flex items-center justify-center transition-all z-50 shadow-sm cursor-pointer"
               >
                 <span className="material-symbols-outlined text-sm font-bold">close</span>
               </button>
