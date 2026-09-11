@@ -4,6 +4,8 @@ import React, { createContext, useContext, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { InitialAPI, ConnectedAPI } from '@midnight-ntwrk/dapp-connector-api';
 
+import { ContractState } from '@midnight-ntwrk/compact-runtime';
+
 // Context shape
 interface MidnightContextType {
   walletConnected: boolean;
@@ -29,6 +31,34 @@ export function fromHex(hex: string): Uint8Array {
     bytes[i / 2] = parseInt(normalized.slice(i, i + 2), 16);
   }
   return bytes;
+}
+
+export function createPatchedPublicDataProvider(base: any, queryUrl: string) {
+  async function queryLatest(query: string, address: string) {
+    const res = await fetch(queryUrl, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ query, variables: { address } }),
+    });
+    if (!res.ok) throw new Error(`Indexer HTTP error: ${res.status}`);
+    const payload = await res.json();
+    if (payload.errors?.length) throw new Error(payload.errors.map((e: any) => e.message).join('; '));
+    return payload.data?.contractAction ?? null;
+  }
+
+  return {
+    ...base,
+    async queryContractState(contractAddress: string, config?: any) {
+      if (config) return base.queryContractState(contractAddress, config);
+      const action = await queryLatest(
+        `query LATEST_CONTRACT_STATE($address: HexEncoded!) {
+          contractAction(address: $address) { state }
+        }`,
+        contractAddress,
+      );
+      return action ? ContractState.deserialize(fromHex(action.state)) : null;
+    },
+  };
 }
 
 const MidnightContext = createContext<MidnightContextType | undefined>(undefined);
@@ -194,13 +224,14 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
             }
           }
 
+          const basePublicDataProvider = indexerPublicDataProvider(config.indexerUri, config.indexerWsUri);
           const providers: any = {
             privateStateProvider: levelPrivateStateProvider({
               privateStateStoreName: 'survey-state',
               accountId: accountId,
               privateStoragePasswordProvider: () => 'Local-Devnet-Development-Placeholder-1'
             }),
-            publicDataProvider: indexerPublicDataProvider(config.indexerUri, config.indexerWsUri),
+            publicDataProvider: createPatchedPublicDataProvider(basePublicDataProvider, config.indexerUri),
             zkConfigProvider: zkConfig,
             walletProvider,
             midnightProvider: midnightProvider,
