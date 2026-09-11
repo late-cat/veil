@@ -500,47 +500,57 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
             className="fixed inset-0 z-[9999] bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4"
           >
             <motion.div 
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              initial={{ scale: 0.9, opacity: 0, y: 30 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="bg-white/70 backdrop-blur-3xl border border-white/50 rounded-3xl p-8 max-w-sm w-full shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden"
+              exit={{ scale: 0.9, opacity: 0, y: 30 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="bg-[var(--color-cotton-lavender)] puffy-shadow felt-texture rounded-[2.5rem] p-8 max-w-sm w-full relative overflow-hidden"
             >
-              {/* Glass glare effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/60 to-transparent opacity-50 pointer-events-none" />
+              {/* Premium Glow Effect */}
+              <div className="absolute -top-24 -right-24 w-48 h-48 bg-white/40 blur-[50px] rounded-full pointer-events-none" />
               
               <button 
                 onClick={() => setShowModal(false)}
-                className="absolute top-5 right-5 text-slate-500 hover:text-slate-800 bg-white/50 hover:bg-white rounded-full w-8 h-8 flex items-center justify-center transition-all z-50 shadow-sm cursor-pointer"
+                className="absolute top-6 right-6 text-slate-400 hover:text-slate-800 bg-white/40 hover:bg-white rounded-full w-9 h-9 flex items-center justify-center transition-all z-50 shadow-sm hover:shadow-md cursor-pointer border border-white/60"
               >
-                <span className="material-symbols-outlined text-sm font-bold">close</span>
+                <span className="material-symbols-outlined text-[16px] font-bold">close</span>
               </button>
               
-              <div className="relative z-10">
-                <h2 className="text-2xl font-bold text-slate-900 mb-2 drop-shadow-sm tracking-tight">Connect Wallet</h2>
-                <p className="text-sm text-slate-600 mb-8 font-medium">Select your Midnight compatible wallet to authenticate securely.</p>
+              <div className="relative z-10 flex flex-col items-center text-center mt-2">
+                <div className="w-16 h-16 rounded-[1.5rem] bg-white puffy-shadow inset-puffy flex items-center justify-center mb-6">
+                  <span className="material-symbols-outlined text-3xl text-slate-800 drop-shadow-sm">wallet</span>
+                </div>
                 
-                <div className="space-y-4">
+                <h2 className="font-headline-lg font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 drop-shadow-sm mb-2">
+                  Connect Wallet
+                </h2>
+                <p className="font-body-md text-slate-600 mb-8 font-medium max-w-[240px]">
+                  Select your Midnight compatible wallet to authenticate securely.
+                </p>
+                
+                <div className="space-y-4 w-full">
                   {connectionStatus === 'connecting' || connectionStatus === 'success' ? (
                     <motion.div 
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="w-full flex flex-col items-center justify-center p-8 gap-4 rounded-3xl border border-white/60 bg-white/40 shadow-sm backdrop-blur-md"
+                      className="w-full flex flex-col items-center justify-center p-8 gap-4 rounded-[2rem] bg-white puffy-shadow inset-puffy"
                     >
                       {connectionStatus === 'connecting' ? (
                         <>
-                          <div className="w-12 h-12 rounded-full border-[3px] border-slate-200/50 border-t-slate-800 animate-spin shadow-sm"></div>
-                          <span className="font-bold text-slate-800 animate-pulse tracking-wide">Connecting...</span>
+                          <div className="w-14 h-14 rounded-full border-4 border-slate-100 border-t-slate-800 animate-spin shadow-sm"></div>
+                          <span className="font-label-lg font-bold text-slate-800 animate-pulse tracking-wide mt-2">Connecting...</span>
                         </>
                       ) : (
                         <motion.div 
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
-                          className="flex flex-col items-center gap-3"
+                          transition={{ type: 'spring', bounce: 0.5 }}
+                          className="flex flex-col items-center gap-4"
                         >
-                          <div className="w-14 h-14 rounded-full bg-green-500 text-white flex items-center justify-center shadow-[0_0_20px_rgba(34,197,94,0.4)]">
-                            <span className="material-symbols-outlined text-3xl">check</span>
+                          <div className="w-16 h-16 rounded-full bg-green-500 text-white flex items-center justify-center shadow-[0_10px_30px_-5px_rgba(34,197,94,0.5)]">
+                            <span className="material-symbols-outlined text-4xl font-bold">check</span>
                           </div>
-                          <span className="font-bold text-green-700 text-lg">Connected!</span>
+                          <span className="font-headline-md font-bold text-green-600">Connected!</span>
                         </motion.div>
                       )}
                     </motion.div>
@@ -550,30 +560,30 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
                         whileHover={{ scale: 1.02, y: -2 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => executeConnection('1am')}
-                        className="w-full flex items-center justify-between p-4 rounded-3xl border border-white/60 hover:border-white bg-white/40 hover:bg-white/70 transition-all shadow-sm hover:shadow-md group"
+                        className="w-full flex items-center justify-between p-4 pr-6 rounded-[2rem] bg-white hover:bg-slate-50 transition-all puffy-shadow inset-puffy group border border-transparent hover:border-slate-200"
                       >
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center text-white font-bold text-xl shadow-inner shadow-black/20 group-hover:scale-110 transition-transform">
+                          <div className="w-12 h-12 rounded-[1rem] bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white font-bold text-xl shadow-inner shadow-black/20 group-hover:scale-110 transition-transform duration-300">
                             1
                           </div>
-                          <span className="font-bold text-slate-800 text-lg">1A.M. Wallet</span>
+                          <span className="font-label-lg font-bold text-slate-800 tracking-wide">1A.M. Wallet</span>
                         </div>
-                        <span className="material-symbols-outlined text-slate-400 group-hover:text-slate-800 transition-colors">chevron_right</span>
+                        <span className="material-symbols-outlined text-slate-300 group-hover:text-slate-800 transition-colors transform group-hover:translate-x-1 duration-300">arrow_forward</span>
                       </motion.button>
 
                       <motion.button 
                         whileHover={{ scale: 1.02, y: -2 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => executeConnection('lace')}
-                        className="w-full flex items-center justify-between p-4 rounded-3xl border border-white/60 hover:border-white bg-white/40 hover:bg-white/70 transition-all shadow-sm hover:shadow-md group"
+                        className="w-full flex items-center justify-between p-4 pr-6 rounded-[2rem] bg-white hover:bg-slate-50 transition-all puffy-shadow inset-puffy group border border-transparent hover:border-slate-200"
                       >
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-inner shadow-black/20 group-hover:scale-110 transition-transform">
-                            <span className="material-symbols-outlined">account_balance_wallet</span>
+                          <div className="w-12 h-12 rounded-[1rem] bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-inner shadow-black/20 group-hover:scale-110 transition-transform duration-300">
+                            <span className="material-symbols-outlined text-[20px]">account_balance_wallet</span>
                           </div>
-                          <span className="font-bold text-slate-800 text-lg">Lace Wallet</span>
+                          <span className="font-label-lg font-bold text-slate-800 tracking-wide">Lace Wallet</span>
                         </div>
-                        <span className="material-symbols-outlined text-slate-400 group-hover:text-slate-800 transition-colors">chevron_right</span>
+                        <span className="material-symbols-outlined text-slate-300 group-hover:text-slate-800 transition-colors transform group-hover:translate-x-1 duration-300">arrow_forward</span>
                       </motion.button>
                     </>
                   )}
