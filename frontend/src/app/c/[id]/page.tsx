@@ -412,7 +412,7 @@ export default function CampaignSurvey() {
                         Testnet Wallet Limitation
                       </div>
                       <p className="font-body-md text-slate-700 text-sm">
-                        Transaction successfully broadcasted! To verify this proof on the Midnight Explorer, please copy the authentic <strong>Transaction Hash</strong> directly from your 1A.M. wallet's "Transactions" tab.
+                        Transaction successfully broadcasted! To verify this proof on the Midnight Explorer, please copy the authentic <strong>Transaction Hash</strong> directly from your connected wallet's (e.g. 1A.M. or Lace) transaction history.
                       </p>
                     </div>
 
