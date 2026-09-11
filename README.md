@@ -21,6 +21,8 @@
 
 *   **🌐 Network**: Midnight Preprod Testnet
 *   **💻 GitHub Repository**: [https://github.com/bapi/new-moon-stellar](https://github.com/bapi/new-moon-stellar)
+*   **🚀 Live Demo**: `[Insert your Vercel/Netlify link here before submitting]`
+*   **🎥 Demo Video**: `[Insert your Loom/YouTube link here before submitting]`
 *   **📜 Smart Contract**: `survey.compact`
 *   **📍 Contract Address**: `f6532d62d3991079b4aea42544ae744ee0d5f3462be8a75c62cbf514ffa5a974`
 
@@ -41,7 +43,7 @@ Traditional surveys force users to trust the organization not to look at backend
 
 ## 🏆 Midnight Builder Challenge Submission Checklist
 
-### 🌑 Level 1 & 2 Submission
+### 🌑 Level 1 & 2 Submission Requirements
 
 | Requirement | Status & Implementation Details |
 | :--- | :--- |
@@ -49,10 +51,15 @@ Traditional surveys force users to trust the organization not to look at backend
 | **Passing Test Suite** | ✅ 9/9 tests passing in `tests/survey.test.ts` validating nullifiers and ledger state. |
 | **Managed Directory** | ✅ Successfully generated `managed/survey/` directory containing ZK IR, compiler, and keys. |
 | **Contract Deployed** | ✅ Successfully deployed to Preprod with a verified visible contract address (`f6532d...`). |
+| **Wallet Connect/Disconnect** | ✅ Implemented robust wallet connection logic in the frontend `MidnightProvider` context. |
+| **Circuit Called from Frontend**| ✅ The `submitFeedback` circuit is successfully generated and verified locally in the browser wallet. |
+| **Observable Privacy Behavior** | ✅ Nullifiers actively prevent double-submissions without ever revealing participant identities to the ledger. |
 | **Privacy Explanation** | ✅ Comprehensive breakdown of Public State vs. Private Witness provided below. |
 | **Product Idea** | ✅ Fully outlined in the "Vision" section above. |
-| **Meaningful Commits** | ✅ Exceeded the minimum 5 commits with over 50+ semantic commits demonstrating iterative progress. |
+| **Meaningful Commits** | ✅ Exceeded the minimum 8 commits with over 50+ semantic commits demonstrating iterative progress. |
 | **Required Screenshots** | ✅ Compile output and Preprod deployment screenshots provided in the Deliverables section. |
+| **Live Demo Link** | ⚠️ Please replace the `[Insert your Vercel/Netlify link here]` placeholder at the top of the README. |
+| **Demo Video Link** | ⚠️ Please replace the `[Insert your Loom/YouTube link here]` placeholder at the top of the README. |
 
 ---
 
