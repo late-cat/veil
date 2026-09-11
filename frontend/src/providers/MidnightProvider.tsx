@@ -174,7 +174,9 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
           };
 
           const compiled = CompiledContract.make('survey', Contract).pipe(
-            CompiledContract.withWitnesses({ secretEligibilityHash: () => new Uint8Array(32) }),
+            CompiledContract.withWitnesses({ 
+              secretEligibilityHash: (context: any) => [context.privateState, new Uint8Array(32)] 
+            }),
             CompiledContract.withCompiledFileAssets('/survey-contract/')
           );
           
