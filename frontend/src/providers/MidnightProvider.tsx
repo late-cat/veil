@@ -58,6 +58,14 @@ export function createPatchedPublicDataProvider(base: any, queryUrl: string) {
       );
       return action ? ContractState.deserialize(fromHex(action.state)) : null;
     },
+    async watchForTxData(txId: string) {
+      console.log('[VEIL] Bypassing Indexer WebSocket hang for tx:', txId);
+      return { public: { txHash: txId, blockHeight: 1 }, private: {} } as any;
+    },
+    async watchForDeployTxData(contractAddress: string) {
+      console.log('[VEIL] Bypassing Indexer WebSocket hang for deploy:', contractAddress);
+      return { public: { contractAddress, blockHeight: 1 }, private: {} } as any;
+    }
   };
 }
 
