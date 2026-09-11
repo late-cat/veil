@@ -26,30 +26,23 @@ const MidnightContext = createContext<MidnightContextType | undefined>(undefined
 function discoverWallet(walletId?: string): InitialAPI | null {
   if (typeof window === 'undefined' || !window.midnight) return null;
   
+  const keys = Object.keys(window.midnight);
+  console.log('[VEIL] Discovered window.midnight keys:', keys);
+  
+  // Direct hit for 1A.M. if requested
   if (walletId === '1am' && window.midnight['1am']) {
     return window.midnight['1am'] as InitialAPI;
   }
   
-  if (walletId === 'lace') {
-    // 1A.M. often injects itself into mnLace to hijack connections. We must strictly check the name/rdns.
-    const potentialLace = (window.midnight.mnLace || window.midnight.lace) as InitialAPI;
-    if (potentialLace && !potentialLace.name.toLowerCase().includes('1am')) {
-      return potentialLace;
-    }
-  }
-  
-  // If they specifically requested a wallet and we didn't find it, return null immediately
-  if (walletId) {
-    return null;
-  }
-  
-  // If no specific wallet requested, auto-discover the first available one
-  const keys = Object.keys(window.midnight);
-  console.log('[VEIL] Discovered window.midnight keys:', keys);
-  
+  // Discover by iterating over CAIP-372 UUIDs and generic keys
   for (const key of keys) {
     const provider = window.midnight[key];
     if (provider && typeof provider.connect === 'function') {
+      // If they explicitly requested Lace, we MUST skip 1A.M. to prevent hijacking
+      if (walletId === 'lace' && (key === '1am' || provider.name?.toLowerCase().includes('1am'))) {
+        continue;
+      }
+      
       console.log(`[VEIL] Found wallet provider under key "${key}":`, {
         name: provider.name,
         apiVersion: provider.apiVersion,
