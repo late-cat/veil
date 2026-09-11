@@ -19,7 +19,7 @@ export default function Home() {
         <nav className="flex flex-col sm:flex-row justify-between items-center w-full px-[var(--spacing-container-padding)] py-4 max-w-7xl mx-auto gap-4">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-slate-800 font-bold text-3xl drop-shadow-sm">lock</span>
-            <h1 className="font-headline-md font-bold tracking-tight text-slate-900 drop-shadow-sm">VEIL Protocol</h1>
+            <h1 className="font-headline-md font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 drop-shadow-md">VEIL Protocol</h1>
           </div>
           
           <div className="flex gap-4 sm:gap-6 items-center flex-wrap justify-center">

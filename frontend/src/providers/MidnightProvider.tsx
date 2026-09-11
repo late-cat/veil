@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { InitialAPI, ConnectedAPI } from '@midnight-ntwrk/dapp-connector-api';
 
@@ -123,6 +123,16 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
 
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'connecting' | 'success'>('idle');
 
+  useEffect(() => {
+    const savedWallet = localStorage.getItem('veil_connected_wallet');
+    if (savedWallet) {
+      executeConnection(savedWallet).catch(e => {
+        console.warn('[VEIL] Auto-reconnect failed', e);
+        localStorage.removeItem('veil_connected_wallet');
+      });
+    }
+  }, []);
+
   const connectWallet = async () => {
     setConnectionStatus('idle');
     setShowModal(true);
@@ -175,6 +185,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
       }
 
       setConnectedApi(api);
+      localStorage.setItem('veil_connected_wallet', walletId);
       setNetworkId(connectedNetwork);
       const { CONTRACT_ADDRESS } = await import('@/config');
       let contractAddress = CONTRACT_ADDRESS;
@@ -327,8 +338,11 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
     setWalletConnected(false);
     setWalletAddress(null);
     setWalletBalance(null);
-    setConnectedApi(null);
     setNetworkId(null);
+    setConnectedApi(null);
+    setMidnightProviders(null);
+    setConnectionStatus('idle');
+    localStorage.removeItem('veil_connected_wallet');
     console.log('[VEIL] Wallet disconnected.');
   };
 

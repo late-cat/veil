@@ -172,7 +172,7 @@ export default function Dashboard() {
         <nav className="flex flex-col sm:flex-row justify-between items-center w-full px-4 sm:px-8 xl:px-12 py-4 gap-4">
           <Link href="/" className="flex items-center gap-2 text-slate-800 hover:opacity-80 transition-opacity">
             <span className="material-symbols-outlined font-bold text-3xl drop-shadow-sm">lock</span>
-            <h1 className="font-headline-md font-bold tracking-tight drop-shadow-sm">VEIL Protocol</h1>
+            <h1 className="font-headline-md font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 drop-shadow-md">VEIL Protocol</h1>
           </Link>
           <div className="flex gap-4 items-center flex-wrap justify-center">
             {walletConnected ? (

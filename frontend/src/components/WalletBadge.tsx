@@ -36,8 +36,8 @@ export function WalletBadge() {
       whileTap={{ scale: 0.98 }}
       className={`relative overflow-hidden flex items-center justify-center h-[44px] px-6 rounded-full transition-all cursor-pointer group shadow-sm border ${
         isHovering 
-          ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100' 
-          : 'bg-slate-800 text-white border-slate-700 felt-texture hover:bg-slate-700'
+          ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100 inset-puffy' 
+          : 'bg-white text-slate-800 border-white/60 puffy-shadow felt-texture hover:bg-slate-50'
       }`}
       title="Click to disconnect"
     >
@@ -67,7 +67,7 @@ export function WalletBadge() {
             <span className="font-label-sm font-bold tracking-wide flex items-center gap-2 whitespace-nowrap">
               {formatAddress(walletAddress)}
               {walletBalance && (
-                <span className="px-2 py-0.5 rounded-md border border-white/20 bg-white/10 text-xs font-mono shadow-inner tracking-tight">
+                <span className="px-2 py-0.5 rounded-md border border-slate-200 bg-slate-100 text-slate-600 text-xs font-mono shadow-inner tracking-tight">
                   {formatBalance(walletBalance)} tDUST
                 </span>
               )}
