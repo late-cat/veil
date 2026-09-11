@@ -17,6 +17,20 @@ interface MidnightContextType {
   deploySmartContract: () => Promise<string>;
 }
 
+export function toHex(bytes: Uint8Array): string {
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+export function fromHex(hex: string): Uint8Array {
+  const normalized = hex.startsWith('0x') ? hex.slice(2) : hex;
+  if (normalized.length % 2 !== 0) throw new Error('Invalid hex string from wallet.');
+  const bytes = new Uint8Array(normalized.length / 2);
+  for (let i = 0; i < normalized.length; i += 2) {
+    bytes[i / 2] = parseInt(normalized.slice(i, i + 2), 16);
+  }
+  return bytes;
+}
+
 const MidnightContext = createContext<MidnightContextType | undefined>(undefined);
 
 /**
@@ -149,8 +163,24 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
           const walletProvider = {
             getCoinPublicKey: () => shieldedAddresses.shieldedCoinPublicKey,
             getEncryptionPublicKey: () => shieldedAddresses.shieldedEncryptionPublicKey,
-            balanceTx: async (tx: any, ttl?: Date) => (await api!.balanceUnsealedTransaction(tx, { payFees: true })).tx,
-            submitTx: async (tx: any) => await api!.submitTransaction(tx)
+            balanceTx: async (tx: any) => {
+              const txHex = toHex(tx.serialize());
+              const balanced = await api!.balanceUnsealedTransaction(txHex, { payFees: true });
+              if (!balanced?.tx) throw new Error('balanceUnsealedTransaction failed');
+              const { Transaction } = await import('@midnight-ntwrk/midnight-js-protocol/ledger');
+              return Transaction.deserialize('signature', 'proof', 'binding', fromHex(balanced.tx));
+            }
+          } as any;
+
+          const midnightProvider = {
+            submitTx: async (tx: any) => {
+              const txHex = toHex(tx.serialize());
+              const result = await api!.submitTransaction(txHex);
+              if (typeof result === 'string' && result) return result;
+              if ((result as any)?.transactionId) return (result as any).transactionId;
+              if ((result as any)?.id) return (result as any).id;
+              return txHex.slice(0, 64);
+            }
           } as any;
 
           let accountId = 'default-veil-account';
@@ -164,7 +194,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
             }
           }
 
-          const providers = {
+          const providers: any = {
             privateStateProvider: levelPrivateStateProvider({
               privateStateStoreName: 'survey-state',
               accountId: accountId,
@@ -172,10 +202,23 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
             }),
             publicDataProvider: indexerPublicDataProvider(config.indexerUri, config.indexerWsUri),
             zkConfigProvider: zkConfig,
-            proofProvider: httpClientProofProvider(process.env.NEXT_PUBLIC_PROOF_SERVER_URL || 'http://localhost:6300', zkConfig),
             walletProvider,
-            midnightProvider: walletProvider
+            midnightProvider: midnightProvider,
+            proofProvider: undefined as any // Placeholder
           };
+
+          if (typeof api!.getProvingProvider === 'function') {
+            console.log('[VEIL] 🚀 Utilizing Wallet-provided in-browser Proving Provider');
+            const baseProvingProvider = await api!.getProvingProvider(zkConfig);
+            providers.proofProvider = {
+              async proveTx(unprovenTx: any) {
+                const { CostModel } = await import('@midnight-ntwrk/midnight-js-protocol/ledger');
+                return unprovenTx.prove(baseProvingProvider, CostModel.initialCostModel());
+              }
+            };
+          } else {
+            providers.proofProvider = httpClientProofProvider(process.env.NEXT_PUBLIC_PROOF_SERVER_URL || 'http://localhost:6300', zkConfig);
+          }
 
           const compiled = CompiledContract.make('survey', Contract).pipe(
             CompiledContract.withWitnesses({ 
