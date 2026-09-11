@@ -72,8 +72,8 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
       const wallet = discoverWallet();
       if (!wallet) {
         alert(
-          'Lace wallet for Midnight not found!\n\n' +
-          'Please install the Lace browser extension from lace.io\n' +
+          '1A.M. or Lace wallet for Midnight not found!\n\n' +
+          'Please install the 1A.M. or Lace browser extension\n' +
           'and ensure a Midnight account is configured.'
         );
         throw new Error('No Midnight wallet provider found');
@@ -99,7 +99,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
 
       if (!api || !connectedNetwork) {
         const userNetwork = prompt(
-          'Could not auto-detect your Lace wallet network.\n\n' +
+          'Could not auto-detect your wallet network.\n\n' +
           'Please enter the network your Midnight account is configured for:\n' +
           '(undeployed, preview, preprod, mainnet)'
         );
@@ -182,7 +182,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
         setWalletAddress(addrInfo.unshieldedAddress);
       } catch (addrErr: any) {
         if (addrErr?.message?.toLowerCase().includes('locked')) {
-          throw new Error('Your wallet is locked. Please open the Lace extension and unlock it first.');
+          throw new Error('Your wallet is locked. Please open the extension and unlock it first.');
         }
         console.warn('[VEIL] Could not get unshielded address, trying shielded:', addrErr);
         try {
@@ -205,7 +205,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
 
     } catch (error: any) {
       console.error('[VEIL] Failed to connect wallet:', error);
-      alert(`Failed to connect to Lace Wallet.\nReason: ${error?.message || String(error)}`);
+      alert(`Failed to connect to Wallet.\nReason: ${error?.message || String(error)}`);
       setConnectionStatus('idle');
     } finally {
       setIsConnecting(false);
@@ -292,7 +292,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
     
     return new Promise<string>(async (resolve, reject) => {
       try {
-        console.log('[VEIL] Deploying Smart Contract via Lace Wallet...');
+        console.log('[VEIL] Deploying Smart Contract via Midnight Wallet...');
         const { deployContract } = await import('@midnight-ntwrk/midnight-js-contracts');
         
         const deployedContract = await deployContract(midnightProviders, {
@@ -344,7 +344,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
                   {connectionStatus === 'connecting' ? (
                     <>
                       <div className="w-12 h-12 rounded-full border-4 border-slate-200 border-t-blue-500 animate-spin"></div>
-                      <span className="font-bold text-slate-700 animate-pulse">Connecting to Lace...</span>
+                      <span className="font-bold text-slate-700 animate-pulse">Connecting...</span>
                     </>
                   ) : (
                     <>
@@ -365,7 +365,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
                       <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-800">
                         <span className="material-symbols-outlined">account_balance_wallet</span>
                       </div>
-                      <span className="font-bold text-slate-800">Lace Wallet</span>
+                      <span className="font-bold text-slate-800">1A.M. / Lace Wallet</span>
                     </div>
                     <span className="material-symbols-outlined text-slate-400">chevron_right</span>
                   </button>

@@ -5,7 +5,7 @@ export default function HowItWorks() {
     {
       num: '01',
       title: 'Connect Your Wallet',
-      desc: 'Link your Lace wallet to prove you are an eligible participant. Your identity is never stored — only your eligibility is checked.',
+      desc: 'Link your Midnight wallet (1A.M. or Lace) to prove you are an eligible participant. Your identity is never stored — only your eligibility is checked.',
       icon: (
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
           <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
