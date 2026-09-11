@@ -283,7 +283,13 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
         });
 
         console.log('[VEIL] Prompting wallet to sign and submit Zero-Knowledge Proof...');
-        const tx = await contract.callTx.submitFeedback(BigInt(campaignId), new Uint8Array(hashBuffer));
+        
+        // Convert the alphanumeric campaign ID into a 32-byte Uint8Array required by Bytes<32> in the smart contract
+        const campaignBytes = new Uint8Array(32);
+        const encodedCampaign = new TextEncoder().encode(campaignId);
+        campaignBytes.set(encodedCampaign.subarray(0, 32));
+        
+        const tx = await contract.callTx.submitFeedback(campaignBytes, new Uint8Array(hashBuffer));
         console.log('[VEIL] Transaction Successful! TxHash:', tx.public.txHash);
 
         // 2. Save the answers and transaction hash to our traditional backend database
