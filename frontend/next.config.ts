@@ -10,6 +10,18 @@ const nextConfig: NextConfig = {
     };
     // Exclude the midnight ledger WASM module from optimization issues
     config.optimization.moduleIds = 'named';
+    
+    // Ignore node-specific modules when bundling for the browser
+    if (!config.resolve) {
+      config.resolve = {};
+    }
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      path: false,
+      crypto: false,
+    };
+    
     return config;
   },
 };

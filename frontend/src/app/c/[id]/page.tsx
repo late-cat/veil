@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { CompiledContract } from '@midnight-ntwrk/compact-js';
 import { WalletBadge } from '@/components/WalletBadge';
 import { useMidnight } from '@/providers/MidnightProvider';
 import Link from 'next/link';

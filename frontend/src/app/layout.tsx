@@ -3,7 +3,7 @@ import './globals.css';
 import { MidnightProvider } from '@/providers/MidnightProvider';
 import { Outfit } from 'next/font/google';
 
-import { WalletProvider } from '@/contexts/WalletContext';
+
 
 const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' });
 
@@ -23,7 +23,6 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
       </head>
       <body className="antialiased overflow-x-hidden grain-texture min-h-screen flex flex-col">
-        <WalletProvider>
           <MidnightProvider>
             <div className="flex-1 flex flex-col relative z-10">
               {children}
@@ -45,7 +44,6 @@ export default function RootLayout({
               </div>
             </footer>
           </MidnightProvider>
-        </WalletProvider>
       </body>
     </html>
   );
