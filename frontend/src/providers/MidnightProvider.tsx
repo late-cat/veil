@@ -155,10 +155,21 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
             submitTx: async (tx: any) => await api!.submitTransaction(tx)
           } as any;
 
+          let accountId = 'default-veil-account';
+          try {
+            accountId = (await api.getUnshieldedAddress()).unshieldedAddress;
+          } catch (e) {
+            try {
+              accountId = (await api.getShieldedAddresses()).shieldedAddress;
+            } catch (e2) {
+              accountId = 'anonymous-veil-account-' + Date.now();
+            }
+          }
+
           const providers = {
             privateStateProvider: levelPrivateStateProvider({
               privateStateStoreName: 'survey-state',
-              accountId: (await api.getUnshieldedAddress()).unshieldedAddress,
+              accountId: accountId,
               privateStoragePasswordProvider: () => 'Local-Devnet-Development-Placeholder-1'
             }),
             publicDataProvider: indexerPublicDataProvider(config.indexerUri, config.indexerWsUri),
@@ -177,11 +188,11 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
           setCompiledContract(compiled);
           setContractAddress(contractAddress);
 
-          // We don't save the contract to context immediately because it's stateless, 
           // but we can initialize the logic here to ensure it works
           console.log('[VEIL] Contract Providers configured successfully!');
-        } catch (initErr) {
+        } catch (initErr: any) {
           console.error('[VEIL] Provider initialization failed:', initErr);
+          alert(`CRITICAL ERROR: Failed to initialize Midnight Blockchain Providers.\n\nReason: ${initErr?.message || String(initErr)}\n\nPlease ensure your wallet is unlocked and try again.`);
         }
 
       // Get actual wallet address using the official API
