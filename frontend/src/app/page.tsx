@@ -3,9 +3,12 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useMidnight } from '@/providers/MidnightProvider';
+import { useState } from 'react';
 
 export default function Home() {
   const { walletConnected, walletAddress, connectWallet } = useMidnight();
+
+
 
   return (
     <main className="w-full min-h-screen flex flex-col relative">
@@ -93,6 +96,7 @@ export default function Home() {
               <span>Create Survey</span>
               <span className="material-symbols-outlined">arrow_forward</span>
             </Link>
+            
           </div>
         </motion.div>
       </div>

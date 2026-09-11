@@ -12,6 +12,7 @@ interface MidnightContextType {
   connectWallet: () => Promise<void>;
   disconnectWallet: () => void;
   generateProofAndSubmit: (answers: Record<string, any>, campaignId: string) => Promise<string>;
+  deploySmartContract: () => Promise<string>;
 }
 
 const MidnightContext = createContext<MidnightContextType | undefined>(undefined);
@@ -110,23 +111,17 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      setConnectedApi(api);
-      setNetworkId(connectedNetwork);
-
-      // Initialize Midnight JS Providers
-      let contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || '';
-      if (!contractAddress) {
-        try {
-          const stateFile = await fetch('/survey-contract/.midnight-state.json').then(r => r.json());
-          contractAddress = stateFile.deployments?.preprod?.address || stateFile.address || '';
-        } catch {
-          console.warn('Could not fetch local deployment address');
-        }
+      if (connectedNetwork === 'testnet') {
+        connectedNetwork = 'preprod';
       }
 
-      if (contractAddress) {
-        try {
-          const { findDeployedContract } = await import('@midnight-ntwrk/midnight-js-contracts');
+      setConnectedApi(api);
+      setNetworkId(connectedNetwork);
+      const { CONTRACT_ADDRESS } = await import('@/config');
+      let contractAddress = CONTRACT_ADDRESS;
+
+      try {
+        const { findDeployedContract } = await import('@midnight-ntwrk/midnight-js-contracts');
           const { levelPrivateStateProvider } = await import('@midnight-ntwrk/midnight-js-level-private-state-provider');
           const { indexerPublicDataProvider } = await import('@midnight-ntwrk/midnight-js-indexer-public-data-provider');
           const { FetchZkConfigProvider: fetchZkConfigProvider } = await import('@midnight-ntwrk/midnight-js-fetch-zk-config-provider');
@@ -134,12 +129,19 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
           const { Contract } = await import('@/contracts/survey/index.js');
           const { CompiledContract } = await import('@midnight-ntwrk/midnight-js-protocol/compact-js');
           
+          const { setNetworkId } = await import('@midnight-ntwrk/midnight-js-network-id');
+          
+          // Configure global network ID for the Midnight SDK
+          setNetworkId(connectedNetwork);
+
           const config = await api.getConfiguration();
-          const zkConfig = new fetchZkConfigProvider(window.location.origin + '/survey-contract/');
+          const zkConfig = new fetchZkConfigProvider(window.location.origin + '/survey-contract/', window.fetch.bind(window));
+          
+          const shieldedAddresses = await api.getShieldedAddresses();
           
           const walletProvider = {
-            getCoinPublicKey: async () => (await api!.getShieldedAddresses()).shieldedCoinPublicKey,
-            getEncryptionPublicKey: async () => (await api!.getShieldedAddresses()).shieldedEncryptionPublicKey,
+            getCoinPublicKey: () => shieldedAddresses.shieldedCoinPublicKey,
+            getEncryptionPublicKey: () => shieldedAddresses.shieldedEncryptionPublicKey,
             balanceTx: async (tx: any, ttl?: Date) => (await api!.balanceUnsealedTransaction(tx, { payFees: true })).tx,
             submitTx: async (tx: any) => await api!.submitTransaction(tx)
           } as any;
@@ -172,7 +174,6 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
         } catch (initErr) {
           console.error('[VEIL] Provider initialization failed:', initErr);
         }
-      }
 
       // Get actual wallet address using the official API
       try {
@@ -278,10 +279,49 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const deploySmartContract = async () => {
+    if (!walletConnected || !connectedApi || !walletAddress) {
+      alert('Please connect your wallet first!');
+      throw new Error('Wallet not connected');
+    }
+    
+    if (!midnightProviders || !compiledContract) {
+      alert('Midnight Smart Contract providers are not initialized!');
+      throw new Error('Providers not initialized');
+    }
+    
+    return new Promise<string>(async (resolve, reject) => {
+      try {
+        console.log('[VEIL] Deploying Smart Contract via Lace Wallet...');
+        const { deployContract } = await import('@midnight-ntwrk/midnight-js-contracts');
+        
+        const deployedContract = await deployContract(midnightProviders, {
+          privateStateProvider: midnightProviders.privateStateProvider,
+          zkConfigProvider: midnightProviders.zkConfigProvider,
+          compilerNetworkId: networkId!,
+          contract: (await import('@/contracts/survey/index.js')).Contract,
+          compiledContract: compiledContract,
+          initialPrivateState: {},
+        } as any);
+
+        console.log('[VEIL] Deployment Successful!');
+        console.log('[VEIL] Contract Address:', deployedContract.deployTxData.public.contractAddress);
+        
+        // Update local state
+        setContractAddress(deployedContract.deployTxData.public.contractAddress);
+        resolve(deployedContract.deployTxData.public.contractAddress);
+      } catch (e: any) {
+        console.error('[VEIL] Contract deployment failed', e);
+        alert('Failed to deploy contract: ' + e.message);
+        reject(e);
+      }
+    });
+  };
+
   return (
     <MidnightContext.Provider value={{ 
       walletConnected, walletAddress, isConnecting, networkId,
-      connectWallet, disconnectWallet, generateProofAndSubmit 
+      connectWallet, disconnectWallet, generateProofAndSubmit, deploySmartContract 
     }}>
       {children}
 

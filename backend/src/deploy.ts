@@ -153,23 +153,51 @@ async function main() {
   console.log(`\n  Wallet Address: ${address}`);
   console.log(`  💡 Tip: You can fund this address at the faucet while it syncs to break idle-chain deadlocks!\n`);
 
-  console.log('  Syncing with network...');
-  console.log('  ℹ  This may take several minutes depending on network size.');
-  console.log('     RPC disconnection messages during sync are normal and can be safely ignored.\n');
-  const syncStart = Date.now();
-  const syncInterval = setInterval(() => {
-    const elapsed = Math.round((Date.now() - syncStart) / 1000);
-    process.stdout.write(`\r  ⏳ Still syncing... (${elapsed}s elapsed)   `);
-  }, 5000);
-  const state = await walletCtx.wallet.waitForSyncedState();
-  clearInterval(syncInterval);
-  process.stdout.write('\r  ✓ Synced with network.                                      \n');
+  // ---------------------------------------------------------------------------
+  // Periodic state saver to prevent losing sync progress when the RPC drops connection
+  const saverInterval = setInterval(() => {
+    persistWalletState(network, walletCtx).catch(() => {});
+  }, 30000); // Save every 30 seconds
+  // ---------------------------------------------------------------------------
+  // COMMUNITY WORKAROUND: Bypass waitForSyncedState() and isSynced entirely.
+  // Wait only until unshielded NIGHT and DUST balances are available.
+  // ---------------------------------------------------------------------------
+  console.log('  Waiting for network state (NIGHT balance)...');
+  let readyState;
+  if (network === 'undeployed') {
+    // Local devnet syncs instantly, just wait for isSynced
+    readyState = await Rx.firstValueFrom(
+      walletCtx.wallet.state().pipe(Rx.filter((s) => s.isSynced))
+    );
+  } else {
+    // Public networks: gate purely on UTXO presence, ignore isSynced.
+    try {
+      readyState = await Rx.firstValueFrom(
+        walletCtx.wallet.state().pipe(
+          Rx.throttleTime(5000),
+          Rx.filter((s) => {
+            const hasUnshielded = (s.unshielded?.balances[unshieldedToken().raw] ?? 0n) > 0n;
+            const hasCoins = (s.unshielded?.availableCoins?.length ?? 0) > 0;
+            return hasUnshielded && hasCoins; // Wait for both balance and UTXOs to load
+          }),
+          Rx.timeout({
+            each: 3600_000, // 60-minute fallback limit for initial full sync
+            with: () => Rx.throwError(() => new Error('Sync timed out waiting for unshielded balance')),
+          })
+        )
+      );
+    } catch (err: any) {
+      console.log(`\n  ⚠ Sync timeout or error: ${err.message}`);
+      console.log('    Attempting to proceed with latest available state...');
+      readyState = await Rx.firstValueFrom(walletCtx.wallet.state());
+    }
+  }
+
+  const balance = readyState.unshielded.balances[unshieldedToken().raw] ?? 0n;
+  console.log(`\n  Balance: ${balance.toLocaleString()} tNight\n`);
 
   // Persist sync state now so a later deploy failure doesn't waste the sync work.
   await persistWalletState(network, walletCtx);
-
-  let balance = state.unshielded.balances[unshieldedToken().raw] ?? 0n;
-  console.log(`  Balance: ${balance.toLocaleString()} tNight\n`);
 
   if (network === 'undeployed' && balance === 0n) {
     console.error(
@@ -185,12 +213,8 @@ async function main() {
   // authoritative here (unlike DUST, tNIGHT shows up immediately once the
   // faucet tx lands).
   if (network !== 'undeployed' && networkConfig.faucet) {
-    // Same balance idiom used by check-balance.ts:
-    //   state.unshielded.balances[unshieldedToken().raw] ?? 0n
-    const initialBalance = await Rx.firstValueFrom(walletCtx.wallet.state().pipe(
-      Rx.filter((s) => s.isSynced),
-    ));
-    const initialTNight = initialBalance.unshielded.balances[unshieldedToken().raw] ?? 0n;
+    // We already know the balance from the sync/timeout step above.
+    const initialTNight = balance;
     if (initialTNight === 0n) {
       console.log('─── Fund Wallet ────────────────────────────────────────────────\n');
       console.log(`  Wallet address: ${address}`);
@@ -222,39 +246,87 @@ async function main() {
     }
   }
 
-  // Register for DUST.
   console.log('─── DUST Token Setup ───────────────────────────────────────────\n');
-  const dustState = await Rx.firstValueFrom(walletCtx.wallet.state().pipe(Rx.filter((s) => s.isSynced)));
-
-  const unregisteredUtxos = dustState.unshielded.availableCoins.filter(
-    (c: any) => !c.meta?.registeredForDustGeneration,
+  console.log('  Querying spendable token state...');
+  
+  // Take exactly one snapshot frame that contains actual balance metrics
+  const stateSnapshot = await Rx.firstValueFrom(
+    walletCtx.wallet.state().pipe(
+      Rx.map((s) => ({
+        dustBalance: BigInt(s.dust?.balance(new Date()) ?? 0n),
+        unshieldedBalance: BigInt(s.unshielded?.balances[unshieldedToken().raw] ?? 0n)
+      })),
+      Rx.take(1) // Force completion immediately so it cannot deadlock the process
+    )
   );
-  if (unregisteredUtxos.length > 0) {
-    console.log(`  Registering ${unregisteredUtxos.length} NIGHT UTXOs for DUST generation...`);
-    // The signDustRegistration callback (3rd arg) already produces a recipe
-    // with N signatures matching N inputs. Do NOT call signRecipe again — that
-    // would double-sign and the chain rejects with InputsSignaturesLengthMismatch
-    // (Custom error 192). Matches upstream example-counter and example-bboard.
-    const recipe = await walletCtx.wallet.registerNightUtxosForDustGeneration(
-      unregisteredUtxos,
-      walletCtx.unshieldedKeystore.getPublicKey(),
-      (payload) => walletCtx.unshieldedKeystore.signData(payload),
-    );
-    const finalized = await walletCtx.wallet.finalizeRecipe(recipe);
-    await walletCtx.wallet.submitTransaction(finalized);
-  }
+  
+  if (stateSnapshot.dustBalance === 0n) {
+    console.log('  0 DUST found. Initializing registration transaction...');
+    
+    const dustState = await Rx.firstValueFrom(walletCtx.wallet.state().pipe(Rx.take(1)));
+    const allUtxos = dustState.unshielded.availableCoins;
+    
+    if (allUtxos.length > 0) {
+      console.log(`  Waiting for passive DUST to cover registration fee (need 300T Speck)...`);
+      try {
+        await walletCtx.wallet.waitForGeneratedDust(allUtxos, 300000000000001n);
+        console.log(`  Passive DUST threshold reached! Registering ${allUtxos.length} UTXOs...`);
+        
+        const recipe = await walletCtx.wallet.registerNightUtxosForDustGeneration(
+          allUtxos,
+          walletCtx.unshieldedKeystore.getPublicKey(),
+          (payload) => walletCtx.unshieldedKeystore.signData(payload),
+        );
+        const finalized = await walletCtx.wallet.finalizeRecipe(recipe);
+        await walletCtx.wallet.submitTransaction(finalized);
+        
+        await persistWalletState(network, walletCtx);
+        console.log('  DUST registration tx submitted. Now waiting for DUST to accumulate...');
+      } catch (regErr: any) {
+        console.log(`  Registration failed: ${regErr?.message || regErr}`);
+        process.exit(1);
+      }
+    } else {
+      console.log('  No available UTXOs to register. Are you sure you have tNIGHT?');
+      process.exit(1);
+    }
 
-  if (dustState.dust.balance(new Date()) === 0n) {
-    console.log('  Waiting for DUST tokens...');
-    await Rx.firstValueFrom(
-      walletCtx.wallet.state().pipe(
-        Rx.throttleTime(5000),
-        Rx.filter((s) => s.isSynced),
-        Rx.filter((s) => s.dust.balance(new Date()) > 0n),
-      ),
-    );
+    // ── Poll for spendable DUST balance ──────────
+    const DUST_POLL_INTERVAL_MS = 15_000;  // Check every 15 seconds
+    const DUST_POLL_TIMEOUT_MS = network === 'undeployed' ? 60_000 : 600_000;
+    const dustStart = Date.now();
+    let dustReady = false;
+
+    while (Date.now() - dustStart < DUST_POLL_TIMEOUT_MS) {
+      await new Promise((r) => setTimeout(r, DUST_POLL_INTERVAL_MS));
+      const pollState = await Rx.firstValueFrom(
+        walletCtx.wallet.state().pipe(
+          Rx.map((s) => BigInt(s.dust?.balance(new Date()) ?? 0n)),
+          Rx.take(1),
+        ),
+      );
+      const elapsed = Math.round((Date.now() - dustStart) / 1000);
+      if (pollState > 0n) {
+        console.log(`\n  ✅ Spendable DUST available: ${pollState.toString()} Speck units (after ${elapsed}s)`);
+        dustReady = true;
+        break;
+      }
+      process.stdout.write(`\r  ⏳ Waiting for spendable DUST... (${elapsed}s elapsed)   `);
+    }
+
+    if (!dustReady) {
+      console.log('\n  ❌ DUST did not accumulate within the timeout.');
+      console.log('  This can happen on the first registration. Please re-run this command.');
+      await persistWalletState(network, walletCtx);
+      await walletCtx.wallet.stop();
+      process.exit(1);
+    }
+  } else {
+    console.log(`  Spendable Gas Ready: ${stateSnapshot.dustBalance.toString()} Speck units\n`);
   }
-  console.log('  DUST tokens ready!\n');
+  // Stop saving state during deployment to avoid saving corrupted/poisoned state 
+  // if the transaction fails mid-execution (Dust-Poisoning bug prevention).
+  clearInterval(saverInterval);
 
   // Deploy.
   console.log('─── Deploy Contract ────────────────────────────────────────────\n');
@@ -340,17 +412,17 @@ async function main() {
       }
 
       if (isDustShortage) {
-        const currentState = await walletCtx.wallet.waitForSyncedState();
-        const dustBalance = currentState.dust.balance(new Date());
+        // Here we just wait a bit, without requiring synced state, since we have the workaround.
         if (attempt < MAX_RETRIES) {
           if (attempt === 1) {
             console.log(`  Still generating DUST, retrying in ${RETRY_DELAY_MS / 1000}s...`);
           } else {
-            console.log(`  ⏳ DUST balance: ${dustBalance.toLocaleString()} (attempt ${attempt}/${MAX_RETRIES}); retrying in ${RETRY_DELAY_MS / 1000}s...`);
+            console.log(`  ⏳ DUST balance too low (attempt ${attempt}/${MAX_RETRIES}); retrying in ${RETRY_DELAY_MS / 1000}s...`);
           }
           await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
         } else {
-          console.log(`  ❌ Not enough DUST after ${MAX_RETRIES} retries (current: ${dustBalance.toLocaleString()})`);
+          console.log(`  ❌ Not enough DUST after ${MAX_RETRIES} retries.`);
+          // Do NOT save state here, we want the bash script to restart from the last uncorrupted snapshot
           await walletCtx.wallet.stop();
           process.exit(1);
         }
@@ -360,6 +432,7 @@ async function main() {
     }
   }
 
+  clearInterval(saverInterval);
   if (!deployed) throw new Error('Deployment failed after all retries');
 
   const contractAddress = deployed.deployTxData.public.contractAddress;

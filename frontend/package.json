@@ -3,26 +3,28 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "node scripts/sync-zk.mjs && next dev --webpack",
+    "build": "node scripts/sync-zk.mjs && next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "postinstall": "patch-package"
   },
   "dependencies": {
-    "@midnight-ntwrk/compact-runtime": "^0.16.0",
-    "@midnight-ntwrk/dapp-connector-api": "^4.0.1",
-    "@midnight-ntwrk/midnight-js-contracts": "^4.1.1",
-    "@midnight-ntwrk/midnight-js-fetch-zk-config-provider": "^4.1.1",
-    "@midnight-ntwrk/midnight-js-http-client-proof-provider": "^4.1.1",
-    "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "^4.1.1",
-    "@midnight-ntwrk/midnight-js-level-private-state-provider": "^4.1.1",
-    "@midnight-ntwrk/midnight-js-network-id": "^4.1.1",
-    "@midnight-ntwrk/midnight-js-node-zk-config-provider": "^4.1.1",
-    "@midnight-ntwrk/midnight-js-protocol": "^4.1.1",
-    "@midnight-ntwrk/midnight-js-types": "^4.1.1",
-    "@midnight-ntwrk/midnight-js-utils": "^4.1.1",
-    "@midnight-ntwrk/wallet-sdk": "^1.1.0",
+    "@midnight-ntwrk/compact-js": "2.5.1",
+    "@midnight-ntwrk/compact-runtime": "0.16.0",
+    "@midnight-ntwrk/dapp-connector-api": "4.0.1",
+    "@midnight-ntwrk/ledger-v8": "8.1.2",
+    "@midnight-ntwrk/midnight-js-contracts": "4.1.1",
+    "@midnight-ntwrk/midnight-js-fetch-zk-config-provider": "4.1.1",
+    "@midnight-ntwrk/midnight-js-http-client-proof-provider": "4.1.1",
+    "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "4.1.1",
+    "@midnight-ntwrk/midnight-js-level-private-state-provider": "4.1.1",
+    "@midnight-ntwrk/midnight-js-network-id": "4.1.1",
+    "@midnight-ntwrk/midnight-js-node-zk-config-provider": "4.1.1",
+    "@midnight-ntwrk/midnight-js-protocol": "4.1.1",
+    "@midnight-ntwrk/midnight-js-types": "4.1.1",
+    "@midnight-ntwrk/midnight-js-utils": "4.1.1",
+    "@midnight-ntwrk/wallet-sdk": "1.1.0",
     "@vercel/blob": "^2.8.0",
     "clsx": "^2.1.1",
     "framer-motion": "^13.2.0",
@@ -47,5 +49,9 @@
     "postcss": "^8.5.28",
     "tailwindcss": "^4.3.3",
     "typescript": "^5"
+  },
+  "overrides": {
+    "@midnight-ntwrk/ledger-v8": "$@midnight-ntwrk/ledger-v8",
+    "@midnight-ntwrk/onchain-runtime-v3": "^3.1.0"
   }
 }
