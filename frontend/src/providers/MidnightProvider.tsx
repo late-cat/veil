@@ -136,7 +136,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
           const { FetchZkConfigProvider: fetchZkConfigProvider } = await import('@midnight-ntwrk/midnight-js-fetch-zk-config-provider');
           const { httpClientProofProvider } = await import('@midnight-ntwrk/midnight-js-http-client-proof-provider');
           const { Contract } = await import('@/contracts/survey/index.js');
-          const { CompiledContract } = await import('@midnight-ntwrk/midnight-js-protocol/compact-js');
+          const { CompiledContract } = await import('@midnight-ntwrk/compact-js');
           
           const { setNetworkId } = await import('@midnight-ntwrk/midnight-js-network-id');
           
