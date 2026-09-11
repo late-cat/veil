@@ -168,7 +168,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-[var(--color-cotton-bg)] flex flex-col relative overflow-x-hidden pb-20">
       
-      <header className="shrink-0 z-50 bg-[var(--color-cotton-bg)]/80 backdrop-blur-md border-b border-slate-300 shadow-sm felt-texture fixed top-0 w-full">
+      <header className="shrink-0 z-50 bg-[var(--color-cotton-bg)]/80 backdrop-blur-md border-b border-slate-300 shadow-sm felt-texture sticky top-0 w-full">
         <nav className="flex flex-col sm:flex-row justify-between items-center w-full px-4 sm:px-8 xl:px-12 py-4 gap-4">
           <Link href="/" className="flex items-center gap-2 text-slate-800 hover:opacity-80 transition-opacity">
             <span className="material-symbols-outlined font-bold text-3xl drop-shadow-sm">lock</span>

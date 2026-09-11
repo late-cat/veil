@@ -96,9 +96,9 @@ export default function CampaignDetails() {
   if (!campaign) return <div className="min-h-screen flex items-center justify-center font-headline-lg text-slate-800 font-bold">Survey not found</div>;
 
   return (
-    <div className="w-full flex-1 flex flex-col pt-12 relative pb-24">
+    <div className="w-full flex-1 flex flex-col relative pb-24">
       
-      <header className="shrink-0 z-50 bg-[var(--color-cotton-bg)]/80 backdrop-blur-md border-b border-slate-300 shadow-sm felt-texture fixed top-0 w-full">
+      <header className="shrink-0 z-50 bg-[var(--color-cotton-bg)]/80 backdrop-blur-md border-b border-slate-300 shadow-sm felt-texture sticky top-0 w-full">
         <nav className="flex flex-col sm:flex-row justify-between items-center w-full px-[var(--spacing-container-padding)] py-4 max-w-7xl mx-auto gap-4">
           <Link href="/dashboard" className="flex items-center gap-2 text-slate-700 hover:text-slate-900 transition-colors font-label-lg font-bold">
             <span className="material-symbols-outlined text-xl drop-shadow-sm">arrow_back</span>
@@ -123,7 +123,7 @@ export default function CampaignDetails() {
         </nav>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-[var(--spacing-container-padding)] pt-24 w-full relative z-10 flex flex-col gap-10">
+      <main className="max-w-7xl mx-auto px-4 sm:px-[var(--spacing-container-padding)] pt-12 w-full relative z-10 flex flex-col gap-10">
         
         {/* Campaign Header */}
         <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
