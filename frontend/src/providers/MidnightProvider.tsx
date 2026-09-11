@@ -168,10 +168,26 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
             }),
             publicDataProvider: indexerPublicDataProvider(config.indexerUri, config.indexerWsUri),
             zkConfigProvider: zkConfig,
-            proofProvider: httpClientProofProvider(process.env.NEXT_PUBLIC_PROOF_SERVER_URL || 'http://127.0.0.1:6300', zkConfig),
             walletProvider,
-            midnightProvider: walletProvider
+            midnightProvider: walletProvider,
+            proofProvider: undefined as any // Placeholder, will set below
           };
+
+          // Revolutionizing UX: Use the Wallet's built-in WASM prover if available!
+          // This completely eliminates the need for users/judges to run a local Docker proof server!
+          if (typeof api!.getProvingProvider === 'function') {
+            console.log('[VEIL] 🚀 Utilizing Wallet-provided in-browser Proving Provider (No Docker needed!)');
+            const baseProvingProvider = await api!.getProvingProvider(zkConfig);
+            providers.proofProvider = {
+              async proveTx(unprovenTx: any) {
+                const { CostModel } = await import('@midnight-ntwrk/midnight-js-protocol/ledger');
+                return unprovenTx.prove(baseProvingProvider, CostModel.initialCostModel());
+              }
+            };
+          } else {
+            console.log('[VEIL] ⚠️ Wallet does not support in-browser proving. Falling back to external Proof Server.');
+            providers.proofProvider = httpClientProofProvider(process.env.NEXT_PUBLIC_PROOF_SERVER_URL || 'http://127.0.0.1:6300', zkConfig);
+          }
 
           const compiled = CompiledContract.make('survey', Contract).pipe(
             CompiledContract.withWitnesses({ 
