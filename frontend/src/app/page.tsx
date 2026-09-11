@@ -121,8 +121,29 @@ export default function Home() {
         </motion.div>
       </div>
 
+      {/* Realistic Thread Stitch Divider */}
+      <div className="w-full h-3 relative z-20 -mt-[1px] opacity-80 mix-blend-luminosity">
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="stitch-pattern" x="0" y="0" width="32" height="12" patternUnits="userSpaceOnUse">
+              {/* Puncture Hole Left */}
+              <circle cx="4" cy="6" r="1.5" fill="#000000" opacity="0.25" />
+              {/* Puncture Hole Right */}
+              <circle cx="24" cy="6" r="1.5" fill="#000000" opacity="0.25" />
+              {/* Thread Shadow */}
+              <path d="M4,7 L24,7" stroke="#000000" strokeWidth="3" strokeLinecap="round" opacity="0.15" />
+              {/* Thread Base */}
+              <path d="M4,6 L24,6" stroke="#64748b" strokeWidth="2.5" strokeLinecap="round" opacity="0.7" />
+              {/* Thread Highlight */}
+              <path d="M5,5.5 L23,5.5" stroke="#ffffff" strokeWidth="1" strokeLinecap="round" opacity="0.6" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#stitch-pattern)" />
+        </svg>
+      </div>
+
       {/* Feature Section */}
-      <div className="w-full bg-[var(--color-cotton-lavender)] py-24 felt-texture border-t border-slate-300">
+      <div className="w-full bg-[var(--color-cotton-lavender)] py-24 felt-texture">
         <div className="max-w-7xl mx-auto px-4 sm:px-8">
           <div className="text-center mb-16">
             <h2 className="font-headline-lg text-slate-900 drop-shadow-sm font-bold">Institutional Grade Infrastructure</h2>

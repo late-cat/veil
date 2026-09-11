@@ -90,7 +90,7 @@ Traditional surveys force users to trust the organization not to look at backend
 </details>
 
 ### 2. Verified Preprod Network Deployment
-*Official Midnight Explorer verification proving the smart contract is fully deployed and active on the Preprod blockchain.*
+*Official Midnight Explorer verification proving the smart contract is fully deployed and active on the Preprod blockchain. The contract was deployed on **September 11, 2026, at 2:55 PM UTC**.*
 <details open>
 <summary><b>View Deployment Success</b></summary>
 <br>
@@ -114,6 +114,24 @@ Traditional surveys force users to trust the organization not to look at backend
 <br>
 
 ![CI/CD Pipeline](./frontend/src/img/CI_cd-pipeline.png)
+</details>
+
+---
+
+## 📱 Seamless Mobile UX (Responsive Design)
+
+VEIL Protocol is fully optimized for mobile devices. We implemented native responsive layouts, including touch-optimized hamburger menus for the main navigation and the dashboard sidebar, ensuring the entire dApp works perfectly on smartphones.
+
+### 5. Mobile Responsiveness Showcase
+*Screenshots demonstrating the native mobile layout and custom aesthetic hamburger menus.*
+<details open>
+<summary><b>View Mobile Layouts</b></summary>
+<br>
+
+<div align="center">
+  <img src="./frontend/src/img/mobile-responsive-1.png" alt="Mobile Dashboard Menu" width="45%" style="border-radius: 12px; margin-right: 10px;" />
+  <img src="./frontend/src/img/mobile-responsive-2.png" alt="Mobile Navigation" width="45%" style="border-radius: 12px;" />
+</div>
 </details>
 
 ---
