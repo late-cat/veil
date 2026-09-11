@@ -45,6 +45,7 @@ export default function CampaignDetails() {
   // State for dynamic verification inputs
   const [verifyStates, setVerifyStates] = useState<Record<string, boolean>>({});
   const [verifyHashes, setVerifyHashes] = useState<Record<string, string>>({});
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
 
   useEffect(() => {
     if (campaignId) {
@@ -212,9 +213,15 @@ export default function CampaignDetails() {
         <div className="mt-8">
           <div className="flex items-center justify-between mb-8 px-2">
             <h2 className="font-headline-lg font-bold text-slate-900 drop-shadow-sm">Decrypted Feedback</h2>
-            <div className="hidden sm:flex items-center gap-2 bg-white/50 px-4 py-2 rounded-full inset-puffy border border-white/50">
-              <span className="font-label-sm text-slate-700 font-bold uppercase tracking-widest">Sorted by Newest</span>
-            </div>
+            <button 
+              onClick={() => setSortOrder(prev => prev === 'newest' ? 'oldest' : 'newest')}
+              className="hidden sm:flex items-center gap-2 bg-white/50 hover:bg-white/80 px-4 py-2 rounded-full inset-puffy border border-white/50 transition-colors"
+            >
+              <span className="font-label-sm text-slate-700 font-bold uppercase tracking-widest">
+                Sorted by {sortOrder === 'newest' ? 'Newest' : 'Oldest'}
+              </span>
+              <span className="material-symbols-outlined text-[16px] text-slate-500">sort</span>
+            </button>
           </div>
 
           <div className="flex flex-col gap-6">
@@ -225,7 +232,13 @@ export default function CampaignDetails() {
                 <p className="font-body-md text-slate-700 font-medium mt-2">Share the link above to start collecting cryptographic responses.</p>
               </div>
             ) : (
-              feedbacks.map((fb, idx) => (
+              [...feedbacks]
+                .sort((a, b) => {
+                  const dateA = new Date(a.timestamp).getTime();
+                  const dateB = new Date(b.timestamp).getTime();
+                  return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+                })
+                .map((fb, idx) => (
                 <motion.div 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -237,10 +250,11 @@ export default function CampaignDetails() {
                     <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
                       <div className="flex flex-wrap items-center gap-3">
                         {verifyStates[fb.proofId] ? (
-                          <div className="flex items-center gap-2 bg-white rounded-md border border-blue-200 p-1 shadow-sm">
-                            <input 
-                              type="text" 
-                              placeholder="Paste Hash (e.g. 0xde94...)" 
+                          <div className="flex flex-col gap-1.5">
+                            <div className="flex items-center gap-2 bg-white rounded-md border border-blue-200 p-1 shadow-sm w-max">
+                              <input 
+                                type="text" 
+                                placeholder="Paste Hash (e.g. 0xde94...)" 
                               className="font-mono text-xs px-2 py-1 outline-none text-slate-700 w-48 bg-transparent"
                               value={verifyHashes[fb.proofId] || ''}
                               onChange={(e) => setVerifyHashes({...verifyHashes, [fb.proofId]: e.target.value})}
@@ -274,6 +288,11 @@ export default function CampaignDetails() {
                             >
                               <span className="material-symbols-outlined text-[14px]">close</span>
                             </button>
+                            </div>
+                            <p className="text-[10.5px] text-slate-500 max-w-[280px] leading-tight flex items-start gap-1">
+                              <span className="material-symbols-outlined text-[12px] shrink-0 mt-[1px]">info</span>
+                              Note: Use Cloudflare DNS (1.1.1.1) or a VPN if the Explorer is restricted by your ISP.
+                            </p>
                           </div>
                         ) : (
                           <button 
@@ -285,7 +304,7 @@ export default function CampaignDetails() {
                         )}
                       </div>
                       <div className="flex flex-col items-end gap-1">
-                        <span className="font-label-sm text-slate-500 font-bold tracking-widest uppercase">Response #{feedbacks.length - idx}</span>
+                        <span className="font-label-sm text-slate-500 font-bold tracking-widest uppercase">Response #{sortOrder === 'newest' ? feedbacks.length - idx : idx + 1}</span>
                         <span className="font-label-sm font-bold text-slate-500 uppercase tracking-wide">
                           {new Date(fb.timestamp).toLocaleString()}
                         </span>
