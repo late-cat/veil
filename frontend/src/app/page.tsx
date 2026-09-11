@@ -3,11 +3,19 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useMidnight } from '@/providers/MidnightProvider';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { WalletBadge } from '@/components/WalletBadge';
+import { Logo } from '@/components/Logo';
 
 export default function Home() {
-  const { walletConnected, walletAddress, connectWallet } = useMidnight();
+  const { walletConnected, isConnecting, connectWallet } = useMidnight();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
 
 
@@ -17,12 +25,12 @@ export default function Home() {
       {/* Navigation */}
       <header className="shrink-0 z-50 bg-[var(--color-cotton-bg)]/80 backdrop-blur-md border-b border-slate-300 shadow-sm felt-texture sticky top-0">
         <nav className="flex flex-col sm:flex-row justify-between items-center w-full px-[var(--spacing-container-padding)] py-4 max-w-7xl mx-auto gap-4">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-slate-800 font-bold text-3xl drop-shadow-sm">lock</span>
+          <div className="flex items-center gap-2 text-slate-800">
+            <Logo className="text-slate-800" />
             <h1 className="font-headline-md font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 drop-shadow-md">VEIL Protocol</h1>
           </div>
           
-          <div className="flex gap-4 sm:gap-6 items-center flex-wrap justify-center">
+          <div className="flex gap-3 sm:gap-6 items-center flex-wrap justify-center w-full sm:w-auto">
             <Link href="/dashboard" className="font-label-lg text-slate-600 hover:text-slate-900 transition-colors drop-shadow-sm">Dashboard</Link>
             
             {walletConnected ? (

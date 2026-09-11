@@ -1,9 +1,11 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useMidnight } from '@/providers/MidnightProvider';
 import { WalletBadge } from '@/components/WalletBadge';
+import { Logo } from '@/components/Logo';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 export type QuestionType = 'text' | 'mcq' | 'rating' | 'image';
@@ -29,6 +31,7 @@ export interface Campaign {
 }
 
 export default function Dashboard() {
+  const router = useRouter();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState('');
@@ -171,7 +174,7 @@ export default function Dashboard() {
       <header className="shrink-0 z-50 bg-[var(--color-cotton-bg)]/80 backdrop-blur-md border-b border-slate-300 shadow-sm felt-texture sticky top-0 w-full">
         <nav className="flex flex-col sm:flex-row justify-between items-center w-full px-4 sm:px-8 xl:px-12 py-4 gap-4">
           <Link href="/" className="flex items-center gap-2 text-slate-800 hover:opacity-80 transition-opacity">
-            <span className="material-symbols-outlined font-bold text-3xl drop-shadow-sm">lock</span>
+            <Logo className="text-slate-800" />
             <h1 className="font-headline-md font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 drop-shadow-md">VEIL Protocol</h1>
           </Link>
           <div className="flex gap-4 items-center flex-wrap justify-center">
@@ -192,24 +195,24 @@ export default function Dashboard() {
       <main className="px-4 sm:px-8 xl:px-12 pt-28 pb-12 w-full relative z-10 flex flex-col md:flex-row gap-10 min-h-screen">
         
         {/* Sidebar Navigation */}
-        <aside className="w-full md:w-64 shrink-0 flex flex-col gap-4">
+        <aside className="w-full md:w-64 shrink-0 flex flex-row overflow-x-auto md:flex-col gap-3 md:gap-4 pb-2 md:pb-0 scrollbar-hide">
           <button 
             onClick={() => setActiveTab('create')}
-            className={`w-full flex items-center gap-3 p-4 rounded-2xl font-label-lg transition-all ${activeTab === 'create' ? 'bg-slate-800 text-white shadow-sm puffy-shadow' : 'bg-white/50 text-slate-700 hover:bg-white/80 border border-slate-200 inset-puffy'}`}
+            className={`flex-1 md:flex-none flex items-center justify-center md:justify-start gap-2 md:gap-3 p-3 md:p-4 rounded-2xl font-label-sm md:font-label-lg transition-all whitespace-nowrap ${activeTab === 'create' ? 'bg-slate-800 text-white shadow-sm puffy-shadow' : 'bg-white/50 text-slate-700 hover:bg-white/80 border border-slate-200 inset-puffy'}`}
           >
-            <span className="material-symbols-outlined">add_circle</span>
+            <span className="material-symbols-outlined text-[18px] md:text-[24px]">add_circle</span>
             Create Survey
           </button>
           <button 
             onClick={() => setActiveTab('active')}
-            className={`w-full flex items-center gap-3 p-4 rounded-2xl font-label-lg transition-all ${activeTab === 'active' ? 'bg-slate-800 text-white shadow-sm puffy-shadow' : 'bg-white/50 text-slate-700 hover:bg-white/80 border border-slate-200 inset-puffy'}`}
+            className={`flex-1 md:flex-none flex items-center justify-center md:justify-start gap-2 md:gap-3 p-3 md:p-4 rounded-2xl font-label-sm md:font-label-lg transition-all whitespace-nowrap ${activeTab === 'active' ? 'bg-slate-800 text-white shadow-sm puffy-shadow' : 'bg-white/50 text-slate-700 hover:bg-white/80 border border-slate-200 inset-puffy'}`}
           >
-            <span className="material-symbols-outlined">grid_view</span>
+            <span className="material-symbols-outlined text-[18px] md:text-[24px]">grid_view</span>
             Active Surveys
           </button>
           <button 
             onClick={() => setActiveTab('stats')}
-            className={`w-full flex items-center gap-3 p-4 rounded-2xl font-label-lg transition-all ${activeTab === 'stats' ? 'bg-slate-800 text-white shadow-sm puffy-shadow' : 'bg-white/50 text-slate-700 hover:bg-white/80 border border-slate-200 inset-puffy'}`}
+            className={`flex-1 md:flex-none flex items-center justify-center md:justify-start gap-2 md:gap-3 p-3 md:p-4 rounded-2xl font-label-sm md:font-label-lg transition-all whitespace-nowrap ${activeTab === 'stats' ? 'bg-slate-800 text-white shadow-sm puffy-shadow' : 'bg-white/50 text-slate-700 hover:bg-white/80 border border-slate-200 inset-puffy'}`}
           >
             <span className="material-symbols-outlined">bar_chart</span>
             Statistics
@@ -482,10 +485,14 @@ export default function Dashboard() {
                   <motion.div 
                     whileHover={{ y: -5 }}
                     key={camp.id} 
-                    className="p-8 rounded-[2rem] bg-[var(--color-cotton-lavender)] puffy-shadow felt-texture flex flex-col justify-between group relative"
+                    className="p-8 rounded-[2rem] bg-[var(--color-cotton-lavender)] puffy-shadow felt-texture flex flex-col justify-between group relative cursor-pointer"
+                    onClick={() => router.push(`/dashboard/${camp.id}`)}
                   >
                     <button 
-                      onClick={() => handleDelete(camp.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(camp.id);
+                      }}
                       className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors flex items-center justify-center border border-slate-200 shadow-sm"
                       title="Delete Survey"
                     >

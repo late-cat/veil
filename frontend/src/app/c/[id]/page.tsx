@@ -150,7 +150,7 @@ export default function CampaignSurvey() {
               <div>
                 <h1 className="font-headline-lg font-bold text-slate-900 drop-shadow-sm mb-4">Connect your Wallet</h1>
                 <p className="font-body-lg text-slate-700 font-medium max-w-md">
-                  To participate in <strong>{campaign?.title}</strong>, you must connect a Midnight wallet. 1A.M. Wallet is highly recommended for the most stable experience, though Lace is also supported. Your identity remains cryptographically private.
+                  Connect a Midnight wallet to participate in <strong>{campaign?.title}</strong>. 1A.M. Wallet is recommended for stability. Your identity remains private.
                 </p>
               </div>
               <button 

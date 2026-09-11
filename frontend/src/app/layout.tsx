@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { MidnightProvider } from '@/providers/MidnightProvider';
 import { Outfit } from 'next/font/google';
+import { Logo } from '@/components/Logo';
 
 
 
@@ -31,7 +32,7 @@ export default function RootLayout({
             <footer className="shrink-0 z-50 bg-[var(--color-cotton-bg)]/80 backdrop-blur-md border-t border-slate-300 shadow-inner felt-texture mt-auto">
               <div className="w-full px-[var(--spacing-container-padding)] py-8 max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-slate-800 text-2xl drop-shadow-sm">lock</span>
+                  <Logo className="text-slate-800" />
                   <span className="font-headline-md font-bold text-slate-900 drop-shadow-sm">VEIL Protocol</span>
                 </div>
                 <div className="font-body-md text-slate-700 flex items-center gap-4">
