@@ -17,7 +17,7 @@
 
 ---
 
-## 📌 Submission Details & Quick Links
+## ✧ SUBMISSION DETAILS & QUICK LINKS
 
 *   **🌐 Network**: Midnight Preprod Testnet
 *   **💻 GitHub Repository**: [https://github.com/late-cat/veil](https://github.com/late-cat/veil)
@@ -29,14 +29,14 @@
 
 ---
 
-## 📖 The Vision: Problem & Solution
+## ✧ THE VISION: PROBLEM & SOLUTION
 
-### The Problem: The Chilling Effect of Centralized Data Collection
+### ◈ The Problem: The Chilling Effect of Centralized Data Collection
 Organizations, DAOs, and enterprise HR departments desperately require honest, unfiltered feedback to make informed decisions. However, participants are often terrified to provide genuine, critical responses due to a fundamental lack of privacy. 
 
 Traditional Web2 survey tools (like Google Forms or SurveyMonkey) hold the master keys to the database. This means the platform—or the organization paying for it—can easily de-anonymize respondents by cross-referencing access logs, IP addresses, timestamps, or email metadata. This inherent lack of trust creates a **chilling effect on honesty**. If users feel their identity might be exposed, they will either self-censor their true opinions or refuse to participate entirely.
 
-### The Solution: VEIL & Zero-Knowledge Cryptography
+### ◈ The Solution: VEIL & Zero-Knowledge Cryptography
 **VEIL** fundamentally changes the paradigm of data collection by mathematically guaranteeing participant privacy. Instead of trusting a centralized database not to look at the logs, VEIL enforces privacy at the protocol level by completely separating the **Proof of Eligibility** from the **Survey Data**.
 
 Built natively on the Midnight blockchain, VEIL leverages a powerful **Selective Disclosure** architecture. When a user submits feedback, their identity and wallet address never touch the public ledger. Instead, the Lace/1A.M. wallet computes a Zero-Knowledge Proof (ZKP) locally on the user's device. 
@@ -49,7 +49,7 @@ The network verifies the proof and updates the public tally, but remains complet
 
 ---
 
-## 🏆 Midnight Builder Challenge Submission Checklist
+## ✧ MIDNIGHT BUILDER CHALLENGE SUBMISSION CHECKLIST
 
 ### 🌑 Level 1 Submission Requirements
 
@@ -88,7 +88,7 @@ The network verifies the proof and updates the public tally, but remains complet
 
 ---
 
-## 📸 Checkpoint Deliverables: Deployment Proofs
+## ✧ CHECKPOINT DELIVERABLES: DEPLOYMENT PROOFS
 
 ### 1. Successful Contract Compilation
 *Terminal output verifying the successful compilation of the ZK circuits and generation of proving/verification keys.*
@@ -128,7 +128,7 @@ The network verifies the proof and updates the public tally, but remains complet
 
 ---
 
-## 📱 Seamless Mobile UX (Responsive Design)
+## ✧ SEAMLESS MOBILE UX (RESPONSIVE DESIGN)
 
 VEIL Protocol is fully optimized for mobile devices. We implemented native responsive layouts, including touch-optimized hamburger menus for the main navigation and the dashboard sidebar, ensuring the entire dApp works perfectly on smartphones.
 
@@ -146,21 +146,21 @@ VEIL Protocol is fully optimized for mobile devices. We implemented native respo
 
 ---
 
-## 🔒 Privacy Model: What an Observer Can and Cannot Learn
+## ✧ PRIVACY MODEL: WHAT AN OBSERVER CAN AND CANNOT LEARN
 
 VEIL strictly adheres to Midnight's Selective Disclosure capabilities. Here is exactly what is exposed and what is shielded when a transaction is broadcasted to the network:
 
-### What an Observer CAN Learn (Public State)
+### ◉ PUBLIC STATE (What an Observer CAN Learn)
 - **Campaign Exists:** An observer can see that a new survey campaign was created and can view its unique 32-byte Campaign ID.
 - **Participation Volume:** An observer can read the `campaigns: Map<Bytes<32>, Uint<32>>` ledger to see *how many* people have submitted feedback to a specific campaign.
 - **Nullifier Set:** An observer can see a list of random 32-byte hashes added to the `nullifiers` set, indicating that *someone* has voted.
 
-### What an Observer CANNOT Learn (Private Witness)
+### ◉ PRIVATE WITNESS (What an Observer CANNOT Learn)
 - **Participant Identity:** The observer **cannot** link a submission to a specific wallet address. The identity is used only locally by the private witness to generate the nullifier, and is never published on-chain.
 - **The Feedback Content:** The observer **cannot** read the actual feedback text. The feedback remains entirely off-chain, and only the ZK proof that verifies its integrity is submitted to the network.
 - **Double-Voting Attempts:** The observer **cannot** know *who* attempted to double-vote. They only see that a transaction was rejected by the smart contract due to a nullifier collision.
 
-## 🏗️ High-Level System Architecture
+## ✧ HIGH-LEVEL SYSTEM ARCHITECTURE
 
 ```mermaid
 sequenceDiagram
@@ -178,7 +178,7 @@ sequenceDiagram
 
 ---
 
-## 🛠️ Technology Stack
+## ✧ TECHNOLOGY STACK
 *   **Frontend**: Next.js 14 + TypeScript + Tailwind CSS
 *   **Contracts**: Midnight Compact (`survey.compact`)
 *   **Integration**: Midnight JS SDK (Wallet API, Proof Provider, Public Data Provider)
@@ -187,7 +187,7 @@ sequenceDiagram
 
 ---
 
-## 📁 Project Structure
+## ✧ PROJECT STRUCTURE
 
 ```text
 veil-platform/
@@ -206,7 +206,7 @@ veil-platform/
 
 ---
 
-## 🚀 Setup & Run Locally
+## ✧ SETUP & RUN LOCALLY
 
 To clone and run the VEIL platform locally on your machine, follow these steps:
 
