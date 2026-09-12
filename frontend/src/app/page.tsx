@@ -121,25 +121,95 @@ export default function Home() {
         </motion.div>
       </div>
 
-      {/* Realistic Thread Stitch Divider */}
-      <div className="w-full h-3 relative z-20 -mt-[1px] opacity-80 mix-blend-luminosity">
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="stitch-pattern" x="0" y="0" width="32" height="12" patternUnits="userSpaceOnUse">
-              {/* Puncture Hole Left */}
-              <circle cx="4" cy="6" r="1.5" fill="#000000" opacity="0.25" />
-              {/* Puncture Hole Right */}
-              <circle cx="24" cy="6" r="1.5" fill="#000000" opacity="0.25" />
-              {/* Thread Shadow */}
-              <path d="M4,7 L24,7" stroke="#000000" strokeWidth="3" strokeLinecap="round" opacity="0.15" />
-              {/* Thread Base */}
-              <path d="M4,6 L24,6" stroke="#64748b" strokeWidth="2.5" strokeLinecap="round" opacity="0.7" />
-              {/* Thread Highlight */}
-              <path d="M5,5.5 L23,5.5" stroke="#ffffff" strokeWidth="1" strokeLinecap="round" opacity="0.6" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#stitch-pattern)" />
-        </svg>
+      {/* Hyperrealistic Cotton Cross-Stitch Divider */}
+      <div className="w-full relative z-20">
+        <div className="absolute left-0 right-0 top-[-10px] h-[20px] w-full pointer-events-none opacity-80">
+          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <filter id="thread-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="1.5" stdDeviation="1" floodColor="#000000" floodOpacity="0.4" />
+                <feDropShadow dx="0" dy="0.5" stdDeviation="0.2" floodColor="#000000" floodOpacity="0.5" />
+              </filter>
+              <g id="intact-stitch">
+                {/* Puncture Holes (Deep Shadow) */}
+                <circle cx="10" cy="4" r="2.2" fill="#000000" opacity="0.35" />
+                <circle cx="22" cy="4" r="2.2" fill="#000000" opacity="0.35" />
+                <circle cx="10" cy="16" r="2.2" fill="#000000" opacity="0.35" />
+                <circle cx="22" cy="16" r="2.2" fill="#000000" opacity="0.35" />
+                
+                {/* Puncture Hole Rim Highlights (Fabric stretching) */}
+                <path d="M8.5,5.5 A 2.2 2.2 0 0 0 11.5,5.5" fill="none" stroke="#ffffff" strokeWidth="0.75" opacity="0.6" />
+                <path d="M20.5,5.5 A 2.2 2.2 0 0 0 23.5,5.5" fill="none" stroke="#ffffff" strokeWidth="0.75" opacity="0.6" />
+                <path d="M8.5,17.5 A 2.2 2.2 0 0 0 11.5,17.5" fill="none" stroke="#ffffff" strokeWidth="0.75" opacity="0.6" />
+                <path d="M20.5,17.5 A 2.2 2.2 0 0 0 23.5,17.5" fill="none" stroke="#ffffff" strokeWidth="0.75" opacity="0.6" />
+
+                <g filter="url(#thread-shadow)">
+                  {/* Under Thread (Twisted Fiber Base) */}
+                  <path d="M22,4 L10,16" fill="none" stroke="#475569" strokeWidth="2.5" strokeLinecap="round" />
+                  <path d="M22,4 L10,16" fill="none" stroke="#1e293b" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="0 3.5" opacity="0.5" />
+                  <path d="M22,4 L10,16" fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="0 3.5" strokeDashoffset="1.75" opacity="0.9" />
+
+                  {/* Over Thread (Twisted Fiber Base) */}
+                  <path d="M10,4 L22,16" fill="none" stroke="#64748b" strokeWidth="2.5" strokeLinecap="round" />
+                  <path d="M10,4 L22,16" fill="none" stroke="#334155" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="0 3.5" opacity="0.5" />
+                  <path d="M10,4 L22,16" fill="none" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="0 3.5" strokeDashoffset="1.75" opacity="0.9" />
+                </g>
+              </g>
+
+              {/* Pattern spanning 12 stitches (384px) to make the tear appear sparsely and minimalistically */}
+              <pattern id="hyper-cross-stitch" x="0" y="0" width="384" height="20" patternUnits="userSpaceOnUse">
+                <use href="#intact-stitch" x="0" />
+                <use href="#intact-stitch" x="32" />
+                <use href="#intact-stitch" x="64" />
+                <use href="#intact-stitch" x="96" />
+                <use href="#intact-stitch" x="128" />
+                <use href="#intact-stitch" x="160" />
+                <use href="#intact-stitch" x="192" />
+                <use href="#intact-stitch" x="224" />
+
+                {/* Broken/Torn Stitch at x=256 */}
+                <g transform="translate(256, 0)">
+                  <circle cx="10" cy="4" r="2.2" fill="#000000" opacity="0.35" />
+                  <circle cx="22" cy="4" r="2.2" fill="#000000" opacity="0.35" />
+                  <circle cx="10" cy="16" r="2.2" fill="#000000" opacity="0.35" />
+                  <circle cx="22" cy="16" r="2.2" fill="#000000" opacity="0.35" />
+                  <path d="M8.5,5.5 A 2.2 2.2 0 0 0 11.5,5.5" fill="none" stroke="#ffffff" strokeWidth="0.75" opacity="0.6" />
+                  <path d="M20.5,5.5 A 2.2 2.2 0 0 0 23.5,5.5" fill="none" stroke="#ffffff" strokeWidth="0.75" opacity="0.6" />
+                  <path d="M8.5,17.5 A 2.2 2.2 0 0 0 11.5,17.5" fill="none" stroke="#ffffff" strokeWidth="0.75" opacity="0.6" />
+                  <path d="M20.5,17.5 A 2.2 2.2 0 0 0 23.5,17.5" fill="none" stroke="#ffffff" strokeWidth="0.75" opacity="0.6" />
+
+                  <g filter="url(#thread-shadow)">
+                    {/* Under Thread is Intact */}
+                    <path d="M22,4 L10,16" fill="none" stroke="#475569" strokeWidth="2.5" strokeLinecap="round" />
+                    <path d="M22,4 L10,16" fill="none" stroke="#1e293b" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="0 3.5" opacity="0.5" />
+                    <path d="M22,4 L10,16" fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="0 3.5" strokeDashoffset="1.75" opacity="0.9" />
+
+                    {/* Over Thread is SNAPPED and frayed outwards */}
+                    {/* Left torn piece curling down */}
+                    <path d="M10,4 Q11,8 8,11" fill="none" stroke="#64748b" strokeWidth="2.5" strokeLinecap="round" />
+                    <path d="M10,4 Q11,8 8,11" fill="none" stroke="#334155" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="0 3.5" opacity="0.5" />
+                    <path d="M10,4 Q11,8 8,11" fill="none" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="0 3.5" strokeDashoffset="1.75" opacity="0.9" />
+
+                    {/* Right torn piece curling up */}
+                    <path d="M22,16 Q19,13 24,10" fill="none" stroke="#64748b" strokeWidth="2.5" strokeLinecap="round" />
+                    <path d="M22,16 Q19,13 24,10" fill="none" stroke="#334155" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="0 3.5" opacity="0.5" />
+                    <path d="M22,16 Q19,13 24,10" fill="none" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="0 3.5" strokeDashoffset="1.75" opacity="0.9" />
+                    
+                    {/* Frayed micro-fibers sticking out of the tear */}
+                    <path d="M8,11 Q7,12 6,10.5" fill="none" stroke="#cbd5e1" strokeWidth="0.5" strokeLinecap="round" opacity="0.8" />
+                    <path d="M8,11 Q9,13 10.5,12" fill="none" stroke="#94a3b8" strokeWidth="0.5" strokeLinecap="round" opacity="0.6" />
+                    <path d="M24,10 Q25,8 26.5,9.5" fill="none" stroke="#cbd5e1" strokeWidth="0.5" strokeLinecap="round" opacity="0.8" />
+                  </g>
+                </g>
+
+                <use href="#intact-stitch" x="288" />
+                <use href="#intact-stitch" x="320" />
+                <use href="#intact-stitch" x="352" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#hyper-cross-stitch)" />
+          </svg>
+        </div>
       </div>
 
       {/* Feature Section */}
