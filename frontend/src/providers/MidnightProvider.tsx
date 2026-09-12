@@ -205,7 +205,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
           setNetworkId(connectedNetwork);
 
           const config = await api.getConfiguration();
-          const zkConfig = new fetchZkConfigProvider(window.location.origin + '/survey-contract/', window.fetch.bind(window));
+          const zkConfig = new fetchZkConfigProvider(window.location.origin + '/managed/survey/', window.fetch.bind(window));
           
           const shieldedAddresses = await api.getShieldedAddresses();
           
