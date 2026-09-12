@@ -177,6 +177,45 @@ sequenceDiagram
 
 ---
 
+## 🚀 Setup & Run Locally
+
+To clone and run the VEIL platform locally on your machine, follow these steps:
+
+### Prerequisites
+1. **Node.js**: Ensure you have Node.js v22 installed.
+2. **Midnight Toolchain**: Ensure you have the `compact-compiler` and Midnight local node tools installed.
+3. **Wallet**: Install the Lace Wallet browser extension and enable the DApp Connector.
+
+### Step-by-Step Guide
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/late-cat/veil.git
+   cd veil
+   ```
+2. **Compile the Smart Contract:**
+   Navigate to the backend and build the ZK circuits.
+   ```bash
+   cd backend
+   npm install
+   npm run build
+   ```
+3. **Run the Test Suite:**
+   Verify the contract invariants by running the tests.
+   ```bash
+   npm test
+   ```
+4. **Launch the Frontend:**
+   Navigate to the frontend directory to start the Next.js server.
+   ```bash
+   cd ../frontend
+   npm install
+   npm run dev
+   ```
+5. **Open the dApp:**
+   Visit `http://localhost:3000` in your browser. Connect your Lace wallet and interact with the Live Preprod campaigns!
+
+---
+
 ## 📁 Project Structure
 
 ```text
