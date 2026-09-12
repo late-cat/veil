@@ -14,13 +14,6 @@
             "type-name": "Bytes",
             "length": 32
           }
-        },
-        {
-          "name": "publicNullifier",
-          "type": {
-            "type-name": "Bytes",
-            "length": 32
-          }
         }
       ],
       "result-type": {

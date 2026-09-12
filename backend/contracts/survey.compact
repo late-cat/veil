@@ -13,15 +13,25 @@ export ledger nullifiers: Set<Bytes<32>>;
 // The private witness represents the user's secret eligibility string/seed.
 witness secretEligibilityHash(): Bytes<32>;
 
-// The circuit now accepts the Campaign ID and the scoped Nullifier
-export circuit submitFeedback(campaignId: Bytes<32>, publicNullifier: Bytes<32>): [] {
+// Struct to securely hash the Campaign ID and Private Witness together
+export struct NullifierInput {
+    campaignId: Bytes<32>,
+    secret: Bytes<32>
+}
+
+// The circuit now ONLY accepts the Campaign ID. The nullifier is derived internally.
+export circuit submitFeedback(campaignId: Bytes<32>): [] {
     // 1. Verify eligibility
     // In a real product, we would verify a Merkle inclusion proof here.
     const secretHash = secretEligibilityHash();
     
-    // We explicitly disclose the campaignId and nullifier to the public ledger
+    // We explicitly disclose the campaignId to the public ledger
     const revealedCampaignId = disclose(campaignId);
-    const revealedNullifier = disclose(publicNullifier);
+    
+    // 2. Cryptographically derive the nullifier INSIDE the circuit
+    const input = NullifierInput { campaignId: campaignId, secret: secretHash };
+    const derivedNullifier = persistentHash<NullifierInput>(input);
+    const revealedNullifier = disclose(derivedNullifier);
     
     // 2. Prevent duplicate submissions for this specific campaign
     // The nullifier is scoped to the campaign off-chain, but we verify uniqueness globally.

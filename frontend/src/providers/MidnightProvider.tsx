@@ -359,14 +359,6 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
     
     return new Promise<string>(async (resolve, reject) => {
       try {
-        // Generate a pseudo-nullifier based on wallet + campaign for ZK double-vote prevention
-        const nullifierRaw = `${walletAddress}-${campaignId}`;
-        const encoder = new TextEncoder();
-        const data = encoder.encode(nullifierRaw);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const nullifier = '0x' + hashArray.map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 16);
-
         // 1. Submit ZK Proof to Midnight Network Smart Contract
         console.log('[VEIL] Constructing Smart Contract Transaction...');
         const { findDeployedContract } = await import('@midnight-ntwrk/midnight-js-contracts');
@@ -387,7 +379,8 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
         
         let txHash = '';
         try {
-          const tx = await contract.callTx.submitFeedback(campaignBytes, new Uint8Array(hashBuffer));
+          // The nullifier is now derived cryptographically inside the ZK circuit using the private witness
+          const tx = await contract.callTx.submitFeedback(campaignBytes);
           txHash = tx.public.txHash;
         } catch (callError: any) {
           // 1. Handle Testnet Congestion (Transaction already pending)
@@ -421,6 +414,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
         console.log('[VEIL] Transaction Successful! TxHash:', txHash);
 
         // 2. Save the answers and transaction hash to our traditional backend database
+        const nullifier = "zk_derived"; // The actual nullifier is now strictly held in ZK state
         const res = await fetch('/api/feedback', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

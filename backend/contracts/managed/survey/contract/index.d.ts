@@ -1,19 +1,19 @@
 import type * as __compactRuntime from '@midnight-ntwrk/compact-runtime';
 
+export type NullifierInput = { campaignId: Uint8Array; secret: Uint8Array };
+
 export type Witnesses<PS> = {
   secretEligibilityHash(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, Uint8Array];
 }
 
 export type ImpureCircuits<PS> = {
   submitFeedback(context: __compactRuntime.CircuitContext<PS>,
-                 campaignId_0: Uint8Array,
-                 publicNullifier_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+                 campaignId_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
 }
 
 export type ProvableCircuits<PS> = {
   submitFeedback(context: __compactRuntime.CircuitContext<PS>,
-                 campaignId_0: Uint8Array,
-                 publicNullifier_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+                 campaignId_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
 }
 
 export type PureCircuits = {
@@ -21,8 +21,7 @@ export type PureCircuits = {
 
 export type Circuits<PS> = {
   submitFeedback(context: __compactRuntime.CircuitContext<PS>,
-                 campaignId_0: Uint8Array,
-                 publicNullifier_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+                 campaignId_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
 }
 
 export type Ledger = {
