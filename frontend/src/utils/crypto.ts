@@ -1,60 +1,142 @@
-export const MOCK_ISSUER_KEY_BASE64 = "MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI="; // 32 bytes when decoded ('12345678901234567890123456789012')
-
-// Convert string to ArrayBuffer
-function str2ab(str: string) {
-  const buf = new ArrayBuffer(str.length);
-  const bufView = new Uint8Array(buf);
-  for (let i = 0, strLen = str.length; i < strLen; i++) {
-    bufView[i] = str.charCodeAt(i);
+// Utility functions for ArrayBuffer <-> Base64
+export function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
   }
-  return buf;
+  return window.btoa(binary);
 }
 
-// Get the static AES key
-async function getCryptoKey() {
-  const rawKey = Uint8Array.from(atob(MOCK_ISSUER_KEY_BASE64), c => c.charCodeAt(0));
-  return await crypto.subtle.importKey(
-    "raw",
-    rawKey,
-    { name: "AES-GCM" },
-    false,
+export function base64ToArrayBuffer(base64: string): ArrayBuffer {
+  const binary_string = window.atob(base64);
+  const len = binary_string.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binary_string.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+
+// 1. Generate Issuer RSA Key Pair
+export async function generateIssuerKeyPair(): Promise<{ publicKey: string, privateKey: string }> {
+  const keyPair = await crypto.subtle.generateKey(
+    {
+      name: "RSA-OAEP",
+      modulusLength: 2048,
+      publicExponent: new Uint8Array([1, 0, 1]),
+      hash: "SHA-256",
+    },
+    true,
     ["encrypt", "decrypt"]
   );
+
+  const exportedPublicKey = await crypto.subtle.exportKey("spki", keyPair.publicKey);
+  const exportedPrivateKey = await crypto.subtle.exportKey("pkcs8", keyPair.privateKey);
+
+  return {
+    publicKey: arrayBufferToBase64(exportedPublicKey),
+    privateKey: arrayBufferToBase64(exportedPrivateKey),
+  };
 }
 
-export async function encryptFeedback(answers: Record<string, any>): Promise<{ ciphertext: string, iv: string }> {
-  const key = await getCryptoKey();
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const encoded = new TextEncoder().encode(JSON.stringify(answers));
+// 2. Encrypt Feedback (Hybrid Encryption: AES-256-GCM + RSA-OAEP)
+export async function encryptFeedback(
+  answers: Record<string, any>, 
+  issuerPublicKeyBase64: string
+): Promise<{ ciphertext: string, iv: string, encryptedAesKey: string }> {
   
+  // A. Import Issuer's Public RSA Key
+  const publicKeyBuffer = base64ToArrayBuffer(issuerPublicKeyBase64);
+  const rsaPublicKey = await crypto.subtle.importKey(
+    "spki",
+    publicKeyBuffer,
+    { name: "RSA-OAEP", hash: "SHA-256" },
+    false,
+    ["encrypt"]
+  );
+
+  // B. Generate a random AES-256 key for this specific submission
+  const aesKey = await crypto.subtle.generateKey(
+    { name: "AES-GCM", length: 256 },
+    true,
+    ["encrypt", "decrypt"]
+  );
+
+  // C. Encrypt the feedback payload with the AES key
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const encodedAnswers = new TextEncoder().encode(JSON.stringify(answers));
   const ciphertextBuffer = await crypto.subtle.encrypt(
     { name: "AES-GCM", iv },
-    key,
-    encoded
+    aesKey,
+    encodedAnswers
   );
-  
-  const ciphertext = btoa(String.fromCharCode(...new Uint8Array(ciphertextBuffer)));
-  const ivStr = btoa(String.fromCharCode(...iv));
-  
-  return { ciphertext, iv: ivStr };
+
+  // D. Encrypt the AES key with the Issuer's RSA Public Key
+  const exportedAesKey = await crypto.subtle.exportKey("raw", aesKey);
+  const encryptedAesKeyBuffer = await crypto.subtle.encrypt(
+    { name: "RSA-OAEP" },
+    rsaPublicKey,
+    exportedAesKey
+  );
+
+  // E. Return all components as Base64
+  return {
+    ciphertext: arrayBufferToBase64(ciphertextBuffer),
+    iv: arrayBufferToBase64(iv.buffer),
+    encryptedAesKey: arrayBufferToBase64(encryptedAesKeyBuffer)
+  };
 }
 
-export async function decryptFeedback(ciphertextStr: string, ivStr: string): Promise<Record<string, any> | null> {
+// 3. Decrypt Feedback
+export async function decryptFeedback(
+  ciphertextStr: string, 
+  ivStr: string, 
+  encryptedAesKeyStr: string, 
+  issuerPrivateKeyBase64: string
+): Promise<Record<string, any> | null> {
   try {
-    const key = await getCryptoKey();
-    const ciphertext = Uint8Array.from(atob(ciphertextStr), c => c.charCodeAt(0));
-    const iv = Uint8Array.from(atob(ivStr), c => c.charCodeAt(0));
+    // A. Import Issuer's Private RSA Key
+    const privateKeyBuffer = base64ToArrayBuffer(issuerPrivateKeyBase64);
+    const rsaPrivateKey = await crypto.subtle.importKey(
+      "pkcs8",
+      privateKeyBuffer,
+      { name: "RSA-OAEP", hash: "SHA-256" },
+      false,
+      ["decrypt"]
+    );
+
+    // B. Decrypt the AES Key
+    const encryptedAesKeyBuffer = base64ToArrayBuffer(encryptedAesKeyStr);
+    const rawAesKey = await crypto.subtle.decrypt(
+      { name: "RSA-OAEP" },
+      rsaPrivateKey,
+      encryptedAesKeyBuffer
+    );
+
+    // C. Import the decrypted AES Key
+    const aesKey = await crypto.subtle.importKey(
+      "raw",
+      rawAesKey,
+      { name: "AES-GCM" },
+      false,
+      ["decrypt"]
+    );
+
+    // D. Decrypt the actual payload
+    const ciphertextBuffer = base64ToArrayBuffer(ciphertextStr);
+    const ivBuffer = base64ToArrayBuffer(ivStr);
     
     const decryptedBuffer = await crypto.subtle.decrypt(
-      { name: "AES-GCM", iv },
-      key,
-      ciphertext
+      { name: "AES-GCM", iv: new Uint8Array(ivBuffer) },
+      aesKey,
+      ciphertextBuffer
     );
     
     const decoded = new TextDecoder().decode(decryptedBuffer);
     return JSON.parse(decoded);
   } catch (e) {
-    console.error("Decryption failed", e);
+    console.error("Hybrid Decryption failed", e);
     return null;
   }
 }

@@ -42,6 +42,7 @@ VEIL is designed around Midnight's native privacy and selective-disclosure archi
 • Participant credentials  
 • Private eligibility information  
 • The relationship between a participant and their submission  
+• **Feedback Payloads**: Protected by **Hybrid Asymmetric Encryption** (`RSA-OAEP` + `AES-256-GCM`). A unique RSA key pair is dynamically generated per campaign. Client-side browsers encrypt feedback using a random, single-use AES key, and then cryptographically wrap that AES key with the Campaign Issuer's RSA Public Key. This guarantees the off-chain data remains mathematically unreadable to everyone (including the server infrastructure) except the designated Issuer holding the private key.
 
 **◇** The participant can prove that they possess valid eligibility credentials and have not previously participated, without revealing which credential belongs to them.
 

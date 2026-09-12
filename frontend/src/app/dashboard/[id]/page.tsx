@@ -65,10 +65,18 @@ export default function CampaignDetails() {
       if (campData.found) setCampaign(campData.campaign);
       if (feedData.records) {
         const { decryptFeedback } = await import('@/utils/crypto');
+        const issuerPrivateKey = localStorage.getItem(`veil_issuer_key_${campaignId}`);
+        
         const decryptedRecords = await Promise.all(feedData.records.map(async (r: any) => {
-          if (r.encryptedAnswers && r.iv) {
-            const decrypted = await decryptFeedback(r.encryptedAnswers, r.iv);
-            if (decrypted) r.answers = decrypted;
+          if (r.encryptedAnswers && r.iv && r.encryptedAesKey && issuerPrivateKey) {
+            const decrypted = await decryptFeedback(r.encryptedAnswers, r.iv, r.encryptedAesKey, issuerPrivateKey);
+            if (decrypted) {
+               r.answers = decrypted;
+            } else {
+               r.answers = { 'default': 'DECRYPTION FAILED - INVALID KEY' };
+            }
+          } else if (r.encryptedAnswers && !issuerPrivateKey) {
+            r.answers = { 'default': 'ENCRYPTED - MISSING PRIVATE KEY IN THIS BROWSER' };
           }
           return r;
         }));

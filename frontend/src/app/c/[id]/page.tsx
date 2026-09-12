@@ -26,6 +26,7 @@ export interface Campaign {
   bannerUrl?: string;
   createdAt: string;
   endDate?: string;
+  publicKey?: string;
 }
 
 export default function CampaignSurvey() {
@@ -93,8 +94,10 @@ export default function CampaignSurvey() {
     ];
 
     try {
-      // Hand over to the provider to do the pseudo-ZK stuff and API submit
-      const pid = await generateProofAndSubmit(answers, campaignId);
+      if (!campaign?.publicKey) {
+         throw new Error("This campaign is missing a public encryption key. Cannot securely encrypt payload.");
+      }
+      const pid = await generateProofAndSubmit(answers, campaignId, campaign.publicKey);
       setProofId(pid);
       setStage('SUCCESS');
     } catch (e) {

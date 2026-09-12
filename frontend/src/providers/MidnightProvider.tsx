@@ -15,7 +15,7 @@ interface MidnightContextType {
   networkId: string | null;
   connectWallet: () => Promise<void>;
   disconnectWallet: () => void;
-  generateProofAndSubmit: (answers: Record<string, any>, campaignId: string) => Promise<string>;
+  generateProofAndSubmit: (answers: Record<string, any>, campaignId: string, issuerPublicKeyBase64: string) => Promise<string>;
   deploySmartContract: () => Promise<string>;
 }
 
@@ -360,7 +360,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
     console.log('[VEIL] Wallet disconnected.');
   };
 
-  const generateProofAndSubmit = async (answers: Record<string, any>, campaignId: string) => {
+  const generateProofAndSubmit = async (answers: Record<string, any>, campaignId: string, issuerPublicKeyBase64: string) => {
     if (!walletConnected || !connectedApi || !walletAddress) {
       alert('Please connect your wallet first!');
       throw new Error('Wallet not connected');
@@ -428,15 +428,15 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
         console.log('[VEIL] Transaction Successful! TxHash:', txHash);
 
         // 2. Cryptographically Encrypt the Answers before sending to the backend
-        console.log('[VEIL] Encrypting payload with AES-256-GCM...');
+        console.log('[VEIL] Encrypting payload with AES-256-GCM & RSA-OAEP Hybrid Encryption...');
         const { encryptFeedback } = await import('@/utils/crypto');
-        const { ciphertext, iv } = await encryptFeedback(answers);
+        const { ciphertext, iv, encryptedAesKey } = await encryptFeedback(answers, issuerPublicKeyBase64);
         
         const nullifier = "zk_derived"; // The actual nullifier is now strictly held in ZK state
         const res = await fetch('/api/feedback', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ encryptedAnswers: ciphertext, iv, nullifier, campaignId, txHash })
+          body: JSON.stringify({ encryptedAnswers: ciphertext, iv, encryptedAesKey, nullifier, campaignId, txHash })
         });
         const resData = await res.json();
         

@@ -7,6 +7,7 @@ import { useMidnight } from '@/providers/MidnightProvider';
 import { WalletBadge } from '@/components/WalletBadge';
 import { Logo } from '@/components/Logo';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { generateIssuerKeyPair } from '@/utils/crypto';
 
 export type QuestionType = 'text' | 'mcq' | 'rating' | 'image';
 
@@ -116,6 +117,8 @@ export default function Dashboard() {
     setIsCreating(true);
     
     try {
+      const { publicKey, privateKey } = await generateIssuerKeyPair();
+
       // Create campaign via API
       const res = await fetch('/api/campaigns', {
         method: 'POST',
@@ -126,11 +129,15 @@ export default function Dashboard() {
           questions,
           bannerUrl,
           endDate,
-          creator: walletAddress || '0xunknown'
+          creator: walletAddress || '0xunknown',
+          publicKey // Hybrid Encryption: store public key on backend
         })
       });
       const data = await res.json();
       if(data.success) {
+        // Securely store the private key locally
+        localStorage.setItem(`veil_issuer_key_${data.campaign.id}`, privateKey);
+
         setCampaigns([...campaigns, data.campaign]);
         setTitle('');
         setDescription('');
