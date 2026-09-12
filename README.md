@@ -22,7 +22,7 @@
 *   **🌐 Network**: Midnight Preprod Testnet
 *   **💻 GitHub Repository**: [https://github.com/late-cat/veil](https://github.com/late-cat/veil)
 *   **🚀 Live Demo**: [https://veil-three-amber.vercel.app/](https://veil-three-amber.vercel.app/)
-*   **🎥 Demo Video**: `[Insert your Loom/YouTube link here before submitting]`
+*   **🎥 Demo Video**: [Watch on YouTube](https://youtu.be/CxdFbR8Xeio)
 *   **📝 Product Proposal**: [View Approved Idea Document](./docs/PROPOSAL.md)
 *   **📜 Smart Contract**: `survey.compact`
 *   **📍 Contract Address**: [`f6532d62d3991079b4aea42544ae744ee0d5f3462be8a75c62cbf514ffa5a974`](https://preprod.midnightexplorer.com/contracts/f6532d62d3991079b4aea42544ae744ee0d5f3462be8a75c62cbf514ffa5a974) *(Note: Due to known faults on the Midnight Explorer's end, you may need to access this link via a private network/VPN or Cloudflare DNS).*
@@ -62,7 +62,7 @@ Traditional surveys force users to trust the organization not to look at backend
 | **Circuit Called from Frontend**| ✅ **Done.** The `submitFeedback` circuit is successfully invoked in the browser. The frontend provider serializes inputs into the SDK, triggering the Lace/1AM wallet to generate a local ZK proof. |
 | **Observable Privacy Behavior** | ✅ **Done.** We implemented **Nullifiers**. The circuit cryptographically hashes the wallet state to generate a unique nullifier per campaign. If a user tries to vote twice, the smart contract rejects the transaction, yet the ledger *never learns* which specific wallet attempted the double vote. |
 | **Live Demo Link** | ✅ **Done.** Deployed edge-compatible Next.js frontend to Vercel: [https://veil-three-amber.vercel.app/](https://veil-three-amber.vercel.app/) |
-| **Demo Video Link** | ⚠️ **Action Required:** Please replace the `[Insert your Loom/YouTube link here]` placeholder at the top of this README. |
+| **Demo Video Link** | ✅ **Done.** Video uploaded to YouTube and linked at the top of the README. |
 
 ### 🌕 Level 3 Submission Requirements
 
