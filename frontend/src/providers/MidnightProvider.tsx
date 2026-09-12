@@ -274,7 +274,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
             CompiledContract.withWitnesses({ 
               secretEligibilityHash: (context: any) => [context.privateState, new Uint8Array(32)] 
             }),
-            CompiledContract.withCompiledFileAssets('/survey-contract/')
+            CompiledContract.withCompiledFileAssets('/managed/survey/')
           );
           
           setMidnightProviders(providers);
