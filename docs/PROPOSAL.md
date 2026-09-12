@@ -1,44 +1,97 @@
-# 🌑 VEIL: Midnight Hackathon Product Proposal
+# ✦ VEIL — Your Opinion, Your Privacy ✦
 
-**Project Name:** VEIL (Your Opinion, Your Privacy)  
-**Target Network:** Midnight Preprod Testnet  
-**Hackathon Category:** Anonymous Feedback / Survey (Enable verifiable participation while keeping responses private)  
+**◈ Target Network:** Midnight Preprod Testnet  
+**◈ Hackathon Category:** Consumer Focus (Anonymous Feedback & Surveys)
 
 ---
 
-## 1. The Problem Statement
-Organizations, DAOs, and enterprises desperately require honest, unfiltered feedback—whether through employee climate surveys, whistleblower reports, or decentralized governance polling. However, participants are highly hesitant to provide genuine responses due to a fundamental lack of privacy. 
+## ✧ THE PROBLEM
+Organizations, DAOs, and enterprises need honest feedback — from employee surveys and whistleblower reports to decentralized governance polling. However, people often hesitate to speak honestly when their identity can potentially be linked to their responses.
 
-Traditional centralized survey tools (like Google Forms or SurveyMonkey) hold the master keys to the database. This means the platform—or the organization paying for it—can easily de-anonymize respondents by cross-referencing access logs, IP addresses, or email metadata. This inherent lack of trust creates a chilling effect on honesty. If users feel their identity might be exposed, they will either self-censor or refuse to participate entirely.
+Traditional survey platforms such as Google Forms and SurveyMonkey rely on centralized infrastructure where the platform or organization ultimately controls the data. Even when a survey is labeled anonymous, metadata such as accounts, access logs, IP addresses, or email information can potentially compromise that anonymity.
 
-## 2. The Solution: VEIL
-VEIL solves this by mathematically guaranteeing participant privacy using zero-knowledge cryptography. We completely separate the *Proof of Eligibility* from the *Survey Data*. 
+**➜ This creates a chilling effect:** when people do not fully trust the system, they self-censor.
 
-When a user submits feedback on VEIL, they don't send their identity to the server. Instead, they generate a Zero-Knowledge Proof (ZKP) locally on their device. This proof cryptographically guarantees to the network that:
-1. The user is on the approved eligibility list.
-2. The user has not voted or submitted feedback previously (preventing Sybil attacks via a unique Nullifier).
+---
 
-The network accepts the proof and records the feedback, but the user's wallet address and identity are never exposed. VEIL allows organizations to collect 100% verifiable feedback without ever knowing *who* submitted it.
+## ✧ THE SOLUTION
+VEIL is a privacy-preserving survey platform built on the Midnight Blockchain.
 
-## 3. The Midnight Privacy Model (Selective Disclosure)
-VEIL is built explicitly around Midnight's native data protection and selective disclosure architecture. Attempting this on traditional ledgers (like Ethereum) would require exposing identities to the mempool or building highly complex off-chain ZK-infrastructure. VEIL leverages the `survey.compact` language to natively handle the division of data:
+Instead of sending their identity to the server, participants generate a Zero-Knowledge Proof locally on their device. 
+The proof allows the network to verify:
+**①** The participant is eligible for the campaign.  
+**②** The participant has not already submitted a response.  
+**③** The submission is valid without revealing the participant's identity.
 
-- **What is PUBLIC (On-Chain Ledger State):** The existence of the campaign, the eligibility criteria (Merkle root), the total number of participants (tally), and the anonymized feedback payload.
-- **What is PRIVATE (Private Witness):** The participant's wallet address and the direct link between the user and their specific feedback submission.
-- **What the user PROVES without revealing:** The user proves they possess a valid key/eligibility token and have not previously generated a nullifier for this specific campaign, all without ever revealing which specific key they hold.
+**◈ A unique nullifier** prevents duplicate participation while keeping the participant unlinkable to their response.
 
-## 4. Target Users
-- **Web3 Communities & DAOs:** For conducting private governance sentiment checks and temperature checks where wallet privacy is paramount.
-- **Enterprise Organizations:** For highly sensitive HR climate surveys or anonymous whistleblower reporting pipelines where retribution is a concern.
-- **Event Organizers:** To collect unbiased, honest feedback from hackathon or conference participants without pressuring them to attach their identities.
+**➜ In simple terms:** VEIL lets users prove that they are allowed to participate without proving who they are.
 
-## 5. Technical Architecture
-- **Smart Contract (`survey.compact`):** Utilizes a multi-tenant factory pattern to handle infinite concurrent surveys securely on the Midnight Preprod network.
-- **Frontend Client:** Next.js 14 App Router, featuring a highly responsive, aesthetically polished UI.
-- **Wallet Integration:** Midnight.js DApp Connector API for seamless local proof generation using the Lace / 1A.M. browser wallet.
-- **State Synchronization:** Local ephemeral state synced dynamically via the Midnight Public Data Provider to ensure real-time tally updates.
+---
 
-## 6. Current Status & Roadmap
-- **Phase 1: MVP (Completed for Hackathon):** We have successfully deployed the `survey.compact` contract to the Preprod network and built a fully functional, mobile-responsive frontend. Users can connect their 1A.M. wallet, generate local ZK proofs, and submit completely anonymous feedback to live campaigns.
-- **Phase 2: User Acquisition & Analytics (Next 3 Months):** Introduce dynamic eligibility criteria (token-gated surveys) and deploy rich analytics dashboards for campaign issuers. We will begin beta testing by partnering directly with Web3 communities.
-- **Phase 3: Mainnet Vision (Q3 2027):** Transition to the Midnight Mainnet. Evolve VEIL into a comprehensive, enterprise-grade suite for decentralized HR, whistleblower protection, and anonymous corporate governance, positioning it as the Web3 alternative to SurveyMonkey.
+## ✧ MIDNIGHT PRIVACY MODEL
+VEIL is designed around Midnight's native privacy and selective-disclosure architecture.
+
+**◉ PUBLIC ON-CHAIN INFORMATION**  
+• Campaign configuration  
+• Eligibility commitment  
+• Participation count  
+• Verifiable survey results  
+
+**◉ PRIVATE INFORMATION**  
+• Participant credentials  
+• Private eligibility information  
+• The relationship between a participant and their submission  
+
+**◇** The participant can prove that they possess valid eligibility credentials and have not previously participated, without revealing which credential belongs to them.
+
+**➜ This makes privacy a property of the protocol** rather than simply a promise made by a centralized platform.
+
+---
+
+## ✧ TARGET USERS
+**◎ Web3 Communities & DAOs**  
+Private governance sentiment checks and community polling without exposing individual wallets.
+
+**◎ Enterprises**  
+Anonymous HR climate surveys, internal feedback, and sensitive reporting where participants may fear retaliation.
+
+**◎ Events & Hackathons**  
+Unbiased feedback from participants without forcing them to attach their identity to their responses.
+
+---
+
+## ✧ TECHNICAL ARCHITECTURE
+**⚙ Smart Contract**  
+`survey.compact`, designed to support multiple independent survey campaigns on Midnight Preprod.
+
+**⌁ Frontend**  
+Next.js App Router with a responsive and polished user interface.
+
+**◇ Wallet Integration**  
+Midnight.js DApp Connector API with supported Midnight wallets (Lace/1A.M.) for local proof generation and transaction signing.
+
+**↻ State Synchronization**  
+Midnight Public Data Provider for synchronizing public campaign state and verifiable participation data.
+
+---
+
+## ✧ CURRENT STATUS
+
+**✓ PHASE 1 — HACKATHON MVP (Completed)**  
+The `survey.compact` contract has been deployed to Midnight Preprod, with a functional survey creation and participation flow, wallet integration, local ZK proof generation, anonymous feedback submission, responsive frontend, and live campaign state.
+
+**→ PHASE 2 — NEXT 3 MONTHS**  
+Token-gated and dynamic eligibility, advanced analytics for campaign issuers, beta testing with Web3 communities, and additional privacy-preserving campaign types.
+
+**→ PHASE 3 — MAINNET VISION (Q3 2027)**  
+Move VEIL toward Midnight Mainnet and evolve it into an enterprise-grade privacy platform for anonymous employee feedback, whistleblower protection, corporate governance, DAO governance, and sensitive research or community polling.
+
+---
+
+### ✦ LONG-TERM VISION ✦
+VEIL turns anonymous feedback from a promise into something that can be cryptographically verified.
+
+**◈ Your opinion.**  
+**◈ Your privacy.**  
+**◈ Verifiable by design.**
