@@ -29,19 +29,6 @@
 
 ---
 
-## 💡 Level 4: Idea Submission Details
-
-As part of the Level 4 hackathon requirements, here is the official submission information for the VEIL project idea:
-
-*   **Category Selected:** Consumer focus (Anonymous Feedback / Survey)
-*   **Product Proposal:** [View Approved Idea Document](https://github.com/late-cat/veil/blob/main/docs/PROPOSAL.md)
-*   **What is your idea? (Essay Response):**
-    > Organizations desperately need honest feedback (surveys, whistleblower reports, performance reviews), but employees and users are hesitant to provide it due to privacy concerns. Centralized survey tools (like Google Forms) inherently compromise user privacy, as identities are inevitably linked to responses via access logs or metadata.
-    > 
-    > **VEIL** is a decentralized, ZK-verified survey platform built on the Midnight blockchain that completely separates the *Proof of Eligibility* from the *Survey Data*. Using Midnight’s "Selective Disclosure" architecture within a `survey.compact` smart contract, VEIL allows participants to generate a zero-knowledge proof locally. This proof cryptographically guarantees they are eligible to vote and haven't voted before (using nullifiers). The network tallies the vote, but the raw feedback and the user's wallet address remain completely omitted from the public ledger state.
-
----
-
 ## 📖 The Vision: Problem & Solution
 
 ### The Problem
