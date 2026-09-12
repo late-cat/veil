@@ -129,8 +129,8 @@ VEIL Protocol is fully optimized for mobile devices. We implemented native respo
 <br>
 
 <div align="center">
-  <img src="./frontend/src/img/mobile-responsive-1.png" alt="Mobile Dashboard Menu" width="45%" style="border-radius: 12px; margin-right: 10px;" />
-  <img src="./frontend/src/img/mobile-responsive-2.png" alt="Mobile Navigation" width="45%" style="border-radius: 12px;" />
+  <img src="./frontend/src/img/mobile-responsive.png" alt="Mobile Dashboard Menu" width="45%" style="border-radius: 12px; margin-right: 10px;" />
+  <img src="./frontend/src/img/mobile-2.png" alt="Mobile Navigation" width="45%" style="border-radius: 12px;" />
 </div>
 </details>
 
