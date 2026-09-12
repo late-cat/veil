@@ -24,7 +24,7 @@
 *   **🚀 Live Demo**: [https://veil-three-amber.vercel.app/](https://veil-three-amber.vercel.app/)
 *   **🎥 Demo Video**: [Watch on YouTube](https://youtu.be/CxdFbR8Xeio)
 *   **📝 Product Proposal**: [View Approved Idea Document](./docs/PROPOSAL.md)
-*   **📜 Smart Contract**: `survey.compact`
+*   **📜 Smart Contract**: [`survey.compact`](./backend/contracts/survey.compact)
 *   **📍 Contract Address**: [`f6532d62d3991079b4aea42544ae744ee0d5f3462be8a75c62cbf514ffa5a974`](https://preprod.midnightexplorer.com/contracts/f6532d62d3991079b4aea42544ae744ee0d5f3462be8a75c62cbf514ffa5a974) *(Note: Due to known faults on the Midnight Explorer's end, you may need to access this link via a private network/VPN or Cloudflare DNS).*
 
 ---
