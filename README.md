@@ -31,11 +31,21 @@
 
 ## 📖 The Vision: Problem & Solution
 
-### The Problem
-Traditional surveys force users to trust the organization not to look at backend logs. Centralized platforms (like Google Forms) inherently compromise user privacy, as identities are inevitably linked to responses.
+### The Problem: The Chilling Effect of Centralized Data Collection
+Organizations, DAOs, and enterprise HR departments desperately require honest, unfiltered feedback to make informed decisions. However, participants are often terrified to provide genuine, critical responses due to a fundamental lack of privacy. 
 
-### The Solution: VEIL
-**VEIL** changes the paradigm by separating the **Proof** from the **Data**. It utilizes a "Selective Disclosure" architecture within its `survey.compact` smart contract to balance organizational trust with individual privacy.
+Traditional Web2 survey tools (like Google Forms or SurveyMonkey) hold the master keys to the database. This means the platform—or the organization paying for it—can easily de-anonymize respondents by cross-referencing access logs, IP addresses, timestamps, or email metadata. This inherent lack of trust creates a **chilling effect on honesty**. If users feel their identity might be exposed, they will either self-censor their true opinions or refuse to participate entirely.
+
+### The Solution: VEIL & Zero-Knowledge Cryptography
+**VEIL** fundamentally changes the paradigm of data collection by mathematically guaranteeing participant privacy. Instead of trusting a centralized database not to look at the logs, VEIL enforces privacy at the protocol level by completely separating the **Proof of Eligibility** from the **Survey Data**.
+
+Built natively on the Midnight blockchain, VEIL leverages a powerful **Selective Disclosure** architecture. When a user submits feedback, their identity and wallet address never touch the public ledger. Instead, the Lace/1A.M. wallet computes a Zero-Knowledge Proof (ZKP) locally on the user's device. 
+
+This local proof cryptographically guarantees to the `survey.compact` smart contract that:
+1. The user holds a valid eligibility token to participate in this specific campaign.
+2. The user has not voted previously (enforced via a mathematically unique **Nullifier**).
+
+The network verifies the proof and updates the public tally, but remains completely blind to *who* actually submitted the transaction. By utilizing Midnight's distinct separation of **Public State** and **Private Witness**, VEIL allows organizations to collect 100% Sybil-resistant, verifiable feedback without ever compromising the individual's identity.
 
 ---
 
