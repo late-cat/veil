@@ -52,9 +52,6 @@ jobs:
     - name: Install Dependencies
       run: npm install
       
-    - name: Compile Compact Smart Contract
-      run: npm run compile
-      
     - name: Build TypeScript Project
       run: npm run build
       

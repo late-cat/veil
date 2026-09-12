@@ -165,9 +165,9 @@ VEIL strictly adheres to Midnight's Selective Disclosure capabilities. Here is e
 - **Nullifier Set:** An observer can see a list of random 32-byte hashes added to the `nullifiers` set, indicating that *someone* has voted.
 
 ### ◉ PRIVATE WITNESS (What an Observer CANNOT Learn)
-- **Participant Identity:** The observer **cannot** link a submission to a specific wallet address. The identity is used only locally by the private witness to generate the nullifier, and is never published on-chain.
-- **The Feedback Content:** The observer **cannot** read the actual feedback text. The feedback remains entirely off-chain, and only the ZK proof that verifies its integrity is submitted to the network.
-- **Double-Voting Attempts:** The observer **cannot** know *who* attempted to double-vote. They only see that a transaction was rejected by the smart contract due to a nullifier collision.
+- **Participant Identity:** The observer **cannot** link a submission to a specific wallet address. The identity is protected by a dynamically generated, cryptographically secure 32-byte random seed stored strictly in the user's local browser environment (`localStorage`). This seed acts as a persistent private witness to generate the ZK nullifier, meaning identity is never published on-chain or shared.
+- **The Feedback Content:** The observer **cannot** read the actual feedback text. The platform utilizes native Web Crypto `AES-256-GCM` encryption on the client-side. The feedback payload is encrypted *before* it leaves the browser, ensuring the public database exclusively stores opaque ciphertext.
+- **Double-Voting Attempts:** The observer **cannot** know *who* attempted to double-vote. They only see that an anonymous transaction was mathematically rejected by the smart contract due to a zero-knowledge nullifier collision.
 
 ## ✧ HIGH-LEVEL SYSTEM ARCHITECTURE
 
