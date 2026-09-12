@@ -246,7 +246,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
           const basePublicDataProvider = indexerPublicDataProvider(config.indexerUri, config.indexerWsUri);
           const providers: any = {
             privateStateProvider: levelPrivateStateProvider({
-              privateStateStoreName: 'survey-state',
+              privateStateStoreName: 'survey-state-v2',
               accountId: accountId,
               privateStoragePasswordProvider: () => 'Local-Devnet-Development-Placeholder-1'
             }),
@@ -366,7 +366,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
         const contract = await findDeployedContract(midnightProviders, {
           contractAddress,
           compiledContract,
-          privateStateId: 'survey-state',
+          privateStateId: 'survey-state-v2',
           initialPrivateState: {},
         });
 
