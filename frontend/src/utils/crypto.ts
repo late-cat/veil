@@ -1,4 +1,4 @@
-export const MOCK_ISSUER_KEY_BASE64 = "VEVTVF9JU1NVRVJfS0VZXzMyQllURVNfRk9SX0FFUw=="; // 32 bytes when decoded
+export const MOCK_ISSUER_KEY_BASE64 = "MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI="; // 32 bytes when decoded ('12345678901234567890123456789012')
 
 // Convert string to ArrayBuffer
 function str2ab(str: string) {
