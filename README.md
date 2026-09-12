@@ -25,7 +25,7 @@
 *   **▷ Demo Video**: [Watch on YouTube](https://youtu.be/CxdFbR8Xeio)
 *   **☰ Product Proposal**: [View Approved Idea Document](./docs/PROPOSAL.md)
 *   **⚙ Smart Contract**: [`survey.compact`](./backend/contracts/survey.compact)
-*   **⌖ Contract Address**: [`36ed22ab9631cdf349dc72984573028bfcf4de6cc57024caa1a96e496d1379c4`](https://preprod.midnightexplorer.com/contracts/36ed22ab9631cdf349dc72984573028bfcf4de6cc57024caa1a96e496d1379c4) *(Note: Due to known faults on the Midnight Explorer's end, you may need to access this link via a private network/VPN or Cloudflare DNS).*
+*   **⌖ Contract Address**: [`0x36ed22ab9631cdf349dc72984573028bfcf4de6cc57024caa1a96e496d1379c4`](https://preprod.midnightexplorer.com/contracts/0x36ed22ab9631cdf349dc72984573028bfcf4de6cc57024caa1a96e496d1379c4) *(Note: Due to known faults on the Midnight Explorer's end, you may need to access this link via a private network/VPN or Cloudflare DNS).*
 
 ---
 
@@ -213,7 +213,7 @@ To clone and run the VEIL platform locally on your machine, follow these steps:
 ### Prerequisites
 1. **Node.js**: Ensure you have Node.js v22 installed.
 2. **Midnight Toolchain**: Ensure you have the `compact-compiler` and Midnight local node tools installed.
-3. **Wallet**: Install the Lace Wallet browser extension and enable the DApp Connector.
+3. **Wallet**: Install the **1A.M. Wallet** (or Lace) browser extension and enable the DApp Connector. (We strongly recommend 1A.M. to avoid DUST balancing issues).
 
 ### Step-by-Step Guide
 1. **Clone the repository:**
@@ -241,7 +241,7 @@ To clone and run the VEIL platform locally on your machine, follow these steps:
    npm run dev
    ```
 5. **Open the dApp:**
-   Visit `http://localhost:3000` in your browser. Connect your Lace wallet and interact with the Live Preprod campaigns!
+   Visit `http://localhost:3000` in your browser. Connect your 1A.M. wallet and interact with the Live Preprod campaigns!
 
 ---
 
