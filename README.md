@@ -108,7 +108,16 @@ The network verifies the proof and updates the public tally, but remains complet
 ![Deployed Contract 0x7971fa81bb4af823994172ff4bc09fc0a45dfcc472b49a0b7c7b6d183e0b212f](./frontend/src/img/deployed-contract-latest.png)
 </details>
 
-### 3. Passing Test Suite (Level 3)
+### 3. Verified ZK-Proof Submission on Preprod
+*Official Midnight Explorer verification proving the successful submission of a Zero-Knowledge Proof to the Preprod network. Transaction Hash: [`3a80a8b44e740cd85c0d96d2ce225518a27c69c455e41e3ced43f7d2be21d755`](https://preprod.midnightexplorer.com/transactions/3a80a8b44e740cd85c0d96d2ce225518a27c69c455e41e3ced43f7d2be21d755).*
+<details open>
+<summary><b>View Successful Transaction</b></summary>
+<br>
+
+![Successful Transaction](./frontend/src/img/sucessfull-txn.png)
+</details>
+
+### 4. Passing Test Suite (Level 3)
 *Terminal output proving 3+ successful passing tests for the Smart Contract invariants.*
 <details open>
 <summary><b>View Test Output</b></summary>
@@ -117,7 +126,7 @@ The network verifies the proof and updates the public tally, but remains complet
 ![Test Output](./frontend/src/img/test-output.png)
 </details>
 
-### 4. Unified CI/CD Pipeline (Level 3)
+### 5. Unified CI/CD Pipeline (Level 3)
 *GitHub Actions dashboard verifying the automated testing and build processes.*
 <details open>
 <summary><b>View CI/CD Pipeline</b></summary>
@@ -132,7 +141,7 @@ The network verifies the proof and updates the public tally, but remains complet
 
 VEIL Protocol is fully optimized for mobile devices. We implemented native responsive layouts, including touch-optimized hamburger menus for the main navigation and the dashboard sidebar, ensuring the entire dApp works perfectly on smartphones.
 
-### 5. Mobile Responsiveness Showcase
+### 6. Mobile Responsiveness Showcase
 *Screenshots demonstrating the native mobile layout and custom aesthetic hamburger menus.*
 <details open>
 <summary><b>View Mobile Layouts</b></summary>
