@@ -437,7 +437,6 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
       }
     });
   };
-
   const deploySmartContract = async () => {
     if (!walletConnected || !connectedApi || !walletAddress) {
       alert('Please connect your wallet first!');
@@ -451,27 +450,51 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
     
     return new Promise<string>(async (resolve, reject) => {
       try {
-        console.log('[VEIL] Deploying Smart Contract via Midnight Wallet...');
-        const { deployContract } = await import('@midnight-ntwrk/midnight-js-contracts');
+        console.log('[VEIL] Deploying Smart Contract via Midnight Wallet (UnprovenTx approach)...');
+        const { createUnprovenDeployTx, submitTxAsync } = await import('@midnight-ntwrk/midnight-js-contracts');
+        const { sampleSigningKey } = await import('@midnight-ntwrk/compact-runtime');
         
-        const deployedContract = await deployContract(midnightProviders, {
-          privateStateProvider: midnightProviders.privateStateProvider,
-          zkConfigProvider: midnightProviders.zkConfigProvider,
-          compilerNetworkId: networkId!,
-          contract: (await import('@/contracts/survey/index.js')).Contract,
+        console.log('[VEIL] Creating unproven deploy transaction...');
+        const deployTxData = await createUnprovenDeployTx(midnightProviders, {
           compiledContract: compiledContract,
+          args: [],
           initialPrivateState: {},
+          signingKey: sampleSigningKey(),
         } as any);
 
+        const contractAddress = deployTxData.public.contractAddress;
+        console.log('[VEIL] Pre-computed Contract Address:', contractAddress);
+        
+        console.log('[VEIL] Submitting transaction via Lace/1A.M....');
+        try {
+          await submitTxAsync(midnightProviders, {
+            unprovenTx: deployTxData.private.unprovenTx,
+          } as any);
+        } catch (submitErr: any) {
+          // Lace wallet sometimes throws the success object instead of returning it!
+          // Let's check if the thrown object contains a txHash indicating success.
+          if (submitErr && submitErr.public && submitErr.public.txHash) {
+            console.warn('[VEIL] Lace threw the success object, ignoring the error:', submitErr);
+          } else {
+            throw submitErr;
+          }
+        }
+
         console.log('[VEIL] Deployment Successful!');
-        console.log('[VEIL] Contract Address:', deployedContract.deployTxData.public.contractAddress);
+        console.log('[VEIL] Contract Address:', contractAddress);
         
         // Update local state
-        setContractAddress(deployedContract.deployTxData.public.contractAddress);
-        resolve(deployedContract.deployTxData.public.contractAddress);
+        setContractAddress(contractAddress);
+        resolve(contractAddress);
       } catch (e: any) {
         console.error('[VEIL] Contract deployment failed', e);
-        alert('Failed to deploy contract: ' + e.message);
+        
+        let errorMsg = e?.message ?? String(e);
+        if (typeof e === 'object' && !e.message) {
+          errorMsg = JSON.stringify(e, null, 2);
+        }
+        
+        alert('Failed to deploy contract: ' + errorMsg);
         reject(e);
       }
     });

@@ -25,7 +25,7 @@
 *   **▷ Demo Video**: [Watch on YouTube](https://youtu.be/CxdFbR8Xeio)
 *   **☰ Product Proposal**: [View Approved Idea Document](./docs/PROPOSAL.md)
 *   **⚙ Smart Contract**: [`survey.compact`](./backend/contracts/survey.compact)
-*   **⌖ Contract Address**: [`f6532d62d3991079b4aea42544ae744ee0d5f3462be8a75c62cbf514ffa5a974`](https://preprod.midnightexplorer.com/contracts/f6532d62d3991079b4aea42544ae744ee0d5f3462be8a75c62cbf514ffa5a974) *(Note: Due to known faults on the Midnight Explorer's end, you may need to access this link via a private network/VPN or Cloudflare DNS).*
+*   **⌖ Contract Address**: [`36ed22ab9631cdf349dc72984573028bfcf4de6cc57024caa1a96e496d1379c4`](https://preprod.midnightexplorer.com/contracts/36ed22ab9631cdf349dc72984573028bfcf4de6cc57024caa1a96e496d1379c4) *(Note: Due to known faults on the Midnight Explorer's end, you may need to access this link via a private network/VPN or Cloudflare DNS).*
 
 ---
 
@@ -242,6 +242,13 @@ To clone and run the VEIL platform locally on your machine, follow these steps:
    ```
 5. **Open the dApp:**
    Visit `http://localhost:3000` in your browser. Connect your Lace wallet and interact with the Live Preprod campaigns!
+
+---
+
+### ◉ Verified Deployment
+*Successfully deployed and verified on the Midnight Network Preprod on **Sep 12, 2026**.*
+
+![Deployed Contract Screenshot](./docs/assets/deployed-contract-latest.png)
 
 ---
 
