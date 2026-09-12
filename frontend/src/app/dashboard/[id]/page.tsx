@@ -63,7 +63,17 @@ export default function CampaignDetails() {
       const feedData = await feedRes.json();
       
       if (campData.found) setCampaign(campData.campaign);
-      if (feedData.records) setFeedbacks(feedData.records);
+      if (feedData.records) {
+        const { decryptFeedback } = await import('@/utils/crypto');
+        const decryptedRecords = await Promise.all(feedData.records.map(async (r: any) => {
+          if (r.encryptedAnswers && r.iv) {
+            const decrypted = await decryptFeedback(r.encryptedAnswers, r.iv);
+            if (decrypted) r.answers = decrypted;
+          }
+          return r;
+        }));
+        setFeedbacks(decryptedRecords);
+      }
     } catch (e) {
       console.error(e);
     } finally {

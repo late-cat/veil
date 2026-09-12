@@ -270,9 +270,23 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
             providers.proofProvider = httpClientProofProvider(process.env.NEXT_PUBLIC_PROOF_SERVER_URL || 'http://localhost:6300', zkConfig);
           }
 
+          // Generate or retrieve persistent user secret for the nullifier
+          let userSecretHex = localStorage.getItem('veil_user_secret');
+          if (!userSecretHex) {
+            const arr = new Uint8Array(32);
+            crypto.getRandomValues(arr);
+            userSecretHex = Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+            localStorage.setItem('veil_user_secret', userSecretHex);
+          }
+          
+          const secretBytes = new Uint8Array(32);
+          for (let i = 0; i < 32; i++) {
+            secretBytes[i] = parseInt(userSecretHex.slice(i * 2, i * 2 + 2), 16);
+          }
+
           const compiled = CompiledContract.make('survey', Contract).pipe(
             CompiledContract.withWitnesses({ 
-              secretEligibilityHash: (context: any) => [context.privateState, new Uint8Array(32)] 
+              secretEligibilityHash: (context: any) => [context.privateState, secretBytes] 
             }),
             CompiledContract.withCompiledFileAssets('/managed/survey/')
           );
@@ -413,12 +427,16 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
         
         console.log('[VEIL] Transaction Successful! TxHash:', txHash);
 
-        // 2. Save the answers and transaction hash to our traditional backend database
+        // 2. Cryptographically Encrypt the Answers before sending to the backend
+        console.log('[VEIL] Encrypting payload with AES-256-GCM...');
+        const { encryptFeedback } = await import('@/utils/crypto');
+        const { ciphertext, iv } = await encryptFeedback(answers);
+        
         const nullifier = "zk_derived"; // The actual nullifier is now strictly held in ZK state
         const res = await fetch('/api/feedback', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ answers, nullifier, campaignId, txHash })
+          body: JSON.stringify({ encryptedAnswers: ciphertext, iv, nullifier, campaignId, txHash })
         });
         const resData = await res.json();
         
