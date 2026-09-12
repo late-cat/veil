@@ -100,12 +100,12 @@ The network verifies the proof and updates the public tally, but remains complet
 </details>
 
 ### 2. Verified Preprod Network Deployment
-*Official Midnight Explorer verification proving the smart contract is fully deployed and active on the Preprod blockchain. The contract was deployed on **September 11, 2026, at 2:55 PM UTC**.*
+*Official Midnight Explorer verification proving the smart contract is fully deployed and active on the Preprod blockchain. The contract was deployed on **September 12, 2026**.*
 <details open>
 <summary><b>View Deployment Success</b></summary>
 <br>
 
-![Deployed Contract](./frontend/src/img/deployed-contracts.png)
+![Deployed Contract](./docs/assets/deployed-contract-latest.png)
 </details>
 
 ### 3. Passing Test Suite (Level 3)
@@ -242,13 +242,6 @@ To clone and run the VEIL platform locally on your machine, follow these steps:
    ```
 5. **Open the dApp:**
    Visit `http://localhost:3000` in your browser. Connect your Lace wallet and interact with the Live Preprod campaigns!
-
----
-
-### ◉ Verified Deployment
-*Successfully deployed and verified on the Midnight Network Preprod on **Sep 12, 2026**.*
-
-![Deployed Contract Screenshot](./docs/assets/deployed-contract-latest.png)
 
 ---
 
