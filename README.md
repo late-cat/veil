@@ -177,6 +177,25 @@ sequenceDiagram
 
 ---
 
+## 📁 Project Structure
+
+```text
+veil-platform/
+├── backend/
+│   ├── contracts/         # Midnight Compact smart contract source code
+│   │   ├── managed/       # Generated ZK circuits, proving keys, and verification keys
+│   │   └── survey.compact # Core selective disclosure logic
+│   ├── src/               # Deployment and wallet syncing scripts
+│   └── tests/             # Automated test suite validating ZK constraints
+├── frontend/
+│   ├── src/app/           # Next.js App Router (Issuer Dashboard, Participant View)
+│   ├── src/providers/     # Midnight Wallet SDK integration context
+│   └── package.json       # Frontend dependencies and Next.js config
+└── .github/workflows/     # GitHub Actions CI/CD pipelines
+```
+
+---
+
 ## 🚀 Setup & Run Locally
 
 To clone and run the VEIL platform locally on your machine, follow these steps:
@@ -213,25 +232,6 @@ To clone and run the VEIL platform locally on your machine, follow these steps:
    ```
 5. **Open the dApp:**
    Visit `http://localhost:3000` in your browser. Connect your Lace wallet and interact with the Live Preprod campaigns!
-
----
-
-## 📁 Project Structure
-
-```text
-veil-platform/
-├── backend/
-│   ├── contracts/         # Midnight Compact smart contract source code
-│   │   ├── managed/       # Generated ZK circuits, proving keys, and verification keys
-│   │   └── survey.compact # Core selective disclosure logic
-│   ├── src/               # Deployment and wallet syncing scripts
-│   └── tests/             # Automated test suite validating ZK constraints
-├── frontend/
-│   ├── src/app/           # Next.js App Router (Issuer Dashboard, Participant View)
-│   ├── src/providers/     # Midnight Wallet SDK integration context
-│   └── package.json       # Frontend dependencies and Next.js config
-└── .github/workflows/     # GitHub Actions CI/CD pipelines
-```
 
 ---
 
