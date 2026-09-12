@@ -25,7 +25,7 @@
 *   **▷ Demo Video**: [Watch on YouTube](https://youtu.be/CxdFbR8Xeio)
 *   **☰ Product Proposal**: [View Approved Idea Document](./docs/PROPOSAL.md)
 *   **⚙ Smart Contract**: [`survey.compact`](./backend/contracts/survey.compact)
-*   **⌖ Contract Address**: [`0x36ed22ab9631cdf349dc72984573028bfcf4de6cc57024caa1a96e496d1379c4`](https://preprod.midnightexplorer.com/contracts/0x36ed22ab9631cdf349dc72984573028bfcf4de6cc57024caa1a96e496d1379c4) *(Note: Due to known faults on the Midnight Explorer's end, you may need to access this link via a private network/VPN or Cloudflare DNS).*
+*   **⌖ Contract Address**: [`0x7971fa81bb4af823994172ff4bc09fc0a45dfcc472b49a0b7c7b6d183e0b212f`](https://preprod.midnightexplorer.com/contracts/0x7971fa81bb4af823994172ff4bc09fc0a45dfcc472b49a0b7c7b6d183e0b212f) *(Note: Due to known faults on the Midnight Explorer's end, you may need to access this link via a private network/VPN or Cloudflare DNS).*
 
 ---
 
