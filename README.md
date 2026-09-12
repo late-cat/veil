@@ -154,16 +154,16 @@ VEIL strictly adheres to Midnight's Selective Disclosure capabilities. Here is e
 
 ```mermaid
 sequenceDiagram
-    participant Issuer
-    participant Network as Midnight Preprod
-    participant Participant
+    participant I as Issuer
+    participant N as Midnight Preprod
+    participant P as Participant
     
-    Issuer->>Network: "Deploy survey.compact"
-    Issuer->>Participant: "Share Campaign Link"
-    Participant->>Participant: "Compute ZK Proof Locally (1AM Wallet)"
-    Participant->>Network: "Submit Proof & Nullifier"
-    Network->>Network: "Verify Proof & Update Ledger"
-    Network-->>Issuer: "Verifiable Anonymous Tally"
+    I->>N: "Deploy survey.compact"
+    I->>P: "Share Campaign Link"
+    P->>P: "Compute ZK Proof Locally (1AM Wallet)"
+    P->>N: "Submit Proof & Nullifier"
+    N->>N: "Verify Proof & Update Ledger"
+    N-->>I: "Verifiable Anonymous Tally"
 ```
 
 ---
