@@ -100,12 +100,12 @@ The network verifies the proof and updates the public tally, but remains complet
 </details>
 
 ### 2. Verified Preprod Network Deployment
-*Official Midnight Explorer verification proving the smart contract is fully deployed and active on the Preprod blockchain at address **`0x7971fa81bb4af823994172ff4bc09fc0a45dfcc472b49a0b7c7b6d183e0b212f`**. The contract was deployed on **September 13, 2026**.*
+*Official Midnight Explorer verification proving the smart contract is fully deployed and active on the Preprod blockchain at address **`0x7971fa81bb4af823994172ff4bc09fc0a45dfcc472b49a0b7c7b6d183e0b212f`**. The contract was deployed on **September 12, 2026**.*
 <details open>
 <summary><b>View Deployment Success</b></summary>
 <br>
 
-![Deployed Contract 0x7971fa81bb4af823994172ff4bc09fc0a45dfcc472b49a0b7c7b6d183e0b212f](./docs/assets/deployed-contract-latest.png)
+![Deployed Contract 0x7971fa81bb4af823994172ff4bc09fc0a45dfcc472b49a0b7c7b6d183e0b212f](./frontend/src/img/deployed-contract-latest.png)
 </details>
 
 ### 3. Passing Test Suite (Level 3)
