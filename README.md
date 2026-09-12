@@ -58,7 +58,7 @@ The network verifies the proof and updates the public tally, but remains complet
 | **Toolchain & Compile** | ✓ **Done.** Installed `@midnight-ntwrk/compact-compiler`. The multi-tenant `survey.compact` circuit successfully compiles into ZK parameters via our CI pipeline. |
 | **Passing Test Suite** | ✓ **Done.** Implemented 9 rigorous assertions in `tests/survey.test.ts`. Verified using Node TSX runner (`npm test`), testing ledger state transitions and nullifier blocking. |
 | **Managed Directory** | ✓ **Done.** Successfully generated `managed/survey/` directory containing the BZKIR bytecodes, prover keys (`.pk`), and verifier keys (`.vk`). |
-| **Contract Deployed** | ✓ **Done.** Successfully deployed to Preprod with a verified visible contract address (`f6532d...`). Proved via the Explorer screenshot below. |
+| **Contract Deployed** | ✓ **Done.** Successfully deployed to Preprod with a verified visible contract address (`0x7971fa...`). Proved via the Explorer screenshot below. |
 | **Privacy Explanation** | ✓ **Done.** Comprehensive breakdown of the Privacy Model (Public State vs. Private Witness) is documented below. |
 | **Product Idea** | ✓ **Done.** Fully outlined in the "Vision" section above. |
 | **Meaningful Commits** | ✓ **Done.** Exceeded the minimum 5 commits with over 50+ semantic commits demonstrating iterative progress. |
@@ -226,7 +226,7 @@ To clone and run the VEIL platform locally on your machine, follow these steps:
    ```bash
    cd backend
    npm install
-   npm run build
+   npm run compile
    ```
 3. **Run the Test Suite:**
    Verify the contract invariants by running the tests.
