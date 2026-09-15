@@ -637,9 +637,9 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
                 </p>
 
                 <div className="bg-[var(--color-cotton-bg)] border border-white/50 inset-puffy p-3 rounded-2xl mb-6 max-w-[260px]">
-                  <p className="text-[11px] text-slate-500 font-medium leading-tight text-center flex items-start gap-2 text-left">
-                    <span className="material-symbols-outlined text-[14px] text-yellow-500 flex-shrink-0">lightbulb</span>
-                    Please keep your wallet open, unlocked, and selected to the Preprod network for a smoother experience.
+                  <p className="text-[11px] text-slate-500 font-medium leading-tight text-center flex items-center gap-2 text-left">
+                    <span className="material-symbols-outlined text-[14px] text-blue-500 flex-shrink-0">info</span>
+                    Ensure your wallet is unlocked and configured to the Preprod network prior to connecting.
                   </p>
                 </div>
                 
