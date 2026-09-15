@@ -173,20 +173,41 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
       }
 
       const networksToTry = ['preprod', 'testnet'];
-      let api: ConnectedAPI | null = null;
+      let api: any = null;
       let connectedNetwork = '';
-      for (const net of networksToTry) {
-        try {
-          console.log(`[VEIL] Attempting connect with network: ${net}`);
-          api = await wallet.connect(net);
-          connectedNetwork = net;
-          console.log(`[VEIL] ✓ Connected on network: ${net}`);
-          break;
-        } catch (e: any) {
-          const msg = e?.message || String(e);
-          console.warn(`[VEIL] ✗ Network ${net}: ${msg}`);
-          continue;
+      const tryConnect = async () => {
+        const networksToTry = ['preprod', 'testnet'];
+        for (const net of networksToTry) {
+          try {
+            console.log(`[VEIL] Attempting connect with network: ${net}`);
+            api = await wallet.connect(net);
+            connectedNetwork = net;
+            console.log(`[VEIL] ✓ Connected on network: ${net}`);
+            return true;
+          } catch (e: any) {
+            const msg = e?.message || String(e);
+            console.warn(`[VEIL] ✗ Network ${net}: ${msg}`);
+          }
         }
+        
+        try {
+          console.log(`[VEIL] Attempting connect without network argument (fallback)`);
+          // @ts-ignore
+          api = await wallet.connect();
+          connectedNetwork = 'preprod';
+          console.log(`[VEIL] ✓ Connected without arguments`);
+          return true;
+        } catch (e: any) {
+          console.warn(`[VEIL] ✗ Fallback connect: ${e?.message || String(e)}`);
+        }
+        return false;
+      };
+
+      let success = await tryConnect();
+      if (!success) {
+        console.log('[VEIL] Retrying wallet connection in 500ms...');
+        await new Promise(r => setTimeout(r, 500));
+        success = await tryConnect();
       }
 
       if (!api || !connectedNetwork) {
@@ -243,11 +264,10 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
           const midnightProvider = {
             submitTx: async (tx: any) => {
               const txHex = toHex(tx.serialize());
-              const result = await api!.submitTransaction(txHex);
-              if (typeof result === 'string' && result) return result;
-              if ((result as any)?.transactionId) return (result as any).transactionId;
-              if ((result as any)?.id) return (result as any).id;
-              return txHex.slice(0, 64);
+              await api!.submitTransaction(txHex);
+              const hashHex = tx.transactionHash();
+              console.log('[VEIL] Computed TX Hash:', hashHex);
+              return hashHex;
             }
           } as any;
 

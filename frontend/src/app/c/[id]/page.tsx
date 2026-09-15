@@ -410,26 +410,29 @@ export default function CampaignSurvey() {
                     </div>
                     
                     {proofId && !proofId.includes('pending') ? (
-                      <div className="w-full bg-green-50 p-6 rounded-[2rem] border border-green-200 text-center space-y-3">
-                        <div className="font-label-sm font-bold text-green-700 uppercase tracking-widest flex items-center justify-center gap-2">
+                      <div className="w-full bg-[var(--color-cotton-bg)] p-6 rounded-[2rem] inset-puffy border border-white/50 text-center space-y-3 relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-slate-300 via-slate-500 to-slate-300 opacity-50"></div>
+                        <div className="font-label-sm font-bold text-slate-700 uppercase tracking-widest flex items-center justify-center gap-2">
                           <span className="material-symbols-outlined text-sm">verified</span>
                           Transaction Verified
                         </div>
-                        <p className="font-body-md text-green-800 text-sm mb-4">
+                        <p className="font-body-md text-slate-600 text-sm mb-4">
                           Your zero-knowledge proof has been successfully submitted to the Midnight Ledger.
                         </p>
                         <a 
                           href={`https://preprod.midnightexplorer.com/transactions/${proofId}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-full transition-colors duration-200 text-sm"
+                          className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-medium py-2.5 px-6 rounded-full transition-all duration-200 text-sm shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                         >
                           View on Midnight Explorer
                           <span className="material-symbols-outlined text-sm">open_in_new</span>
                         </a>
-                        <p className="text-xs text-green-600/70 mt-2 font-mono break-all max-w-xs mx-auto">
-                          {proofId}
-                        </p>
+                        <div className="mt-4 p-3 bg-white/40 rounded-xl border border-white/60">
+                          <p className="text-[10px] text-slate-500 font-mono break-all leading-tight">
+                            {proofId}
+                          </p>
+                        </div>
                       </div>
                     ) : (
                       <div className="w-full bg-[var(--color-cotton-bg)] p-6 rounded-[2rem] inset-puffy border border-white/50 text-center space-y-3">
