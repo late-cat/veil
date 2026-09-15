@@ -68,3 +68,5 @@ describe('Survey Contract - Native AST Execution Tests', () => {
         assert.ok(initialState.currentContractState, 'Contract state object must be initialized');
     });
 });
+
+
