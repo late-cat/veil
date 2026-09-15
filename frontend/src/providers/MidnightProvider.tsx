@@ -142,6 +142,27 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
   ];
 
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'connecting' | 'success'>('idle');
+  const [proofServerStatus, setProofServerStatus] = useState<'waking' | 'ready' | 'error' | 'idle'>('idle');
+
+  // Intelligent Render Server Wake-up Probe
+  useEffect(() => {
+    const proofServerUrl = process.env.NEXT_PUBLIC_PROOF_SERVER_URL;
+    if (!proofServerUrl) return;
+
+    const wakeServer = async () => {
+      setProofServerStatus('waking');
+      try {
+        // Fire a non-blocking request to wake the Render instance from sleep
+        await fetch(proofServerUrl, { method: 'GET', mode: 'no-cors', cache: 'no-store' });
+        setProofServerStatus('ready');
+      } catch (e) {
+        console.error('Proof server probe failed:', e);
+        setProofServerStatus('error');
+      }
+    };
+    
+    wakeServer();
+  }, []);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -766,7 +787,29 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
                           <div className="w-12 h-12 rounded-[1rem] bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-inner shadow-black/20 group-hover:scale-110 transition-transform duration-300">
                             <span className="material-symbols-outlined text-[20px]">account_balance_wallet</span>
                           </div>
-                          <span className="font-label-lg font-bold text-slate-800 tracking-wide">Lace Wallet</span>
+                          <div className="flex flex-col items-start text-left">
+                            <span className="font-label-lg font-bold text-slate-800 tracking-wide leading-tight">Lace Wallet</span>
+                            <div className="flex items-center gap-1.5 mt-0.5 opacity-90 h-[14px]">
+                              {proofServerStatus === 'waking' && (
+                                <>
+                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shadow-[0_0_4px_rgba(245,158,11,0.6)]"></span>
+                                  <span className="text-[9px] font-black text-amber-600 uppercase tracking-widest">Waking Server...</span>
+                                </>
+                              )}
+                              {proofServerStatus === 'ready' && (
+                                <>
+                                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_4px_rgba(34,197,94,0.6)]"></span>
+                                  <span className="text-[9px] font-black text-green-600 uppercase tracking-widest">Engine Ready</span>
+                                </>
+                              )}
+                              {proofServerStatus === 'error' && (
+                                <>
+                                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_4px_rgba(239,68,68,0.6)]"></span>
+                                  <span className="text-[9px] font-black text-red-600 uppercase tracking-widest">Offline</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
                         </div>
                         <span className="material-symbols-outlined text-slate-300 group-hover:text-slate-800 transition-colors transform group-hover:translate-x-1 duration-300">arrow_forward</span>
                       </motion.button>
