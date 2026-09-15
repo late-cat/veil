@@ -166,22 +166,14 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    let timeout: NodeJS.Timeout;
     if (connectionStatus === 'connecting') {
       setConnectingTextIdx(0);
       interval = setInterval(() => {
         setConnectingTextIdx((prev) => (prev + 1) % connectingTexts.length);
       }, 3500);
-
-      timeout = setTimeout(() => {
-        setConnectionStatus('idle');
-        setShowModal(false);
-        alert('Wallet connection timed out. Please ensure your wallet extension is unlocked and try again.');
-      }, 20000);
     }
     return () => {
       if (interval) clearInterval(interval);
-      if (timeout) clearTimeout(timeout);
     };
   }, [connectionStatus]);
 
