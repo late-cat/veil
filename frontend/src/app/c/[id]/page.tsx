@@ -420,7 +420,7 @@ export default function CampaignSurvey() {
                           Your zero-knowledge proof has been successfully submitted to the Midnight Ledger.
                         </p>
                         <a 
-                          href={`https://preprod.midnightexplorer.com/transactions/${proofId}`}
+                          href={`https://preprod.midnightexplorer.com/transactions/0x${proofId.replace(/^0x/, '')}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-medium py-2.5 px-6 rounded-full transition-all duration-200 text-sm shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
