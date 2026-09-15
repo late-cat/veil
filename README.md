@@ -61,7 +61,8 @@ The network verifies the proof and updates the public tally, but remains complet
 | **Contract Deployed** | ✓ **Done.** Successfully deployed to Preprod with a verified visible contract address (`0x7971fa...`). Proved via the Explorer screenshot below. |
 | **Privacy Explanation** | ✓ **Done.** Comprehensive breakdown of the Privacy Model (Public State vs. Private Witness) is documented below. |
 | **Product Idea** | ✓ **Done.** Fully outlined in the "Vision" section above. |
-| **Meaningful Commits** | ✓ **Done.** Exceeded the minimum 5 commits with over 50+ semantic commits demonstrating iterative progress. |
+| **Meaningful Commits** | ✓ **Done.** Exceeded the minimum 5 commits with **141 semantic commits** demonstrating iterative progress. |
+| **Genuine CI Compiler** | ✓ **Done.** The CI workflow uses the real `compact-installer.sh` pinned to v0.31.1 (matching our `0.16.0` runtime dependencies). No dummy bypass scripts are used. |
 | **Required Screenshots** | ✓ **Done.** Compile output and Preprod deployment screenshots provided in the Deliverables section. |
 
 ### ◐ Level 2 Submission Requirements
@@ -79,8 +80,8 @@ The network verifies the proof and updates the public tally, but remains complet
 | Requirement | Technical Status & Implementation Proof |
 | :--- | :--- |
 | **Functional dApp Integration** | ✓ **Done.** Fully integrated the Midnight JS SDK, allowing users to autonomously launch campaigns and collect shielded feedback natively on the Preprod network. |
-| **Minimum 3 Tests Passing** | ✓ **Done.** We have 3/3 native AST execution tests passing in our CI/CD pipeline, covering circuit execution, negative boundary enforcement, and state initialization. |
-| **CI/CD Pipeline Running** | ✓ **Done.** Configured `.github/workflows/ci.yml` to automatically install the Compact compiler, compile the contract, and run the test suite on every push. |
+| **Minimum 3 Tests Passing** | ✓ **Done.** We have 3/3 native AST execution tests passing. Using `@midnight-ntwrk/compact-runtime`, the tests initialize private state (`createConstructorContext`) and physically execute the `submitFeedback` circuit logic against the AST—including bounds testing via `assert.throws`. |
+| **CI/CD Pipeline Running** | ✓ **Done.** Configured `.github/workflows/ci.yml` to automatically install the Compact compiler (pinned to `0.31.1` to match our `0.16.0` runtime), compile the contract, and run the test suite. No stub scripts are used. |
 | **Approved Idea Submitted** | ✓ **Done.** The project strictly aligns with the "Anonymous Feedback/Surveys" category from the official idea list. Proposal attached in `docs/PROPOSAL.md`. |
 | **Test Output Screenshot** | ✓ **Done.** The passing test suite output is now embedded directly in the Deliverables section below. |
 | **CI/CD Badge** | ✓ **Done.** Active GitHub Actions badge integrated at the very top of this README. |
