@@ -42,6 +42,28 @@ export default function CampaignSurvey() {
   const [proofProgress, setProofProgress] = useState(0);
   const [proofId, setProofId] = useState<string | null>(null);
 
+  const [provingTextIdx, setProvingTextIdx] = useState(0);
+
+  const provingTexts = [
+    "Computing zero-knowledge circuit on client thread...",
+    "Please keep your wallet open and unlocked...",
+    "Awaiting secure cryptographic signature...",
+    "Synthesizing zk-SNARK proof..."
+  ];
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (stage === 'PROVING') {
+      setProvingTextIdx(0);
+      interval = setInterval(() => {
+        setProvingTextIdx((prev) => (prev + 1) % provingTexts.length);
+      }, 3500);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [stage]);
+
   const isExpired = campaign?.endDate ? new Date(campaign.endDate).getTime() < Date.now() : false;
 
   useEffect(() => {
@@ -356,7 +378,17 @@ export default function CampaignSurvey() {
                         </motion.span>
                       </div>
                       <h3 className="font-headline-lg font-bold text-slate-900 drop-shadow-sm">Synthesizing Proof</h3>
-                      <p className="font-body-md text-slate-700 font-medium">Computing zero-knowledge circuit on client thread...</p>
+                      <div className="h-6 overflow-hidden flex items-center justify-center">
+                        <motion.p 
+                          key={provingTextIdx}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          className="font-body-md text-slate-700 font-medium"
+                        >
+                          {provingTexts[provingTextIdx]}
+                        </motion.p>
+                      </div>
                     </div>
 
                     <div className="space-y-4 bg-white/40 p-6 rounded-[2rem] inset-puffy border border-white/50">
