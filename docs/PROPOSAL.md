@@ -48,6 +48,16 @@ VEIL is designed around Midnight's native privacy and selective-disclosure archi
 
 **➜ This makes privacy a property of the protocol** rather than simply a promise made by a centralized platform.
 
+### ✧ DATA MODEL
+
+| Data Point | Type | Disclosed To |
+| :--- | :--- | :--- |
+| **Campaign ID** | `Bytes<32>` (Public Ledger) | Everyone (Network) |
+| **Participation Count** | `Uint<32>` (Public Ledger) | Everyone (Network) |
+| **Nullifier Hash** | `Bytes<32>` (Public Ledger) | Everyone (Network) |
+| **Participant Identity / Seed** | `Bytes<32>` (Private Witness) | Nobody (Remains Local) |
+| **Feedback Payload** | Encrypted Blob (Off-chain) | Only the Campaign Issuer (holds RSA Private Key) |
+
 ---
 
 ## ✧ TARGET USERS

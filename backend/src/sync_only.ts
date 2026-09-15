@@ -1,6 +1,6 @@
 import { createWallet, persistWalletState, type WalletContext } from './wallet';
 import * as Rx from 'rxjs';
-import { NetworkId } from '@midnight-ntwrk/zswap';
+
 import { resolveNetwork, getOrCreateWallet } from './network';
 
 async function main() {
@@ -38,7 +38,7 @@ async function main() {
     const stateSnapshot = await Rx.firstValueFrom(walletCtx.wallet.state().pipe(Rx.take(1)));
     
     const dustCoins = stateSnapshot.unshielded?.balances?.DUST || 0n;
-    const blockHeight = stateSnapshot.unshielded?.blockHeight || 'Unknown';
+    const blockHeight = (stateSnapshot as any).unshielded?.blockHeight || 'Unknown';
     
     if (dustCoins > 0n) {
       console.log(`\n  ✅ DUST GENERATION SYNCED! Found ${dustCoins} DUST at Block ${blockHeight}`);

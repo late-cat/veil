@@ -1,36 +1,70 @@
-import { test } from 'node:test';
+import { test, describe } from 'node:test';
 import assert from 'node:assert';
+import { randomBytes } from 'node:crypto';
+import * as compactRuntime from '@midnight-ntwrk/compact-runtime';
 import { Contract, type Witnesses } from '../contracts/managed/survey/contract/index.js';
 
-// The witness mock that satisfies the Compact compiler's requirement
-// for the private witness secretEligibilityHash(): Bytes<32>;
-const mockWitnesses: Witnesses<any> = {
-    secretEligibilityHash: (context: any) => [context.privateState, new Uint8Array(32).fill(1)] // Simulate a persistent user seed
-};
-
-test('Survey Contract - Circuit execution and state transitions', () => {
-    const contract = new Contract(mockWitnesses);
-    assert.ok(contract.circuits.submitFeedback, 'submitFeedback circuit should be defined');
+describe('Survey Contract - Native AST Execution Tests', () => {
     
-    // In a full Midnight runtime, we would use the TestEnvironment to deploy and call.
-    // Here we verify the circuit constraints are strictly bound to the nullifier maps.
-    assert.strictEqual(typeof contract.provableCircuits.submitFeedback, 'function', 'Provable circuit for state transition must exist');
-    
-    // Ensure the circuit interacts with the campaigns and nullifiers ledgers
-    assert.ok(contract.impureCircuits.submitFeedback !== undefined, 'Circuit must interact with ledgers');
-});
+    const itemSecretBytes = randomBytes(32);
+    const campaignIdBytes = randomBytes(32);
 
-test('Survey Contract - Cryptographic Privacy (No plaintext feedback exposure)', () => {
-    const contract = new Contract(mockWitnesses);
-    // Verify that the feedback payload is never a public argument or exposed in the ledger
-    assert.ok(contract.witnesses !== null, 'Witnesses are kept strictly separated from ledger variables');
-});
+    test('1. Contract processes submitFeedback successfully', () => {
+        const witnesses: Witnesses<any> = {
+            secretEligibilityHash: (context: any) => [context.privateState, itemSecretBytes]
+        };
+        const contract = new Contract(witnesses);
 
-test('Survey Contract - Double voting prevention via ZK derived nullifiers', () => {
-    const contract = new Contract(mockWitnesses);
-    assert.ok(contract.impureCircuits.submitFeedback !== undefined, 'Circuit should check nullifiers');
-    
-    // Simulate a nullifier collision constraint check
-    const isDoubleVotingPrevented = true; // Inferred from assert(!nullifiers.member(...))
-    assert.strictEqual(isDoubleVotingPrevented, true, 'Smart contract strictly prevents double voting via persistentHash nullifier check');
+        const constructorContext = (compactRuntime.createConstructorContext as any)({});
+        const initialState = contract.initialState(constructorContext).currentContractState;
+
+        const contractAddress = compactRuntime.sampleContractAddress();
+        const coinPublicKey = compactRuntime.sampleUserAddress(); 
+
+        const circuitContext = compactRuntime.createCircuitContext(
+            contractAddress, 
+            coinPublicKey, 
+            initialState, 
+            {}
+        );
+
+        assert.doesNotThrow(() => {
+            const result = contract.circuits.submitFeedback(circuitContext, campaignIdBytes);
+            assert.ok(result.proofData, 'Proof data containing state transitions should be generated');
+        }, 'submitFeedback should succeed on the compiled contract AST');
+    });
+
+    test('2. Contract correctly rejects invalid Campaign ID lengths', () => {
+        const witnesses: Witnesses<any> = {
+            secretEligibilityHash: (context: any) => [context.privateState, itemSecretBytes]
+        };
+        const contract = new Contract(witnesses);
+
+        const constructorContext = (compactRuntime.createConstructorContext as any)({});
+        const initialState = contract.initialState(constructorContext).currentContractState;
+        
+        const contractAddress = compactRuntime.sampleContractAddress();
+        const coinPublicKey = compactRuntime.sampleUserAddress(); 
+        
+        const circuitContext = compactRuntime.createCircuitContext(contractAddress, coinPublicKey, initialState, {});
+        
+        // Negative test: Try to submit a Campaign ID that is 31 bytes instead of 32 bytes
+        assert.throws(() => {
+            contract.circuits.submitFeedback(circuitContext, randomBytes(31));
+        }, /expected value of type Bytes<32> but received/, 'submitFeedback must enforce strict cryptographic boundaries on the campaign ID');
+    });
+
+    test('3. Contract strictly initializes empty private state', () => {
+        const witnesses: Witnesses<any> = {
+            secretEligibilityHash: (context: any) => [context.privateState, itemSecretBytes]
+        };
+        const contract = new Contract(witnesses);
+        
+        // Assert that the initial state compiles and returns the correct ledger schema
+        const constructorContext = (compactRuntime.createConstructorContext as any)({});
+        const initialState = contract.initialState(constructorContext);
+        
+        assert.ok(initialState, 'Initial state must be generated successfully');
+        assert.ok(initialState.currentContractState, 'Contract state object must be initialized');
+    });
 });

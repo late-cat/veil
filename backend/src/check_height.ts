@@ -12,7 +12,7 @@ async function main() {
   const state = await Rx.firstValueFrom(walletCtx.wallet.state().pipe(Rx.take(1)));
   
   console.log(`CURRENT SYNC PROGRESS (BLOCK HEIGHT)`);
-  console.log(`Block Height: ${state.indexerState?.blockHeight || state.unshielded?.blockHeight || 'Unknown'}`);
+  console.log(`Block Height: ${(state as any).indexerState?.blockHeight || (state as any).unshielded?.blockHeight || 'Unknown'}`);
   
   process.exit(0);
 }

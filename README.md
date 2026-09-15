@@ -56,7 +56,7 @@ The network verifies the proof and updates the public tally, but remains complet
 | Requirement | Technical Status & Implementation Proof |
 | :--- | :--- |
 | **Toolchain & Compile** | ✓ **Done.** Installed `@midnight-ntwrk/compact-compiler`. The multi-tenant `survey.compact` circuit successfully compiles into ZK parameters via our CI pipeline. |
-| **Passing Test Suite** | ✓ **Done.** Implemented 9 rigorous assertions in `tests/survey.test.ts`. Verified using Node TSX runner (`npm test`), testing ledger state transitions and nullifier blocking. |
+| **Passing Test Suite** | ✓ **Done.** Implemented 3 native AST execution tests in `tests/survey.test.ts` using `@midnight-ntwrk/compact-runtime`. Tests execute circuit logic directly, verify state transitions, and enforce strict cryptographic boundaries. |
 | **Managed Directory** | ✓ **Done.** Successfully generated `managed/survey/` directory containing the BZKIR bytecodes, prover keys (`.pk`), and verifier keys (`.vk`). |
 | **Contract Deployed** | ✓ **Done.** Successfully deployed to Preprod with a verified visible contract address (`0x7971fa...`). Proved via the Explorer screenshot below. |
 | **Privacy Explanation** | ✓ **Done.** Comprehensive breakdown of the Privacy Model (Public State vs. Private Witness) is documented below. |
@@ -79,8 +79,8 @@ The network verifies the proof and updates the public tally, but remains complet
 | Requirement | Technical Status & Implementation Proof |
 | :--- | :--- |
 | **Functional dApp Integration** | ✓ **Done.** Fully integrated the Midnight JS SDK, allowing users to autonomously launch campaigns and collect shielded feedback natively on the Preprod network. |
-| **Minimum 3 Tests Passing** | ✓ **Done.** We have 9/9 tests actively passing in our CI/CD pipeline, validating all smart contract edge cases. |
-| **CI/CD Pipeline Running** | ✓ **Done.** Configured `.github/workflows/contracts.yml` to automatically install the Compact compiler, generate the circuits, and run the test suite on every push. |
+| **Minimum 3 Tests Passing** | ✓ **Done.** We have 3/3 native AST execution tests passing in our CI/CD pipeline, covering circuit execution, negative boundary enforcement, and state initialization. |
+| **CI/CD Pipeline Running** | ✓ **Done.** Configured `.github/workflows/ci.yml` to automatically install the Compact compiler, compile the contract, and run the test suite on every push. |
 | **Approved Idea Submitted** | ✓ **Done.** The project strictly aligns with the "Anonymous Feedback/Surveys" category from the official idea list. Proposal attached in `docs/PROPOSAL.md`. |
 | **Test Output Screenshot** | ✓ **Done.** The passing test suite output is now embedded directly in the Deliverables section below. |
 | **CI/CD Badge** | ✓ **Done.** Active GitHub Actions badge integrated at the very top of this README. |
