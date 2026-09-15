@@ -90,9 +90,14 @@ function discoverWallet(walletId?: string): InitialAPI | null {
   for (const key of keys) {
     const provider = window.midnight[key];
     if (provider && typeof provider.connect === 'function') {
-      // If they explicitly requested Lace, we MUST skip 1A.M. to prevent hijacking
-      if (walletId === 'lace' && (key === '1am' || provider.name?.toLowerCase().includes('1am'))) {
-        continue;
+      const is1AM = key === '1am' || provider.name?.toLowerCase().includes('1am');
+      const isLace = key === 'lace' || provider.name?.toLowerCase().includes('lace');
+
+      if (walletId === 'lace' && is1AM) continue;
+      if (walletId === '1am' && isLace) continue;
+
+      if (typeof provider.connect !== 'function' && typeof (provider as any).enable === 'function') {
+        provider.connect = (provider as any).enable;
       }
       
       console.log(`[VEIL] Found wallet provider under key "${key}":`, {
@@ -119,17 +124,28 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
   const [compiledContract, setCompiledContract] = useState<any>(null);
   const [contractAddress, setContractAddress] = useState<string>('');
 
+  // Refs mirror the state so transaction functions can read them synchronously
+  const connectedApiRef = React.useRef<ConnectedAPI | null>(null);
+  const midnightProvidersRef = React.useRef<any>(null);
+  const compiledContractRef = React.useRef<any>(null);
+  const walletAddressRef = React.useRef<string | null>(null);
+
   const [showModal, setShowModal] = useState(false);
 
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'connecting' | 'success'>('idle');
 
   useEffect(() => {
     const savedWallet = localStorage.getItem('veil_connected_wallet');
-    if (savedWallet) {
-      executeConnection(savedWallet).catch(e => {
-        console.warn('[VEIL] Auto-reconnect failed', e);
-        localStorage.removeItem('veil_connected_wallet');
-      });
+    const savedAddress = localStorage.getItem('veil_wallet_address');
+    const savedBalance = localStorage.getItem('veil_wallet_balance');
+
+    if (savedWallet && savedAddress) {
+      // Passive hydration: do not forcefully popup the wallet on every refresh.
+      setWalletAddress(savedAddress);
+      walletAddressRef.current = savedAddress;
+      setWalletBalance(savedBalance || '0.00');
+      setWalletConnected(true);
+      setNetworkId('preprod');
     }
   }, []);
 
@@ -138,12 +154,14 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
     setShowModal(true);
   };
 
-  const executeConnection = async (walletId: string) => {
-    setIsConnecting(true);
-    setConnectionStatus('connecting');
+  const executeConnection = async (walletId: string, isSilent = false) => {
+    if (!isSilent) {
+      setIsConnecting(true);
+      setConnectionStatus('connecting');
+    }
     try {
       // Simulate connection delay for visual feedback
-      await new Promise(r => setTimeout(r, 1000));
+      if (!isSilent) await new Promise(r => setTimeout(r, 1000));
       
       const wallet = discoverWallet(walletId);
       if (!wallet) {
@@ -185,6 +203,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
       }
 
       setConnectedApi(api);
+      connectedApiRef.current = api;
       localStorage.setItem('veil_connected_wallet', walletId);
       setNetworkId(connectedNetwork);
       const { CONTRACT_ADDRESS } = await import('@/config');
@@ -292,7 +311,9 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
           );
           
           setMidnightProviders(providers);
+          midnightProvidersRef.current = providers;
           setCompiledContract(compiled);
+          compiledContractRef.current = compiled;
           setContractAddress(contractAddress);
 
           // but we can initialize the logic here to ensure it works
@@ -302,11 +323,12 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
           alert(`CRITICAL ERROR: Failed to initialize Midnight Blockchain Providers.\n\nReason: ${initErr?.message || String(initErr)}\n\nPlease ensure your wallet is unlocked and try again.`);
         }
 
-      // Get actual wallet address using the official API
       try {
         const addrInfo = await api.getUnshieldedAddress();
         console.log('[VEIL] Wallet address info:', addrInfo);
         setWalletAddress(addrInfo.unshieldedAddress);
+        walletAddressRef.current = addrInfo.unshieldedAddress;
+        localStorage.setItem('veil_wallet_address', addrInfo.unshieldedAddress);
       } catch (addrErr: any) {
         if (addrErr?.message?.toLowerCase().includes('locked')) {
           throw new Error('Your wallet is locked. Please open the extension and unlock it first.');
@@ -315,9 +337,15 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
         try {
           const shielded = await api.getShieldedAddresses();
           console.log('[VEIL] Shielded addresses:', shielded);
-          setWalletAddress(shielded.shieldedAddress || connectedNetwork);
+          const addr = shielded.shieldedAddress || connectedNetwork;
+          setWalletAddress(addr);
+          walletAddressRef.current = addr;
+          localStorage.setItem('veil_wallet_address', addr);
         } catch {
-          setWalletAddress(`${connectedNetwork}-connected`);
+          const addr = `${connectedNetwork}-connected`;
+          setWalletAddress(addr);
+          walletAddressRef.current = addr;
+          localStorage.setItem('veil_wallet_address', addr);
         }
       }
 
@@ -326,6 +354,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
         const dust = await api.getDustBalance();
         const formattedBalance = (Number(dust.balance) / 1000000).toFixed(2);
         setWalletBalance(formattedBalance);
+        localStorage.setItem('veil_wallet_balance', formattedBalance);
       } catch (balanceErr) {
         console.warn('[VEIL] Could not fetch dust balance:', balanceErr);
       }
@@ -334,41 +363,62 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
       console.log('[VEIL] Wallet connected successfully!');
       
       // Show success in modal before closing
-      setConnectionStatus('success');
-      setTimeout(() => {
-        setShowModal(false);
-      }, 1000);
+      if (!isSilent) {
+        setConnectionStatus('success');
+        setTimeout(() => {
+          setShowModal(false);
+        }, 1000);
+      }
 
     } catch (error: any) {
       console.error('[VEIL] Failed to connect wallet:', error);
-      alert(`Failed to connect to Wallet.\nReason: ${error?.message || String(error)}`);
-      setConnectionStatus('idle');
+      if (!isSilent) {
+        alert(`Failed to connect to Wallet.\nReason: ${error?.message || String(error)}`);
+        setConnectionStatus('idle');
+      }
     } finally {
-      setIsConnecting(false);
+      if (!isSilent) setIsConnecting(false);
     }
   };
 
   const disconnectWallet = () => {
     setWalletConnected(false);
     setWalletAddress(null);
+    walletAddressRef.current = null;
     setWalletBalance(null);
     setNetworkId(null);
     setConnectedApi(null);
+    connectedApiRef.current = null;
     setMidnightProviders(null);
+    midnightProvidersRef.current = null;
+    compiledContractRef.current = null;
     setConnectionStatus('idle');
     localStorage.removeItem('veil_connected_wallet');
+    localStorage.removeItem('veil_wallet_address');
+    localStorage.removeItem('veil_wallet_balance');
     console.log('[VEIL] Wallet disconnected.');
   };
 
-  const generateProofAndSubmit = async (answers: Record<string, any>, campaignId: string, issuerPublicKeyBase64: string) => {
-    if (!walletConnected || !connectedApi || !walletAddress) {
-      alert('Please connect your wallet first!');
-      throw new Error('Wallet not connected');
+  const ensureConnection = async () => {
+    if (connectedApiRef.current && midnightProvidersRef.current) return;
+    const savedWallet = localStorage.getItem('veil_connected_wallet');
+    if (savedWallet) {
+      console.log('[VEIL] Hydrating connection silently for transaction...');
+      await executeConnection(savedWallet, true);
+      if (!connectedApiRef.current || !midnightProvidersRef.current) {
+        throw new Error('Connection succeeded but providers failed to initialize. Please try again.');
+      }
+    } else {
+      throw new Error('Please connect your wallet first');
     }
-    
-    if (!midnightProviders || !compiledContract || !contractAddress) {
-      alert('Midnight Smart Contract providers are not initialized!');
-      throw new Error('Providers not initialized');
+  };
+
+  const generateProofAndSubmit = async (answers: Record<string, any>, campaignId: string, issuerPublicKeyBase64: string) => {
+    await ensureConnection();
+    const providers = midnightProvidersRef.current;
+    const compiled = compiledContractRef.current;
+    if (!providers || !compiled) {
+      throw new Error('Please connect your wallet first');
     }
     
     return new Promise<string>(async (resolve, reject) => {
@@ -377,9 +427,9 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
         console.log('[VEIL] Constructing Smart Contract Transaction...');
         const { findDeployedContract } = await import('@midnight-ntwrk/midnight-js-contracts');
         
-        const contract = await findDeployedContract(midnightProviders, {
+        const contract = await findDeployedContract(providers, {
           contractAddress,
-          compiledContract,
+          compiledContract: compiled,
           privateStateId: 'survey-state-v2',
           initialPrivateState: {},
         });
@@ -456,14 +506,11 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
     });
   };
   const deploySmartContract = async () => {
-    if (!walletConnected || !connectedApi || !walletAddress) {
-      alert('Please connect your wallet first!');
-      throw new Error('Wallet not connected');
-    }
-    
-    if (!midnightProviders || !compiledContract) {
-      alert('Midnight Smart Contract providers are not initialized!');
-      throw new Error('Providers not initialized');
+    await ensureConnection();
+    const providers = midnightProvidersRef.current;
+    const compiled = compiledContractRef.current;
+    if (!providers || !compiled) {
+      throw new Error('Midnight providers not initialized');
     }
     
     return new Promise<string>(async (resolve, reject) => {
@@ -473,8 +520,8 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
         const { sampleSigningKey } = await import('@midnight-ntwrk/compact-runtime');
         
         console.log('[VEIL] Creating unproven deploy transaction...');
-        const deployTxData = await createUnprovenDeployTx(midnightProviders, {
-          compiledContract: compiledContract,
+        const deployTxData = await createUnprovenDeployTx(providers, {
+          compiledContract: compiled,
           args: [],
           initialPrivateState: {},
           signingKey: sampleSigningKey(),
@@ -485,7 +532,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
         
         console.log('[VEIL] Submitting transaction via Lace/1A.M....');
         try {
-          await submitTxAsync(midnightProviders, {
+          await submitTxAsync(providers, {
             unprovenTx: deployTxData.private.unprovenTx,
           } as any);
         } catch (submitErr: any) {
