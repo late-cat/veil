@@ -276,7 +276,8 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
             proofProvider: undefined as any // Placeholder
           };
 
-          if (typeof api!.getProvingProvider === 'function') {
+          const isLaceWallet = walletId === 'lace';
+          if (!isLaceWallet && typeof api!.getProvingProvider === 'function') {
             console.log('[VEIL] 🚀 Utilizing Wallet-provided in-browser Proving Provider');
             const baseProvingProvider = await api!.getProvingProvider(zkConfig);
             providers.proofProvider = {
@@ -286,6 +287,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
               }
             };
           } else {
+            console.log('[VEIL] 🐳 Falling back to HTTP Proof Server (Docker) for Lace Wallet');
             providers.proofProvider = httpClientProofProvider(process.env.NEXT_PUBLIC_PROOF_SERVER_URL || 'http://localhost:6300', zkConfig);
           }
 

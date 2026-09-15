@@ -409,15 +409,39 @@ export default function CampaignSurvey() {
                       </p>
                     </div>
                     
-                    <div className="w-full bg-[var(--color-cotton-bg)] p-6 rounded-[2rem] inset-puffy border border-white/50 text-center space-y-3">
-                      <div className="font-label-sm font-bold text-slate-500 uppercase tracking-widest flex items-center justify-center gap-2">
-                        <span className="material-symbols-outlined text-sm">info</span>
-                        Testnet Wallet Limitation
+                    {proofId && !proofId.includes('pending') ? (
+                      <div className="w-full bg-green-50 p-6 rounded-[2rem] border border-green-200 text-center space-y-3">
+                        <div className="font-label-sm font-bold text-green-700 uppercase tracking-widest flex items-center justify-center gap-2">
+                          <span className="material-symbols-outlined text-sm">verified</span>
+                          Transaction Verified
+                        </div>
+                        <p className="font-body-md text-green-800 text-sm mb-4">
+                          Your zero-knowledge proof has been successfully submitted to the Midnight Ledger.
+                        </p>
+                        <a 
+                          href={`https://preprod.midnightexplorer.com/transactions/${proofId}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-full transition-colors duration-200 text-sm"
+                        >
+                          View on Midnight Explorer
+                          <span className="material-symbols-outlined text-sm">open_in_new</span>
+                        </a>
+                        <p className="text-xs text-green-600/70 mt-2 font-mono break-all max-w-xs mx-auto">
+                          {proofId}
+                        </p>
                       </div>
-                      <p className="font-body-md text-slate-700 text-sm">
-                        Transaction successfully broadcasted! To verify this proof on the Midnight Explorer, please copy the authentic <strong>Transaction Hash</strong> directly from your connected wallet's (e.g. 1A.M. or Lace) transaction history.
-                      </p>
-                    </div>
+                    ) : (
+                      <div className="w-full bg-[var(--color-cotton-bg)] p-6 rounded-[2rem] inset-puffy border border-white/50 text-center space-y-3">
+                        <div className="font-label-sm font-bold text-slate-500 uppercase tracking-widest flex items-center justify-center gap-2">
+                          <span className="material-symbols-outlined text-sm">info</span>
+                          Testnet Wallet Limitation
+                        </div>
+                        <p className="font-body-md text-slate-700 text-sm">
+                          Transaction successfully broadcasted! Due to testnet congestion, the wallet did not immediately return the hash. To verify this proof on the Midnight Explorer, please copy the authentic <strong>Transaction Hash</strong> directly from your connected wallet's (e.g. 1A.M. or Lace) transaction history.
+                        </p>
+                      </div>
+                    )}
 
                     <button 
                       onClick={() => setStage('FORM')}
