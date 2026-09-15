@@ -549,6 +549,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
         console.log('[VEIL] Contract Address:', contractAddress);
         
         // Update local state
+        localStorage.setItem('VEIL_DEPLOYED_CONTRACT_ADDRESS', contractAddress);
         setContractAddress(contractAddress);
         resolve(contractAddress);
       } catch (e: any) {
