@@ -129,6 +129,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
   const midnightProvidersRef = React.useRef<any>(null);
   const compiledContractRef = React.useRef<any>(null);
   const walletAddressRef = React.useRef<string | null>(null);
+  const contractAddressRef = React.useRef<string>('');
 
   const [showModal, setShowModal] = useState(false);
 
@@ -229,6 +230,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
       setNetworkId(connectedNetwork);
       const { CONTRACT_ADDRESS } = await import('@/config');
       let contractAddress = CONTRACT_ADDRESS;
+      contractAddressRef.current = contractAddress;
 
       try {
         const { findDeployedContract } = await import('@midnight-ntwrk/midnight-js-contracts');
@@ -450,7 +452,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
         const { findDeployedContract } = await import('@midnight-ntwrk/midnight-js-contracts');
         
         const contract = await findDeployedContract(providers, {
-          contractAddress,
+          contractAddress: contractAddressRef.current,
           compiledContract: compiled,
           privateStateId: 'survey-state-v2',
           initialPrivateState: {},
@@ -573,6 +575,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
         // Update local state
         localStorage.setItem('VEIL_DEPLOYED_CONTRACT_ADDRESS', contractAddress);
         setContractAddress(contractAddress);
+        contractAddressRef.current = contractAddress;
         resolve(contractAddress);
       } catch (e: any) {
         console.error('[VEIL] Contract deployment failed', e);
