@@ -132,8 +132,37 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
   const contractAddressRef = React.useRef<string>('');
 
   const [showModal, setShowModal] = useState(false);
+  const [connectingTextIdx, setConnectingTextIdx] = useState(0);
+
+  const connectingTexts = [
+    "Awaiting secure cryptographic signature...",
+    "Please keep your wallet open and unlocked...",
+    "Please ensure your wallet is set to the Preprod network...",
+    "Finalizing secure connection..."
+  ];
 
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'connecting' | 'success'>('idle');
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    let timeout: NodeJS.Timeout;
+    if (connectionStatus === 'connecting') {
+      setConnectingTextIdx(0);
+      interval = setInterval(() => {
+        setConnectingTextIdx((prev) => (prev + 1) % connectingTexts.length);
+      }, 3500);
+
+      timeout = setTimeout(() => {
+        setConnectionStatus('idle');
+        setShowModal(false);
+        alert('Wallet connection timed out. Please ensure your wallet extension is unlocked and try again.');
+      }, 20000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [connectionStatus]);
 
   useEffect(() => {
     const savedWallet = localStorage.getItem('veil_connected_wallet');
@@ -665,9 +694,17 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
                             />
                             <span className="material-symbols-outlined text-slate-800 z-10 text-2xl drop-shadow-sm">wifi_tethering</span>
                           </div>
-                          <div className="flex flex-col items-center mt-2 space-y-1">
+                          <div className="flex flex-col items-center mt-2 space-y-1 h-12">
                             <span className="font-label-lg font-bold text-slate-800 tracking-wide">Secure Connection</span>
-                            <span className="text-xs text-slate-500 font-medium animate-pulse">Awaiting wallet approval...</span>
+                            <motion.span 
+                              key={connectingTextIdx}
+                              initial={{ opacity: 0, y: 5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -5 }}
+                              className="text-xs text-slate-500 font-medium text-center max-w-[200px]"
+                            >
+                              {connectingTexts[connectingTextIdx]}
+                            </motion.span>
                           </div>
                         </>
                       ) : (
