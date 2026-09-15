@@ -632,9 +632,16 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
                 <h2 className="font-headline-lg font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 drop-shadow-sm mb-2">
                   Connect Wallet
                 </h2>
-                <p className="font-body-md text-slate-600 mb-8 font-medium max-w-[240px]">
+                <p className="font-body-md text-slate-600 mb-4 font-medium max-w-[240px]">
                   Select your Midnight compatible wallet to authenticate securely.
                 </p>
+
+                <div className="bg-[var(--color-cotton-bg)] border border-white/50 inset-puffy p-3 rounded-2xl mb-6 max-w-[260px]">
+                  <p className="text-[11px] text-slate-500 font-medium leading-tight text-center flex items-start gap-2 text-left">
+                    <span className="material-symbols-outlined text-[14px] text-yellow-500 flex-shrink-0">lightbulb</span>
+                    Please keep your wallet open, unlocked, and selected to the Preprod network for a smoother experience.
+                  </p>
+                </div>
                 
                 <div className="space-y-4 w-full">
                   {connectionStatus === 'connecting' || connectionStatus === 'success' ? (
@@ -645,20 +652,50 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
                     >
                       {connectionStatus === 'connecting' ? (
                         <>
-                          <div className="w-14 h-14 rounded-full border-4 border-slate-100 border-t-slate-800 animate-spin shadow-sm"></div>
-                          <span className="font-label-lg font-bold text-slate-800 animate-pulse tracking-wide mt-2">Connecting...</span>
+                          <div className="relative w-16 h-16 flex items-center justify-center">
+                            <motion.div 
+                              animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+                              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                              className="absolute inset-0 rounded-full bg-slate-100"
+                            />
+                            <motion.div 
+                              animate={{ rotate: 360 }}
+                              transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+                              className="absolute inset-0 rounded-full border-[3px] border-transparent border-t-slate-800 border-r-slate-800 border-b-slate-400 opacity-80"
+                            />
+                            <span className="material-symbols-outlined text-slate-800 z-10 text-2xl drop-shadow-sm">wifi_tethering</span>
+                          </div>
+                          <div className="flex flex-col items-center mt-2 space-y-1">
+                            <span className="font-label-lg font-bold text-slate-800 tracking-wide">Secure Connection</span>
+                            <span className="text-xs text-slate-500 font-medium animate-pulse">Awaiting wallet approval...</span>
+                          </div>
                         </>
                       ) : (
                         <motion.div 
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ type: 'spring', bounce: 0.5 }}
-                          className="flex flex-col items-center gap-4"
+                          initial={{ scale: 0.8, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ type: 'spring', bounce: 0.6 }}
+                          className="flex flex-col items-center gap-5 relative"
                         >
-                          <div className="w-16 h-16 rounded-full bg-green-500 text-white flex items-center justify-center shadow-[0_10px_30px_-5px_rgba(34,197,94,0.5)]">
-                            <span className="material-symbols-outlined text-4xl font-bold">check</span>
+                          <motion.div 
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ delay: 0.1, type: "spring", stiffness: 200, damping: 10 }}
+                            className="absolute inset-0 bg-green-400/20 rounded-full blur-xl"
+                          />
+                          <motion.div 
+                            animate={{ y: [0, -4, 0] }}
+                            transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+                            className="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 text-white flex items-center justify-center shadow-lg shadow-green-500/30 relative z-10 border-4 border-white"
+                          >
+                            <span className="material-symbols-outlined text-4xl font-black drop-shadow-md">
+                              verified
+                            </span>
+                          </motion.div>
+                          <div className="flex flex-col items-center">
+                            <span className="font-headline-md font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-green-800 tracking-tight">Connected!</span>
+                            <span className="text-xs text-green-700/80 font-medium mt-1">Wallet successfully synced</span>
                           </div>
-                          <span className="font-headline-md font-bold text-green-600">Connected!</span>
                         </motion.div>
                       )}
                     </motion.div>
@@ -674,7 +711,10 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
                           <div className="w-12 h-12 rounded-[1rem] bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white font-bold text-xl shadow-inner shadow-black/20 group-hover:scale-110 transition-transform duration-300">
                             1
                           </div>
-                          <span className="font-label-lg font-bold text-slate-800 tracking-wide">1A.M. Wallet</span>
+                          <div className="flex flex-col items-start text-left">
+                            <span className="font-label-lg font-bold text-slate-800 tracking-wide leading-tight">1A.M. Wallet</span>
+                            <span className="text-[9px] font-black text-green-600 uppercase tracking-widest mt-0.5 opacity-90">Recommended</span>
+                          </div>
                         </div>
                         <span className="material-symbols-outlined text-slate-300 group-hover:text-slate-800 transition-colors transform group-hover:translate-x-1 duration-300">arrow_forward</span>
                       </motion.button>
