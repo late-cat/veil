@@ -91,7 +91,7 @@ export default function Home() {
           className="w-full max-w-4xl felt-texture bg-[var(--color-cotton-pink)] rounded-[3rem] puffy-shadow p-8 sm:p-16 flex flex-col gap-8 items-center text-center relative z-10 mx-auto"
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/40 inset-puffy shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+            <span className="w-2 h-2 rounded-full bg-green-500"></span>
             <span className="font-label-lg text-slate-800 font-bold uppercase tracking-widest text-xs drop-shadow-sm">Midnight Network Active</span>
           </div>
 
@@ -238,7 +238,7 @@ export default function Home() {
             </motion.div>
 
             <motion.div whileHover={{ y: -5 }} className="bg-white p-10 rounded-[2rem] puffy-shadow flex flex-col items-center text-center gap-4 felt-texture group">
-              <div className="w-16 h-16 rounded-2xl bg-[var(--color-cotton-blue)] flex items-center justify-center inset-puffy text-blue-600 mb-6 group-hover:scale-110 transition-transform shadow-sm mx-auto sm:mx-0">
+              <div className="w-16 h-16 rounded-full bg-white/50 flex items-center justify-center inset-puffy text-slate-800 mb-6 group-hover:scale-110 transition-transform shadow-sm mx-auto sm:mx-0">
                 <span className="material-symbols-outlined text-3xl">add_circle</span>
               </div>
               <h3 className="font-headline-md font-bold text-slate-900 mb-3 drop-shadow-sm text-xl">1. Build Survey</h3>
