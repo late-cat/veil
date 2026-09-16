@@ -722,29 +722,67 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
                         </>
                       ) : (
                         <motion.div 
-                          initial={{ scale: 0.8, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ type: 'spring', bounce: 0.6 }}
-                          className="flex flex-col items-center gap-5 relative"
+                          key="success"
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          className="flex flex-col items-center justify-center py-4 gap-6"
                         >
-                          <motion.div 
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ delay: 0.1, type: "spring", stiffness: 200, damping: 10 }}
-                            className="absolute inset-0 bg-green-400/20 rounded-full blur-xl"
-                          />
-                          <motion.div 
-                            animate={{ y: [0, -4, 0] }}
-                            transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                            className="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 text-white flex items-center justify-center shadow-lg shadow-green-500/30 relative z-10 border-4 border-white"
-                          >
-                            <span className="material-symbols-outlined text-4xl font-black drop-shadow-md">
-                              verified
-                            </span>
-                          </motion.div>
+                          <div className="relative w-24 h-24 flex items-center justify-center">
+                            {/* Premium pulsing background rings */}
+                            <motion.div 
+                              initial={{ scale: 0.8, opacity: 0 }}
+                              animate={{ scale: 1.5, opacity: 0 }}
+                              transition={{ repeat: Infinity, duration: 2.5, ease: "easeOut" }}
+                              className="absolute inset-0 rounded-full bg-slate-300/30"
+                            />
+                            <motion.div 
+                              initial={{ scale: 0.8, opacity: 0 }}
+                              animate={{ scale: 1.25, opacity: 0 }}
+                              transition={{ repeat: Infinity, duration: 2.5, delay: 0.5, ease: "easeOut" }}
+                              className="absolute inset-0 rounded-full bg-[var(--color-cotton-blue)]/40"
+                            />
+                            
+                            {/* Inset wrapper matching theme */}
+                            <motion.div 
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ type: "spring", stiffness: 250, damping: 15 }}
+                              className="relative z-10 w-20 h-20 bg-white rounded-full puffy-shadow inset-puffy flex items-center justify-center"
+                            >
+                              {/* Animated Checkmark SVG */}
+                              <svg className="w-8 h-8 text-blue-600 drop-shadow-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <motion.path
+                                  d="M5 13L9 17L19 7"
+                                  stroke="currentColor"
+                                  strokeWidth="3.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  initial={{ pathLength: 0, opacity: 0 }}
+                                  animate={{ pathLength: 1, opacity: 1 }}
+                                  transition={{ duration: 0.6, ease: "easeOut", delay: 0.3 }}
+                                />
+                              </svg>
+                            </motion.div>
+                          </div>
+
                           <div className="flex flex-col items-center">
-                            <span className="font-headline-md font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-green-800 tracking-tight">Connected!</span>
-                            <span className="text-xs text-green-700/80 font-medium mt-1">Wallet successfully synced</span>
+                            <motion.span 
+                              initial={{ opacity: 0, y: 5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 0.5 }}
+                              className="font-headline-md font-bold text-slate-800 tracking-tight text-xl drop-shadow-sm"
+                            >
+                              Wallet Connected
+                            </motion.span>
+                            <motion.span 
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: 0.7 }}
+                              className="text-[10px] text-slate-500 font-bold mt-1.5 tracking-[0.2em] uppercase"
+                            >
+                              Secure Session Active
+                            </motion.span>
                           </div>
                         </motion.div>
                       )}
