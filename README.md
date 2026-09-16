@@ -110,7 +110,7 @@ The network verifies the proof and updates the public tally, but remains complet
 </details>
 
 ### 3. Verified ZK-Proof Submission on Preprod
-*Official Midnight Explorer verification proving the successful submission of a Zero-Knowledge Proof to the Preprod network. Transaction Hash: [`3a80a8b44e740cd85c0d96d2ce225518a27c69c455e41e3ced43f7d2be21d755`](https://preprod.midnightexplorer.com/transactions/3a80a8b44e740cd85c0d96d2ce225518a27c69c455e41e3ced43f7d2be21d755).*
+*Official Midnight Explorer verification proving the successful submission of a Zero-Knowledge Proof to the Preprod network. Transaction Hash: [`0x6d366cb59ccaa9eafa963d6335a42ce40323417b4bf3db78e0c09a8288b523e8`](https://preprod.midnightexplorer.com/transactions/0x6d366cb59ccaa9eafa963d6335a42ce40323417b4bf3db78e0c09a8288b523e8).*
 <details open>
 <summary><b>View Successful Transaction</b></summary>
 <br>

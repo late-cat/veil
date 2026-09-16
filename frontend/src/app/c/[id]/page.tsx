@@ -131,7 +131,21 @@ export default function CampaignSurvey() {
   };
 
   if (stage === 'LOADING') return <div className="min-h-screen bg-[var(--color-cotton-bg)] flex items-center justify-center font-headline-md text-slate-600 animate-pulse felt-texture">Loading secure connection...</div>;
-  if (stage === 'NOT_FOUND') return <div className="min-h-screen bg-[var(--color-cotton-bg)] flex flex-col items-center justify-center text-center p-8 felt-texture"><h2 className="font-headline-xl text-slate-900 font-bold drop-shadow-md">Survey Not Found</h2><p className="font-body-lg text-slate-700 mt-2 font-medium">The link is invalid or the survey has been closed.</p></div>;
+  if (stage === 'NOT_FOUND') return (
+    <div className="min-h-screen bg-[var(--color-cotton-bg)] flex flex-col items-center justify-center text-center p-8 felt-texture">
+      <h2 className="font-headline-xl text-slate-900 font-bold drop-shadow-md">Survey Not Found</h2>
+      <p className="font-body-lg text-slate-700 mt-2 font-medium max-w-md">
+        The link is invalid, the survey has been closed, or it is still propagating.
+      </p>
+      <button 
+        onClick={() => window.location.reload()}
+        className="mt-6 font-label-md font-bold text-white bg-slate-900 hover:bg-slate-800 px-6 py-3 rounded-xl inset-puffy transition-all flex items-center gap-2 group"
+      >
+        <span className="material-symbols-outlined text-[18px] group-hover:rotate-180 transition-transform duration-500">refresh</span>
+        Force Refresh
+      </button>
+    </div>
+  );
 
   return (
     <div className="w-full flex-1 flex flex-col relative pb-16">
