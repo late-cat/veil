@@ -791,7 +791,7 @@ export function MidnightProvider({ children }: { children: React.ReactNode }) {
                               {proofServerStatus === 'ready' && (
                                 <>
                                   <span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_4px_rgba(34,197,94,0.6)]"></span>
-                                  <span className="text-[9px] font-black text-green-600 uppercase tracking-widest">Engine Ready</span>
+                                  <span className="text-[9px] font-black text-green-600 uppercase tracking-widest">Proof Server Ready</span>
                                 </>
                               )}
                               {proofServerStatus === 'error' && (
