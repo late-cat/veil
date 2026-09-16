@@ -1,9 +1,9 @@
 <div align="center">
   <img src="./frontend/src/img/veil-logo.jpg" alt="VEIL Logo" width="120" style="border-radius: 12px; margin-bottom: 20px;" />
-  <h1>✦ VEIL Platform ✦</h1>
+  <h1>✦ VEIL Protocol ✦</h1>
   
   <p align="center">
-    <strong>A Decentralized, ZK-Verified Survey Platform built on the Midnight Blockchain.</strong>
+    <strong>A Decentralized, ZK-Verified Survey Protocol built on the Midnight Blockchain.</strong>
   </p>
   
   [![CI/CD Status](https://github.com/late-cat/veil/actions/workflows/ci.yml/badge.svg)](https://github.com/late-cat/veil/actions)
@@ -23,29 +23,25 @@
 *   **▤ GitHub Repository**: [https://github.com/late-cat/veil](https://github.com/late-cat/veil)
 *   **⌁ Live Demo**: [https://veil-three-amber.vercel.app/](https://veil-three-amber.vercel.app/)
 *   **▷ Demo Video**: [Watch on YouTube](https://youtu.be/CxdFbR8Xeio)
-*   **☰ Product Proposal**: [View Approved Idea Document](./docs/PROPOSAL.md)
 *   **⚙ Smart Contract**: [`survey.compact`](./backend/contracts/survey.compact)
-*   **⌖ Contract Address**: [`0x7971fa81bb4af823994172ff4bc09fc0a45dfcc472b49a0b7c7b6d183e0b212f`](https://preprod.midnightexplorer.com/contracts/0x7971fa81bb4af823994172ff4bc09fc0a45dfcc472b49a0b7c7b6d183e0b212f) *(Note: Due to known faults on the Midnight Explorer's end, you may need to access this link via a private network/VPN or Cloudflare DNS).*
+*   **⌖ Contract Address**: [`0x7971fa81bb4af823994172ff4bc09fc0a45dfcc472b49a0b7c7b6d183e0b212f`](https://preprod.midnightexplorer.com/contracts/0x7971fa81bb4af823994172ff4bc09fc0a45dfcc472b49a0b7c7b6d183e0b212f) *(Note: Access via a private network/VPN or Cloudflare DNS if the explorer times out).*
 
 ---
 
 ## ✧ THE VISION: PROBLEM & SOLUTION
 
 ### ◈ The Problem: The Chilling Effect of Centralized Data Collection
-Organizations, DAOs, and enterprise HR departments desperately require honest, unfiltered feedback to make informed decisions. However, participants are often terrified to provide genuine, critical responses due to a fundamental lack of privacy. 
-
-Traditional Web2 survey tools (like Google Forms or SurveyMonkey) hold the master keys to the database. This means the platform—or the organization paying for it—can easily de-anonymize respondents by cross-referencing access logs, IP addresses, timestamps, or email metadata. This inherent lack of trust creates a **chilling effect on honesty**. If users feel their identity might be exposed, they will either self-censor their true opinions or refuse to participate entirely.
+Organizations desperately require honest feedback to make informed decisions. However, participants often fear providing genuine, critical responses due to a fundamental lack of privacy. Traditional Web2 tools (Google Forms, SurveyMonkey) hold the master keys to the database, allowing organizations to de-anonymize respondents via access logs, IP addresses, or metadata. This inherent lack of trust creates a **chilling effect on honesty**.
 
 ### ◈ The Solution: VEIL & Zero-Knowledge Cryptography
-**VEIL** fundamentally changes the paradigm of data collection by mathematically guaranteeing participant privacy. Instead of trusting a centralized database not to look at the logs, VEIL enforces privacy at the protocol level by completely separating the **Proof of Eligibility** from the **Survey Data**.
+**VEIL** changes the paradigm of data collection by mathematically guaranteeing participant privacy. Built natively on the Midnight blockchain, VEIL leverages a **Selective Disclosure** architecture.
 
-Built natively on the Midnight blockchain, VEIL leverages a powerful **Selective Disclosure** architecture. When a user submits feedback, their identity and wallet address never touch the public ledger. Instead, the Lace/1A.M. wallet computes a Zero-Knowledge Proof (ZKP) locally on the user's device. 
+When a user submits feedback, their identity (Wallet ID) and the feedback content are completely shielded. Instead, VEIL computes a Zero-Knowledge Proof (ZKP) natively inside the client's browser using the `@midnight-ntwrk/midnight-js-protocol` SDK.
 
-This local proof cryptographically guarantees to the `survey.compact` smart contract that:
-1. The user holds a valid eligibility token to participate in this specific campaign.
-2. The user has not voted previously (enforced via a mathematically unique **Nullifier**).
-
-The network verifies the proof and updates the public tally, but remains completely blind to *who* actually submitted the transaction. By utilizing Midnight's distinct separation of **Public State** and **Private Witness**, VEIL allows organizations to collect 100% Sybil-resistant, verifiable feedback without ever compromising the individual's identity.
+**Technical Implementation:**
+1. **The Smart Contract:** The core ZK logic is implemented in [`backend/contracts/survey.compact`](./backend/contracts/survey.compact). The `submitFeedback` circuit accepts a public `campaignId` and a private `secretEligibilityHash`. 
+2. **The Nullifier Generation:** In [`frontend/src/providers/MidnightProvider.tsx`](./frontend/src/providers/MidnightProvider.tsx), the application generates a cryptographically secure 32-byte `Uint8Array` seed via `crypto.getRandomValues(arr)`. This seed acts as a persistent private witness stored in the browser state, completely decoupled from the user's public Lace/1A.M. wallet address.
+3. **The Proof:** The network verifies the ZK proof, allowing the `survey.compact` ledger to update the public tally and record the nullifier, thereby preventing double-voting without ever learning *who* actually voted.
 
 ---
 
@@ -53,46 +49,44 @@ The network verifies the proof and updates the public tally, but remains complet
 
 ### ☽ Level 1 Submission Requirements
 
-| Requirement | Technical Status & Implementation Proof |
-| :--- | :--- |
-| **Toolchain & Compile** | ✓ **Done.** Installed `@midnight-ntwrk/compact-compiler`. The multi-tenant `survey.compact` circuit successfully compiles into ZK parameters via our CI pipeline. |
-| **Passing Test Suite** | ✓ **Done.** Implemented 3 native AST execution tests in `tests/survey.test.ts` using `@midnight-ntwrk/compact-runtime`. Tests execute circuit logic directly, verify state transitions, and enforce strict cryptographic boundaries. |
-| **Managed Directory** | ✓ **Done.** Successfully generated `managed/survey/` directory containing the BZKIR bytecodes, prover keys (`.pk`), and verifier keys (`.vk`). |
-| **Contract Deployed** | ✓ **Done.** Successfully deployed to Preprod with a verified visible contract address (`0x7971fa...`). Proved via the Explorer screenshot below. |
-| **Privacy Explanation** | ✓ **Done.** Comprehensive breakdown of the Privacy Model (Public State vs. Private Witness) is documented below. |
-| **Product Idea** | ✓ **Done.** Fully outlined in the "Vision" section above. |
-| **Meaningful Commits** | ✓ **Done.** Exceeded the minimum 5 commits with **141 semantic commits** demonstrating iterative progress. |
-| **Genuine CI Compiler** | ✓ **Done.** The CI workflow uses the real `compact-installer.sh` pinned to v0.31.1 (matching our `0.16.0` runtime dependencies). No dummy bypass scripts are used. |
-| **Required Screenshots** | ✓ **Done.** Compile output and Preprod deployment screenshots provided in the Deliverables section. |
+| Requirement | Technical Status | Implementation & Evidence |
+| :--- | :--- | :--- |
+| **Toolchain & Compile** | ✓ **Verified** | Installed `@midnight-ntwrk/compact-compiler`. The `survey.compact` circuit successfully compiles to ZK parameters via the `npm run compile` command inside the backend. |
+| **Passing Test Suite** | ✓ **Verified** | 3 native AST execution tests passing in [`backend/tests/survey.test.ts`](./backend/tests/survey.test.ts) using `@midnight-ntwrk/compact-runtime`. |
+| **Managed Directory** | ✓ **Verified** | Output generated at [`backend/contracts/managed/survey/`](./backend/contracts/managed/survey/) containing BZKIR bytecodes and prover/verifier keys. |
+| **Contract Deployed** | ✓ **Verified** | Deployed to Preprod. Contract address: `0x7971fa81bb4af823994172ff4bc09fc0a45dfcc472b49a0b7c7b6d183e0b212f`. |
+| **Privacy Explanation** | ✓ **Verified** | Comprehensive breakdown of the Privacy Model (Public State vs. Private Witness) is detailed in the section below. |
+| **Product Idea** | ✓ **Verified** | Fully outlined in the "Vision: Problem & Solution" section above. |
+| **Meaningful Commits** | ✓ **Verified** | High commit frequency demonstrating iterative, semantic progress on GitHub. |
 
 ### ◐ Level 2 Submission Requirements
 
-| Requirement | Technical Status & Implementation Proof |
-| :--- | :--- |
-| **Wallet Connect/Disconnect** | ✓ **Done.** Implemented robust wallet connection logic in the `MidnightProvider.tsx` context using the DApp Connector API `window.midnight.mnLace`. |
-| **Circuit Called from Frontend**| ✓ **Done.** The `submitFeedback` circuit is successfully invoked in the browser. The frontend provider serializes inputs into the SDK, triggering the Lace/1AM wallet to generate a local ZK proof. |
-| **Observable Privacy Behavior** | ✓ **Done.** We implemented **Nullifiers**. The circuit cryptographically hashes the wallet state to generate a unique nullifier per campaign. If a user tries to vote twice, the smart contract rejects the transaction, yet the ledger *never learns* which specific wallet attempted the double vote. |
-| **Live Demo Link** | ✓ **Done.** Deployed edge-compatible Next.js frontend to Vercel: [https://veil-three-amber.vercel.app/](https://veil-three-amber.vercel.app/) |
-| **Demo Video Link** | ✓ **Done.** Video uploaded to YouTube and linked at the top of the README. |
+| Requirement | Technical Status | Implementation & Evidence |
+| :--- | :--- | :--- |
+| **Wallet Connect** | ✓ **Verified** | Robust connection logic utilizing `window.midnight.mnLace` and `window.midnight.mn1am` implemented in [`MidnightProvider.tsx`](./frontend/src/providers/MidnightProvider.tsx). |
+| **Circuit Called from Frontend**| ✓ **Verified** | The `submitFeedback` circuit is invoked via `providers.midnightProvider.submitTx()` in [`frontend/src/app/c/[id]/page.tsx`](./frontend/src/app/c/[id]/page.tsx). |
+| **Observable Privacy** | ✓ **Verified** | Double-vote prevention via **ZK Nullifiers**. If a browser seed attempts to vote twice, the smart contract (`survey.compact`) asserts a nullifier collision and mathematically rejects the transaction without learning the user's identity. |
+| **Live Demo Link** | ✓ **Verified** | Deployed Edge-compatible Next.js frontend to Vercel: [https://veil-three-amber.vercel.app/](https://veil-three-amber.vercel.app/). |
+| **Demo Video Link** | ✓ **Verified** | High-quality walkthrough video provided in the Quick Links section. |
 
 ### ❂ Level 3 Submission Requirements
 
-| Requirement | Technical Status & Implementation Proof |
-| :--- | :--- |
-| **Functional dApp Integration** | ✓ **Done.** Fully integrated the Midnight JS SDK, allowing users to autonomously launch campaigns and collect shielded feedback natively on the Preprod network. |
-| **Minimum 3 Tests Passing** | ✓ **Done.** We have 3/3 native AST execution tests passing. Using `@midnight-ntwrk/compact-runtime`, the tests initialize private state (`createConstructorContext`) and physically execute the `submitFeedback` circuit logic against the AST—including bounds testing via `assert.throws`. |
-| **CI/CD Pipeline Running** | ✓ **Done.** Configured `.github/workflows/ci.yml` to automatically install the Compact compiler (pinned to `0.31.1` to match our `0.16.0` runtime), compile the contract, and run the test suite. No stub scripts are used. |
-| **Approved Idea Submitted** | ✓ **Done.** The project strictly aligns with the "Anonymous Feedback/Surveys" category from the official idea list. Proposal attached in `docs/PROPOSAL.md`. |
-| **Test Output Screenshot** | ✓ **Done.** The passing test suite output is now embedded directly in the Deliverables section below. |
-| **CI/CD Badge** | ✓ **Done.** Active GitHub Actions badge integrated at the very top of this README. |
-| **Privacy Model "Observer"** | ✓ **Done.** Explicitly detailed in the Privacy Model section below exactly what a passive observer can and cannot learn from the ledger. |
+| Requirement | Technical Status | Implementation & Evidence |
+| :--- | :--- | :--- |
+| **Functional dApp Integration** | ✓ **Verified** | Fully integrated the Midnight JS SDK. Vercel Blob persistent storage (`api/db.ts`) allows users to launch dynamic campaigns and collect shielded feedback natively on Preprod. |
+| **Min 3 Tests Passing** | ✓ **Verified** | 3/3 native AST execution tests passing. Verified via CI/CD. |
+| **CI/CD Pipeline Running** | ✓ **Verified** | Configured `.github/workflows/ci.yml` running `npm install`, `npm run compile`, and `npm test` automatically. |
+| **Approved Idea Submitted** | ✓ **Verified** | The project strictly aligns with the "Anonymous Feedback/Surveys" hackathon category. |
+| **Privacy Model "Observer"** | ✓ **Verified** | Detailed in the Privacy Model section explaining exact ledger exposure vs cryptographic shielding. |
 
 ---
 
 ## ✧ CHECKPOINT DELIVERABLES: DEPLOYMENT PROOFS
 
-### 1. Successful Contract Compilation
-*Terminal output verifying the successful compilation of the ZK circuits and generation of proving/verification keys.*
+### 1. Compile Output & ZK Circuit Generation
+The smart contract was compiled using `@midnight-ntwrk/compact-compiler v0.31.1`.
+**Command executed:** `npx compactc survey.compact -o managed/survey`
+**Result:** Successfully generated the BZKIR bytecodes, prover keys (`.pk`), and verifier keys (`.vk`) for the `submitFeedback` circuit. These files reside in the `backend/contracts/managed` directory and are natively bundled into the frontend via the `sync-zk.mjs` script during build.
 <details open>
 <summary><b>View Compile Output</b></summary>
 <br>
@@ -100,17 +94,11 @@ The network verifies the proof and updates the public tally, but remains complet
 ![Compile Output](./frontend/src/img/compile-ss.png)
 </details>
 
-### 2. Verified Preprod Network Deployment
-*Official Midnight Explorer verification proving the smart contract is fully deployed and active on the Preprod blockchain at address **`0x7971fa81bb4af823994172ff4bc09fc0a45dfcc472b49a0b7c7b6d183e0b212f`**. The contract was deployed on **September 12, 2026**.*
-<details open>
-<summary><b>View Deployment Success</b></summary>
-<br>
+### 2. Verified ZK-Proof Submission on Preprod
+**Transaction Hash:** [`0x6d366cb59ccaa9eafa963d6335a42ce40323417b4bf3db78e0c09a8288b523e8`](https://preprod.midnightexplorer.com/transactions/0x6d366cb59ccaa9eafa963d6335a42ce40323417b4bf3db78e0c09a8288b523e8)
 
-![Deployed Contract 0x7971fa81bb4af823994172ff4bc09fc0a45dfcc472b49a0b7c7b6d183e0b212f](./frontend/src/img/deployed-contract-latest.png)
-</details>
-
-### 3. Verified ZK-Proof Submission on Preprod
-*Official Midnight Explorer verification proving the successful submission of a Zero-Knowledge Proof to the Preprod network. Transaction Hash: [`0x6d366cb59ccaa9eafa963d6335a42ce40323417b4bf3db78e0c09a8288b523e8`](https://preprod.midnightexplorer.com/transactions/0x6d366cb59ccaa9eafa963d6335a42ce40323417b4bf3db78e0c09a8288b523e8).*
+*What happened on-chain?* 
+The transaction successfully invoked the `submitFeedback` circuit. The Midnight network verified the Zero-Knowledge proof generated locally on the client. It securely updated the `campaigns` tally increment and permanently added the user's secret hash to the `nullifiers` set, thereby preventing replay attacks or double-voting without exposing the wallet's identity.
 <details open>
 <summary><b>View Successful Transaction</b></summary>
 <br>
@@ -118,8 +106,32 @@ The network verifies the proof and updates the public tally, but remains complet
 ![Successful Transaction](./frontend/src/img/sucessfull-txn.png)
 </details>
 
-### 4. Passing Test Suite (Level 3)
-*Terminal output proving 3+ successful passing tests for the Smart Contract invariants.*
+---
+
+## ✧ LACE WALLET INTEGRATION & HTTP PROOF SERVER WORKAROUND
+
+### The Challenge
+During development, we discovered a significant integration disparity: The **1A.M. Wallet** natively supports an in-browser proving provider (`api.getProvingProvider(zkConfig)`), which computes ZK-SNARKs directly inside the browser extension. However, the **Lace Wallet** currently lacks this capability and throws a `TypeError` if invoked natively for client-side proving.
+
+### The Technical Solution
+To ensure flawless compatibility with the Lace Wallet, we implemented a dynamic fallback architecture in [`MidnightProvider.tsx`](./frontend/src/providers/MidnightProvider.tsx):
+1. **Wallet Detection:** The application sniffs the DApp connector identity (`walletId === 'lace'`).
+2. **Proof Server Fallback:** If Lace is detected, we bypass the native API and instantiate the `@midnight-ntwrk/midnight-js-testing` package's `httpClientProofProvider`.
+3. **Remote Proving Engine:** We deployed the official Midnight Proof Server (`midnightntwrk/proof-server:8.1.0`) on a remote Render instance. The frontend seamlessly serializes the unproven transaction, sends an HTTP POST request to the remote server to synthesize the ZK-SNARK, and successfully submits the returned proof.
+
+---
+
+## ✧ PASSING SUITE — LEVEL 3
+
+The project utilizes the `@midnight-ntwrk/compact-runtime` to natively execute the contract Abstract Syntax Tree (AST) within the Node.js test environment.
+
+**File:** [`backend/tests/survey.test.ts`](./backend/tests/survey.test.ts)
+
+**Validated Invariants:**
+1. **Successful State Transition:** Verifies that `contract.circuits.submitFeedback` successfully executes against a mock ledger state and generates valid `proofData` when supplied with valid parameters.
+2. **Strict Cryptographic Boundaries (Negative Test):** Submits an invalid 31-byte Campaign ID array, verifying that `assert.throws` accurately catches the `expected value of type Bytes<32>` error, proving the circuit's type safety.
+3. **Private State Initialization:** Validates that `createConstructorContext` correctly initializes the private ledger schema without data leaks.
+
 <details open>
 <summary><b>View Test Output</b></summary>
 <br>
@@ -127,8 +139,17 @@ The network verifies the proof and updates the public tally, but remains complet
 ![Test Output](./frontend/src/img/test-output.png)
 </details>
 
-### 5. Unified CI/CD Pipeline (Level 3)
-*GitHub Actions dashboard verifying the automated testing and build processes.*
+---
+
+## ✧ UNIFIED CI/CD PIPELINE
+
+**File:** [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
+
+Our continuous integration pipeline automatically validates every push to the repository to ensure cryptographic stability:
+- **Build Step:** Installs all Next.js and Midnight SDK dependencies.
+- **Circuit Compilation:** Downloads and executes `compact-installer.sh`, executing the Compact Compiler natively on the Ubuntu runner to ensure `survey.compact` successfully compiles into ZK parameters.
+- **AST Execution:** Executes `npm test`, running the `node:test` suite against the freshly compiled bytecodes to guarantee no regressions in the contract logic.
+
 <details open>
 <summary><b>View CI/CD Pipeline</b></summary>
 <br>
@@ -138,12 +159,10 @@ The network verifies the proof and updates the public tally, but remains complet
 
 ---
 
-## ✧ SEAMLESS MOBILE UX (RESPONSIVE DESIGN)
+## ✧ SEAMLESS MOBILE UX
 
 VEIL Protocol is fully optimized for mobile devices. We implemented native responsive layouts, including touch-optimized hamburger menus for the main navigation and the dashboard sidebar, ensuring the entire dApp works perfectly on smartphones.
 
-### 6. Mobile Responsiveness Showcase
-*Screenshots demonstrating the native mobile layout and custom aesthetic hamburger menus.*
 <details open>
 <summary><b>View Mobile Layouts</b></summary>
 <br>
@@ -158,42 +177,55 @@ VEIL Protocol is fully optimized for mobile devices. We implemented native respo
 
 ## ✧ PRIVACY MODEL: WHAT AN OBSERVER CAN AND CANNOT LEARN
 
-VEIL strictly adheres to Midnight's Selective Disclosure capabilities. Here is exactly what is exposed and what is shielded when a transaction is broadcasted to the network:
+VEIL strictly adheres to Midnight's Selective Disclosure architecture.
 
 ### ◉ PUBLIC STATE (What an Observer CAN Learn)
-- **Campaign Exists:** An observer can see that a new survey campaign was created and can view its unique 32-byte Campaign ID.
-- **Participation Volume:** An observer can read the `campaigns: Map<Bytes<32>, Uint<32>>` ledger to see *how many* people have submitted feedback to a specific campaign.
+- **Campaign Exists:** An observer can read the `campaigns` mapping on the ledger to see the 32-byte Campaign ID and the public tally of total participants.
 - **Nullifier Set:** An observer can see a list of random 32-byte hashes added to the `nullifiers` set, indicating that *someone* has voted.
 
 ### ◉ PRIVATE WITNESS (What an Observer CANNOT Learn)
-- **Participant Identity:** The observer **cannot** link a submission to a specific wallet address. The identity is protected by a dynamically generated, cryptographically secure 32-byte random seed stored strictly in the user's local browser environment (`localStorage`). This seed acts as a persistent private witness to generate the ZK nullifier, meaning identity is never published on-chain or shared.
-- **The Feedback Content:** The observer **cannot** read the actual feedback text. The platform implements a true **Hybrid Asymmetric Encryption** architecture using `RSA-OAEP` and `AES-256-GCM`. When a campaign is created, a unique RSA key pair is dynamically generated for the Issuer. During a survey submission, a random, single-use AES key encrypts the feedback payload. Then, the Issuer's RSA Public Key cryptographically wraps that AES key. The payload is safely stored off-chain, remaining mathematically unreadable to everyone (including the server) except the Campaign Issuer holding the private key.
-- **Double-Voting Attempts:** The observer **cannot** know *who* attempted to double-vote. They only see that an anonymous transaction was mathematically rejected by the smart contract due to a zero-knowledge nullifier collision.
+- **Participant Identity:** The identity is protected by a dynamically generated, cryptographically secure 32-byte random seed (`crypto.getRandomValues()`) stored strictly in the user's browser `localStorage`. This seed acts as a persistent private witness to generate the ZK nullifier. The Wallet Address is NEVER exposed on-chain.
+- **The Feedback Content:** The platform implements a **Hybrid Asymmetric Encryption** architecture. In [`frontend/src/app/c/[id]/page.tsx`](./frontend/src/app/c/[id]/page.tsx), a random AES-256-GCM key encrypts the actual feedback payload. That AES key is then cryptographically wrapped using the Campaign Issuer's RSA-OAEP Public Key. The encrypted ciphertext is stored off-chain in our database, making it mathematically unreadable to everyone—including VEIL servers—except the specific Issuer holding the private key.
+- **Double-Voting Attempts:** Observers only see that an anonymous transaction was mathematically rejected by the smart contract due to a zero-knowledge nullifier collision. They cannot determine *who* attempted the double-vote.
+
+---
 
 ## ✧ HIGH-LEVEL SYSTEM ARCHITECTURE
 
 ```mermaid
 sequenceDiagram
     participant I as Issuer
+    participant DB as Vercel Blob Storage
     participant N as Midnight Preprod
-    participant P as Participant
+    participant P as Participant Browser
+    participant PS as Proof Server (Lace Only)
     
-    I->>N: "Deploy survey.compact"
-    I->>P: "Share Campaign Link"
-    P->>P: "Compute ZK Proof Locally (1AM Wallet)"
-    P->>N: "Submit Proof & Nullifier"
-    N->>N: "Verify Proof & Update Ledger"
-    N-->>I: "Verifiable Anonymous Tally"
+    I->>DB: Create Campaign (Uploads RSA PubKey)
+    I->>N: Deploy/Register on Ledger
+    P->>DB: Fetch Campaign & PubKey
+    P->>P: Encrypt Feedback (AES) & Wrap Key (RSA)
+    P->>P: Generate 32-byte Secret Witness
+    
+    alt Using 1A.M. Wallet
+        P->>P: Compute ZK-SNARK locally in Extension
+    else Using Lace Wallet
+        P->>PS: Remote API request to synthesize ZK-SNARK
+        PS-->>P: Return valid Proof Data
+    end
+    
+    P->>N: Broadcast ZK Proof & Nullifier
+    N->>N: Verify Proof, Reject if Nullifier exists
+    P->>DB: Save Encrypted Feedback Ciphertext
 ```
 
 ---
 
 ## ✧ TECHNOLOGY STACK
-*   **Frontend**: Next.js 14 + TypeScript + Tailwind CSS
-*   **Contracts**: Midnight Compact (`survey.compact`)
-*   **Integration**: Midnight JS SDK (Wallet API, Proof Provider, Public Data Provider)
-*   **Testing**: TSX Runner for Compact Circuits
-*   **Network**: Midnight Preprod Testnet
+*   **Smart Contracts**: Midnight Compact Compiler (`v0.31.1`)
+*   **Client Architecture**: Next.js 14 (App Router), TypeScript, Tailwind CSS
+*   **Wallet Integration**: `@midnight-ntwrk/midnight-js-protocol`, DApp Connector (`window.midnight.mnLace` & `mn1am`)
+*   **Database Persistence**: `@vercel/blob` Object Storage (via `api/db.ts`)
+*   **Testing**: Node.js Native Test Runner (`node:test`) & `@midnight-ntwrk/compact-runtime`
 
 ---
 
@@ -206,52 +238,53 @@ veil-platform/
 │   │   ├── managed/       # Generated ZK circuits, proving keys, and verification keys
 │   │   └── survey.compact # Core selective disclosure logic
 │   ├── src/               # Deployment and wallet syncing scripts
-│   └── tests/             # Automated test suite validating ZK constraints
+│   └── tests/             # Automated test suite validating ZK constraints (survey.test.ts)
 ├── frontend/
 │   ├── src/app/           # Next.js App Router (Issuer Dashboard, Participant View)
 │   ├── src/providers/     # Midnight Wallet SDK integration context
 │   └── package.json       # Frontend dependencies and Next.js config
-└── .github/workflows/     # GitHub Actions CI/CD pipelines
+└── .github/workflows/     # GitHub Actions CI/CD pipelines (ci.yml)
 ```
 
 ---
 
 ## ✧ SETUP & RUN LOCALLY
 
-To clone and run the VEIL platform locally on your machine, follow these steps:
-
 ### Prerequisites
 1. **Node.js**: Ensure you have Node.js v22 installed.
-2. **Midnight Toolchain**: Ensure you have the `compact-compiler` and Midnight local node tools installed.
-3. **Wallet**: Install the **1A.M. Wallet** (or Lace) browser extension and enable the DApp Connector. (We strongly recommend 1A.M. to avoid DUST balancing issues).
+2. **Docker**: Ensure Docker Desktop is running (required for the Lace Proof Server).
+3. **Midnight Toolchain**: Ensure the `compact-compiler` is installed on your machine.
+4. **Wallet**: Install the **1A.M. Wallet** or **Lace** browser extension.
 
-### Step-by-Step Guide
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/late-cat/veil.git
-   cd veil
-   ```
-2. **Compile the Smart Contract:**
-   Navigate to the backend and build the ZK circuits.
-   ```bash
-   cd backend
-   npm install
-   npm run compile
-   ```
-3. **Run the Test Suite:**
-   Verify the contract invariants by running the tests.
-   ```bash
-   npm test
-   ```
-4. **Launch the Frontend:**
-   Navigate to the frontend directory to start the Next.js server.
-   ```bash
-   cd ../frontend
-   npm install
-   npm run dev
-   ```
-5. **Open the dApp:**
-   Visit `http://localhost:3000` in your browser. Connect your 1A.M. wallet and interact with the Live Preprod campaigns!
+### 1. Boot the Local Proof Server (Required for Lace)
+Navigate to the `backend` directory and spin up the Docker Proof Server infrastructure.
+```bash
+cd backend
+docker compose up -d proof-server
+```
+*Note: This spins up `midnightntwrk/proof-server:8.1.0` on port 6300, matching the version required by the Midnight SDK. It avoids DNS/CORS issues natively without a Vercel proxy.*
+
+### 2. Compile the Smart Contract
+Build the ZK circuits and generate the prover/verifier keys in the `managed/` directory.
+```bash
+npm install
+npm run compile
+```
+
+### 3. Run the ZK Test Suite
+Validate the contract AST execution logic locally.
+```bash
+npm test
+```
+
+### 4. Launch the Next.js Frontend
+Navigate to the `frontend` directory. The `npm run dev` script will automatically execute `sync-zk.mjs` to copy the compiled ZK parameters into the Next.js public directory before booting the server.
+```bash
+cd ../frontend
+npm install
+npm run dev
+```
+Visit `http://localhost:3000` in your browser.
 
 ---
 
