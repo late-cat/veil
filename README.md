@@ -23,6 +23,7 @@
 *   **▤ GitHub Repository**: [https://github.com/late-cat/veil](https://github.com/late-cat/veil)
 *   **⌁ Live Demo**: [https://veil-three-amber.vercel.app/](https://veil-three-amber.vercel.app/)
 *   **▷ Demo Video**: [Watch on YouTube](https://youtu.be/CxdFbR8Xeio)
+*   **🐦 Product X Profile**: [https://x.com/VEIL_midn](https://x.com/VEIL_midn)
 *   **⚙ Smart Contract**: [`survey.compact`](./backend/contracts/survey.compact)
 *   **⌖ Contract Address**: [`0x7971fa81bb4af823994172ff4bc09fc0a45dfcc472b49a0b7c7b6d183e0b212f`](https://preprod.midnightexplorer.com/contracts/0x7971fa81bb4af823994172ff4bc09fc0a45dfcc472b49a0b7c7b6d183e0b212f) *(Note: Access via a private network/VPN or Cloudflare DNS if the explorer times out).*
 
@@ -97,7 +98,7 @@ When a user submits feedback, their identity (Wallet ID) and the feedback conten
 | **Working MVP on Preprod** | ✓ **Verified** | Fully functional dApp deployed to Vercel. Contract `0x7971fa...` live on Midnight Preprod with verifiable on-chain state. |
 | **Documentation (README + Setup + Usage)** | ✓ **Verified** | Comprehensive README with setup instructions. User-facing usage guide at [`docs/USAGE.md`](./docs/USAGE.md). |
 | **CI/CD Pipeline Running** | ✓ **Verified** | `.github/workflows/ci.yml` with genuine Compact Compiler download, circuit compilation, and test execution. CI badge active. |
-| **Product X Profile Created** | ⏳ **Pending** | X profile link will be added here after account creation. |
+| **Product X Profile Created** | ✓ **Verified** | Active X profile established at [https://x.com/VEIL_midn](https://x.com/VEIL_midn) with launch posts. |
 | **Minimum 15 Meaningful Commits** | ✓ **Verified** | 160+ semantic commits demonstrating iterative, genuine development. |
 | **Live Preprod Demo Link** | ✓ **Verified** | [https://veil-three-amber.vercel.app/](https://veil-three-amber.vercel.app/) |
 | **Demo Video of MVP** | ✓ **Verified** | [Watch on YouTube](https://youtu.be/CxdFbR8Xeio) |
@@ -334,9 +335,7 @@ VEIL's detailed product proposal — covering target users, Midnight justificati
 
 ## ✧ PRODUCT X PROFILE
 
-*Link will be added after the X account is created.*
-
-<!-- REPLACE THIS LINE WITH: **🐦 [Follow VEIL on X](https://x.com/YOUR_HANDLE)** -->
+**🐦 [Follow VEIL on X](https://x.com/VEIL_midn)**
 
 ---
 
