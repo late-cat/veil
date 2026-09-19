@@ -90,6 +90,19 @@ When a user submits feedback, their identity (Wallet ID) and the feedback conten
 | **Demo Video (Full Functionality)**| ✓ **Verified** | Walkthrough covers end-to-end functionality from campaign creation to proof synthesis. |
 | **Privacy Model "Observer"** | ✓ **Verified** | Detailed in the Privacy Model section, explicitly stating what a passive observer can and cannot learn. |
 
+### ◑ Level 4 Submission Requirements
+
+| Requirement | Technical Status | Implementation & Evidence |
+| :--- | :--- | :--- |
+| **Working MVP on Preprod** | ✓ **Verified** | Fully functional dApp deployed to Vercel. Contract `0x7971fa...` live on Midnight Preprod with verifiable on-chain state. |
+| **Documentation (README + Setup + Usage)** | ✓ **Verified** | Comprehensive README with setup instructions. User-facing usage guide at [`docs/USAGE.md`](./docs/USAGE.md). |
+| **CI/CD Pipeline Running** | ✓ **Verified** | `.github/workflows/ci.yml` with genuine Compact Compiler download, circuit compilation, and test execution. CI badge active. |
+| **Product X Profile Created** | ⏳ **Pending** | X profile link will be added here after account creation. |
+| **Minimum 15 Meaningful Commits** | ✓ **Verified** | 160+ semantic commits demonstrating iterative, genuine development. |
+| **Live Preprod Demo Link** | ✓ **Verified** | [https://veil-three-amber.vercel.app/](https://veil-three-amber.vercel.app/) |
+| **Demo Video of MVP** | ✓ **Verified** | [Watch on YouTube](https://youtu.be/CxdFbR8Xeio) |
+| **Product Proposal** | ✓ **Verified** | Complete proposal at [`docs/PROPOSAL.md`](./docs/PROPOSAL.md) covering target users, Midnight justification, data model, and mainnet feasibility. |
+
 ---
 
 ## ✧ CHECKPOINT DELIVERABLES: DEPLOYMENT PROOFS
@@ -254,6 +267,11 @@ veil-platform/
 │   ├── src/app/           # Next.js App Router (Issuer Dashboard, Participant View)
 │   ├── src/providers/     # Midnight Wallet SDK integration context
 │   └── package.json       # Frontend dependencies and Next.js config
+├── docs/
+│   ├── PROPOSAL.md        # Product proposal (target users, Midnight justification, data model)
+│   ├── USAGE.md           # User-facing guide (how to create surveys and submit feedback)
+│   └── X_LAUNCH_TWEETS.md # Product X profile launch content
+├── PROPOSAL.md            # Root-level proposal reference
 └── .github/workflows/     # GitHub Actions CI/CD pipelines (ci.yml)
 ```
 
@@ -296,6 +314,30 @@ npm install
 npm run dev
 ```
 Visit `http://localhost:3000` in your browser.
+
+---
+
+## ✧ USAGE GUIDE
+
+For a complete, step-by-step guide on how to use VEIL Protocol — including creating surveys, submitting anonymous feedback, and understanding the privacy guarantees — see:
+
+**📖 [`docs/USAGE.md`](./docs/USAGE.md)**
+
+---
+
+## ✧ PRODUCT PROPOSAL
+
+VEIL's detailed product proposal — covering target users, Midnight justification, data model, and mainnet feasibility — is available at:
+
+**📋 [`docs/PROPOSAL.md`](./docs/PROPOSAL.md)**
+
+---
+
+## ✧ PRODUCT X PROFILE
+
+*Link will be added after the X account is created.*
+
+<!-- REPLACE THIS LINE WITH: **🐦 [Follow VEIL on X](https://x.com/YOUR_HANDLE)** -->
 
 ---
 
