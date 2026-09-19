@@ -269,8 +269,7 @@ veil-platform/
 │   └── package.json       # Frontend dependencies and Next.js config
 ├── docs/
 │   ├── PROPOSAL.md        # Product proposal (target users, Midnight justification, data model)
-│   ├── USAGE.md           # User-facing guide (how to create surveys and submit feedback)
-│   └── X_LAUNCH_TWEETS.md # Product X profile launch content
+│   └── USAGE.md           # User-facing guide (how to create surveys and submit feedback)
 ├── PROPOSAL.md            # Root-level proposal reference
 └── .github/workflows/     # GitHub Actions CI/CD pipelines (ci.yml)
 ```
